@@ -272,3 +272,45 @@ final class OkCancelButtonsView: UICollectionReusableView {
     }
 }
 
+final class LabelSwitchView: UICollectionReusableView {
+    private lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .accent
+        label.font = .systemFont(ofSize: 24)
+        return label
+    }()
+    
+    private lazy var mySwitch = UISwitch()
+    
+    var isOn: Bool { mySwitch.isOn }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+        setupLayouts()
+    }
+    
+    private func setupLayouts() {
+        addSubviews(
+            titleLabel
+                .top(to: top)
+                .leading(to: leading)
+                .bottom(to: bottom),
+            mySwitch
+                .leading(to: titleLabel.trailing, 16)
+                .trailing(to: trailing, -4)
+                .centerY(to: centerY)
+        )
+    }
+    
+    func display(title: String?) { titleLabel.text = title }
+    
+    func display(isSwitchOn: Bool) { mySwitch.isOn = isSwitchOn }
+    
+    func setSwitchValueDidChangeHandler(_ handler: @escaping (UIAction) -> Void) {
+        mySwitch.addAction(.init(handler: handler), for: .valueChanged)
+    }
+}
