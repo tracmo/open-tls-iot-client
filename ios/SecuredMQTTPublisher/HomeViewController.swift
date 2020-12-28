@@ -8,12 +8,19 @@
 
 import UIKit
 
+fileprivate extension Action {
+    var isEmpty: Bool {
+        title.isEmpty && topic.isEmpty && message.isEmpty
+    }
+}
+
 final class HomeViewController: UIViewController {
     struct ButtonConfig: Hashable {
         let id = UUID()
         var isEditing: Bool
         var state: ButtonCell.State
         var action: Action
+        var isHidden: Bool
     }
     
     private enum Layout {
@@ -109,10 +116,12 @@ final class HomeViewController: UIViewController {
                                     cellRegistrationHandler: { buttonCell, _, config in
                                         buttonCell.state = config.state
                                         buttonCell.display(title: config.action.title)
+                                        buttonCell.isHidden = config.isHidden
                                     })
-        let pencilBadgeRegistration = UICollectionView.SupplementaryRegistration<PencilBadge>(elementKind: ElementKind.pencilBadge.rawValue) { [weak self] badge, _, _ in
+        let pencilBadgeRegistration = UICollectionView.SupplementaryRegistration<PencilBadge>(elementKind: ElementKind.pencilBadge.rawValue) { [weak self] badge, _, indexPath in
             guard let self = self else { return }
-            badge.isHidden = !self.isEditing
+            guard let config = self.buttonConfigs[safe: indexPath.item] else { return }
+            badge.isHidden = config.isHidden || !self.isEditing
         }
         dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
             collectionView.dequeueConfiguredReusableSupplementary(using: pencilBadgeRegistration, for: indexPath)
@@ -182,7 +191,10 @@ final class HomeViewController: UIViewController {
          actionsDidChangeHandler: @escaping ([Action]) -> Void) {
         self.actions = actions
         self.actionsDidChangeHandler = actionsDidChangeHandler
-        self.buttonConfigs = actions.map { .init(isEditing: false, state: .normal, action: $0) }
+        self.buttonConfigs = actions.map { .init(isEditing: false,
+                                                 state: .normal,
+                                                 action: $0,
+                                                 isHidden: Core.shared.dataStore.settings.isUnusedButtonHidden && $0.isEmpty) }
         super.init(nibName: nil, bundle: nil)
         setupLayouts()
         displayButtonConfigs()
@@ -262,7 +274,13 @@ final class HomeViewController: UIViewController {
                          animatingDifferences: false)
     }
     
-    private func displaySettings() { titleLabel.text = Core.shared.dataStore.settings.homeTitle }
+    private func displaySettings() {
+        titleLabel.text = Core.shared.dataStore.settings.homeTitle
+        buttonConfigs.mutateEach {
+            let isHidden = Core.shared.dataStore.settings.isUnusedButtonHidden && $0.action.isEmpty
+            $0.isHidden = isHidden
+        }
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -290,6 +308,7 @@ extension HomeViewController: UICollectionViewDelegate {
                     actionDidChangeHandler: { [weak self] in
                         guard let self = self else { return }
                         self.buttonConfigs[safe: buttonConfigIndex]?.action = $0
+                        self.buttonConfigs[safe: buttonConfigIndex]?.isHidden = Core.shared.dataStore.settings.isUnusedButtonHidden && $0.isEmpty
                     }),
                 in: .fullScreen)
     }
