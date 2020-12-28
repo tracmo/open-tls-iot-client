@@ -1,0 +1,29 @@
+PODS:
+  - MQTTClient (0.15.2):
+    - MQTTClient/Core (= 0.15.2)
+  - MQTTClient/Core (0.15.2):
+    - MQTTClient/Manager
+    - MQTTClient/Min
+  - MQTTClient/Manager (0.15.2):
+    - MQTTClient/Min
+  - MQTTClient/Min (0.15.2)
+
+DEPENDENCIES:
+  - "MQTTClient (from `git@github.com:tracmo/MQTT-Client-Framework.git`, commit `5ecfbb4d48a7730ea26b14e1a7beeb3a1f03fd4a`)"
+
+EXTERNAL SOURCES:
+  MQTTClient:
+    :commit: 5ecfbb4d48a7730ea26b14e1a7beeb3a1f03fd4a
+    :git: "git@github.com:tracmo/MQTT-Client-Framework.git"
+
+CHECKOUT OPTIONS:
+  MQTTClient:
+    :commit: 5ecfbb4d48a7730ea26b14e1a7beeb3a1f03fd4a
+    :git: "git@github.com:tracmo/MQTT-Client-Framework.git"
+
+SPEC CHECKSUMS:
+  MQTTClient: 3e783529c3ad835c1ff38e4fc577fe0b479dbd9c
+
+PODFILE CHECKSUM: aaf7973aed1c5da55ad32c99d74eae56a1aa866f
+
+COCOAPODS: 1.10.0
