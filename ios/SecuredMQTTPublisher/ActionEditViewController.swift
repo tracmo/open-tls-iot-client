@@ -46,8 +46,10 @@ final class ActionEditViewController: UIViewController {
         var value: String
     }
     
-    private let textViewTitleViewElementKind = "textViewTitleView"
-    private let okCancelButtonsViewElementKind = "okCancelButtonsView"
+    private enum ElementKind: String {
+        case textViewTitleView
+        case okCancelButtonsView
+    }
     
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -64,7 +66,7 @@ final class ActionEditViewController: UIViewController {
             let okCancelButtonsView = NSCollectionLayoutBoundarySupplementaryItem(
                 layoutSize: .init(widthDimension: .fractionalWidth(1.0),
                                   heightDimension: .absolute(64)),
-                elementKind: self.okCancelButtonsViewElementKind,
+                elementKind: ElementKind.okCancelButtonsView.rawValue,
                 alignment: .bottom)
             if sectionIndex == Section.allCases.indices.last {
                 layoutSection.boundarySupplementaryItems.append(okCancelButtonsView)
@@ -82,7 +84,7 @@ final class ActionEditViewController: UIViewController {
         let textViewTitleView = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: .init(widthDimension: .fractionalWidth(1.0),
                               heightDimension: .absolute(36)),
-            elementKind: textViewTitleViewElementKind,
+            elementKind: ElementKind.textViewTitleView.rawValue,
             alignment: .top)
         let section = NSCollectionLayoutSection(group: group)
         section.boundarySupplementaryItems = [textViewTitleView]
@@ -103,13 +105,13 @@ final class ActionEditViewController: UIViewController {
                 textViewCell.textView.returnKeyType = section.isTextViewOneline ? .done : .default
             })
         let textViewTitleViewRegistration = UICollectionView.SupplementaryRegistration<TextViewTitleView>(
-            elementKind: textViewTitleViewElementKind) { [weak self] textViewTitleView, _, indexPath in
+            elementKind: ElementKind.textViewTitleView.rawValue) { [weak self] textViewTitleView, _, indexPath in
             guard let self = self else { return }
             guard let section = Section.allCases[safe: indexPath.section] else { return }
             textViewTitleView.display(title: section.title)
         }
         let okCancelButtonsViewRegistration = UICollectionView.SupplementaryRegistration<OkCancelButtonsView>(
-            elementKind: okCancelButtonsViewElementKind) { [weak self] okCancelButtonsView, _, _ in
+            elementKind: ElementKind.okCancelButtonsView.rawValue) { [weak self] okCancelButtonsView, _, _ in
             guard let self = self else { return }
             okCancelButtonsView.setOKHandler { [weak self] _ in
                 guard let self = self else { return }
@@ -123,14 +125,14 @@ final class ActionEditViewController: UIViewController {
         }
         dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
             guard let self = self else { return nil }
+            guard let kind = ElementKind(rawValue: kind) else { return nil }
             switch kind {
-            case self.textViewTitleViewElementKind:
+            case .textViewTitleView:
                 return collectionView.dequeueConfiguredReusableSupplementary(using: textViewTitleViewRegistration,
                                                                              for: indexPath)
-            case self.okCancelButtonsViewElementKind:
+            case .okCancelButtonsView:
                 return collectionView.dequeueConfiguredReusableSupplementary(using: okCancelButtonsViewRegistration,
                                                                              for: indexPath)
-            default: return nil
             }
         }
         return dataSource

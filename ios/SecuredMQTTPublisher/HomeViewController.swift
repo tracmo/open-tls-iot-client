@@ -24,7 +24,9 @@ final class HomeViewController: UIViewController {
     
     private typealias DataSource = UICollectionViewDiffableDataSource<Section, ButtonConfig>.SingleCellType<ButtonCell>
     
-    private let pencelBadgeElementKind = "pencilBadge"
+    private enum ElementKind: String {
+        case pencilBadge
+    }
     
     private lazy var utilityButtonsContainer: UIView = {
         let view = UIView()
@@ -86,7 +88,7 @@ final class HomeViewController: UIViewController {
     private lazy var layout: UICollectionViewCompositionalLayout = {
         let pencilBadge = NSCollectionLayoutSupplementaryItem(layoutSize: .init(widthDimension: .absolute(72),
                                                                                 heightDimension: .absolute(72)),
-                                                              elementKind: pencelBadgeElementKind,
+                                                              elementKind: ElementKind.pencilBadge.rawValue,
                                                               containerAnchor: .init(edges: [.top, .trailing],
                                                                                      absoluteOffset: .zero))
         
@@ -108,7 +110,7 @@ final class HomeViewController: UIViewController {
                                         buttonCell.state = config.state
                                         buttonCell.display(title: config.action.title)
                                     })
-        let pencilBadgeRegistration = UICollectionView.SupplementaryRegistration<PencilBadge>(elementKind: pencelBadgeElementKind) { [weak self] badge, _, _ in
+        let pencilBadgeRegistration = UICollectionView.SupplementaryRegistration<PencilBadge>(elementKind: ElementKind.pencilBadge.rawValue) { [weak self] badge, _, _ in
             guard let self = self else { return }
             badge.isHidden = !self.isEditing
         }
