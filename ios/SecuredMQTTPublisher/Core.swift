@@ -11,7 +11,7 @@ import Foundation
 final class Core {
     static let shared = Core()
     
-    let dataStore = DataStore()
+    let dataStore = DataStore.Keychained()
     
     private lazy var client: SMPMQTTClient = MQTTSessionManagerClient()
     
