@@ -1,0 +1,6 @@
+platform :ios, '14.0'
+
+target 'SecuredMQTTPublisher' do
+  use_frameworks!
+  pod 'MQTTClient', :git => 'git@github.com:tracmo/MQTT-Client-Framework.git', :commit => '5ecfbb4d48a7730ea26b14e1a7beeb3a1f03fd4a'
+end
