@@ -1,6 +1,5 @@
 <p align="center">
 	<img src="images/tls_iot_tool.png" width="25%" alt="TLS-IoT-Tools"/>
-	<br/><br/>
 </p> 
 
 # open-tls-iot-client
