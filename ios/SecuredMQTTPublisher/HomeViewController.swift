@@ -63,7 +63,6 @@ final class HomeViewController: UIViewController {
         label.font = .systemFont(ofSize: 64)
         label.textAlignment = .center
         label.textColor = .accent
-        label.text = Core.shared.dataStore.settings.homeTitle
         label.adjustsFontSizeToFitWidth = true
         return label
     }()
@@ -164,9 +163,12 @@ final class HomeViewController: UIViewController {
     
     private var bag: Set<AnyCancellable> = []
     
-    init() {
-        let actions = Core.shared.dataStore.settings.actions
-        buttonConfigs = actions.map { _ in
+    private let core: Core
+    
+    init(core: Core) {
+        self.core = core
+        
+        buttonConfigs = core.dataStore.settings.actions.map { _ in
             .init(title: "",
                   isEditing: false,
                   isHidden: false,
@@ -249,7 +251,7 @@ final class HomeViewController: UIViewController {
         
         buttonConfigs.mutateEach { $1.state = .normal }
         
-        Core.shared.$connectError
+        core.$connectError
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self = self else { return }
@@ -258,23 +260,23 @@ final class HomeViewController: UIViewController {
             }
             .store(in: &bag)
         
-        Core.shared.dataStore.$settings
+        core.dataStore.$settings
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
+            .sink { [weak self] in
                 guard let self = self else { return }
-                self.displaySettings()
+                self.displaySettings($0)
             }
             .store(in: &bag)
     }
     
-    private func displaySettings() {
-        titleLabel.text = Core.shared.dataStore.settings.homeTitle
+    private func displaySettings(_ settings: Settings) {
+        titleLabel.text = settings.homeTitle
         
         buttonConfigs.mutateEach {
-            guard let action = Core.shared.dataStore.settings.actions[safe: $0] else { return }
+            guard let action = settings.actions[safe: $0] else { return }
             $1.title = action.title
             $1.isEditing = isEditing
-            $1.isHidden = Core.shared.dataStore.settings.isUnusedButtonHidden && action.isEmpty
+            $1.isHidden = settings.isUnusedButtonHidden && action.isEmpty
         }
     }
     
@@ -296,7 +298,7 @@ extension HomeViewController: UICollectionViewDelegate {
     
     private func handleButtonSelected(buttonConfigIndex: Int) {
         guard let buttonConfig = buttonConfigs[safe: buttonConfigIndex],
-              let action = Core.shared.dataStore.settings.actions[safe: buttonConfigIndex] else { return }
+              let action = core.dataStore.settings.actions[safe: buttonConfigIndex] else { return }
         
         guard buttonConfig.state != .busy else { return }
         
@@ -311,7 +313,7 @@ extension HomeViewController: UICollectionViewDelegate {
             actionResultDisplayer()
         }
         
-        Core.shared.publish(message: action.message,
+        core.publish(message: action.message,
                             to: action.topic) {
             let error = $0.getError()
             

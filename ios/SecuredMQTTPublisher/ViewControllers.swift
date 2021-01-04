@@ -9,7 +9,7 @@
 import UIKit
 
 extension UIViewController {
-    static var home: HomeViewController { .init() }
+    static var home: HomeViewController { .init(core: .shared) }
     
     static func actionEdit(index: Int) -> ActionEditViewController? {
         guard let action = Core.shared.dataStore.settings.actions[safe: index] else { return nil }
