@@ -6,7 +6,7 @@
 //  for the license and the contributors information.
 //
 
-import Foundation
+import Combine
 
 final class Core {
     enum PublishError: Error {
@@ -19,9 +19,27 @@ final class Core {
     
     private lazy var client: SMPMQTTClient = MQTTSessionManagerClient()
     
-    private var connectError: Error?
+    @Published
+    private(set) var connectError: Error?
     
-    func connect(completionHandler: @escaping (Result<Void, Error>) -> Void) {
+    private var bag: Set<AnyCancellable> = []
+    
+    init() {
+        connect()
+        
+        dataStore.$settings
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.disconnect { [weak self] _ in
+                    guard let self = self else { return }
+                    self.connect()
+                }
+            }
+            .store(in: &bag)
+    }
+    
+    func connect(completionHandler: ((Result<Void, Error>) -> Void)? = nil) {
         NSLog("SMP connect")
         connectError = nil
         client.connect(endpoint: dataStore.settings.endpoint,
@@ -36,11 +54,11 @@ final class Core {
                 NSLog("SMP connect Failure: \(error)")
                 self.connectError = error
             }
-            completionHandler($0)
+            completionHandler?($0)
         }
     }
     
-    func disconnect(completionHandler: @escaping (Result<Void, Error>) -> Void) {
+    func disconnect(completionHandler: ((Result<Void, Error>) -> Void)? = nil) {
         NSLog("SMP disconnect")
         client.disconnect {
             do {
@@ -49,7 +67,7 @@ final class Core {
             } catch {
                 NSLog("SMP disconnect Failure: \(error)")
             }
-            completionHandler($0)
+            completionHandler?($0)
         }
     }
     

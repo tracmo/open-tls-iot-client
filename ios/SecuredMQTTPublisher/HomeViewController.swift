@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Combine
 
 fileprivate extension Action {
     var isEmpty: Bool {
@@ -59,17 +60,6 @@ final class HomeViewController: UIViewController {
             settingsDidChangeHandler: { newSettings in
                 Core.shared.dataStore.settings = newSettings
                 self.displaySettings()
-                self.errorMessageTextView.text = nil
-                Core.shared.disconnect() {
-                    if let error = $0.getError() {
-                        self.errorMessageTextView.text = error.homeViewControllerErrorMessage
-                    }
-                }
-                Core.shared.connect {
-                    if let error = $0.getError() {
-                        self.errorMessageTextView.text = error.homeViewControllerErrorMessage
-                    }
-                }
             })
         self.present(settingsViewController, in: .fullScreen)
     }
@@ -187,6 +177,8 @@ final class HomeViewController: UIViewController {
     private var actionResultDisplayer: [Int: () -> ()] = [:]
     private let buttonBusyIntervalMinimum: TimeInterval = 2
     
+    private var bag: Set<AnyCancellable> = []
+    
     init(actions: [Action],
          actionsDidChangeHandler: @escaping ([Action]) -> Void) {
         self.actions = actions
@@ -200,11 +192,14 @@ final class HomeViewController: UIViewController {
         displayButtonConfigs()
         displaySettings()
         
-        Core.shared.connect {
-            if let error = $0.getError() {
-                self.errorMessageTextView.text = error.homeViewControllerErrorMessage
+        Core.shared.$connectError
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                if $0 == nil { self.buttonConfigs.mutateEach { $0.state = .normal } }
+                self.errorMessageTextView.text = $0?.homeViewControllerErrorMessage
             }
-        }
+            .store(in: &bag)
     }
     
     private func setupLayouts() {
