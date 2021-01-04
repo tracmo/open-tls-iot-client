@@ -11,6 +11,7 @@ import UIKit
 final class ButtonCell: UICollectionViewCell {
     enum State {
         case normal
+        case disabled
         case busy
         case success
         case failure
@@ -18,6 +19,7 @@ final class ButtonCell: UICollectionViewCell {
         fileprivate var isLoadingIndicatorHidden: Bool {
             switch self {
             case .normal,
+                 .disabled,
                  .success,
                  .failure: return true
             case .busy: return false
@@ -27,6 +29,7 @@ final class ButtonCell: UICollectionViewCell {
         fileprivate var borderWidth: CGFloat {
             switch self {
             case .normal,
+                 .disabled,
                  .busy: return 0
             case .success,
                  .failure: return 8
@@ -36,9 +39,20 @@ final class ButtonCell: UICollectionViewCell {
         fileprivate var borderColor: CGColor {
             switch self {
             case .normal,
+                 .disabled,
                  .busy: return UIColor.clear.cgColor
             case .success: return UIColor.success.cgColor
             case .failure: return UIColor.failure.cgColor
+            }
+        }
+        
+        fileprivate var isDisabledCoverHidden: Bool {
+            switch self {
+            case .normal,
+                 .busy,
+                 .success,
+                 .failure: return true
+            case .disabled: return false
             }
         }
     }
@@ -66,6 +80,12 @@ final class ButtonCell: UICollectionViewCell {
         indicator.backgroundColor = .init(white: 0, alpha: 0.2)
         indicator.isHidden = state.isLoadingIndicatorHidden
         return indicator
+    }()
+    
+    private lazy var disabledCover: UIView = {
+        let view = UIView()
+        view.backgroundColor = .init(white: 0, alpha: 0.2)
+        return view
     }()
     
     override var isHighlighted: Bool {
@@ -100,6 +120,11 @@ final class ButtonCell: UICollectionViewCell {
                 .top(to: top)
                 .leading(to: leading)
                 .trailing(to: trailing)
+                .bottom(to: bottom),
+            disabledCover
+                .top(to: top)
+                .leading(to: leading)
+                .trailing(to: trailing)
                 .bottom(to: bottom)
             )
     }
@@ -113,6 +138,7 @@ final class ButtonCell: UICollectionViewCell {
         loadingIndicator.isHidden = state.isLoadingIndicatorHidden
         layer.borderWidth = state.borderWidth
         layer.borderColor = state.borderColor
+        disabledCover.isHidden = state.isDisabledCoverHidden
     }
     
     func display(title: String?) { titleLabel.text = title }

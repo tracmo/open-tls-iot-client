@@ -7,25 +7,15 @@
 //
 
 import MQTTClient
+import Combine
 
-protocol SMPMQTTClient {
-    var isConnected: Bool { get }
+final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
+    enum State {
+        case disconnected
+        case connected
+        case connecting
+    }
     
-    func connect(endpoint: String,
-                 clientID: String,
-                 certificate: String,
-                 privateKey: String,
-                 rootCA: String?,
-                 completionHandler: @escaping (Result<Void, Error>) -> Void)
-    
-    func disconnect(completionHandler: @escaping (Result<Void, Error>) -> Void)
-    
-    func publish(message: String,
-                 to topic: String,
-                 completionHandler: @escaping (Result<Void, Error>) -> Void)
-}
-
-final class MQTTSessionManagerClient: NSObject, SMPMQTTClient, MQTTSessionManagerDelegate {
     enum ConnectError: Error {
         case endpointEmpty
         case certificateEmpty
@@ -40,7 +30,8 @@ final class MQTTSessionManagerClient: NSObject, SMPMQTTClient, MQTTSessionManage
         case timeout
     }
     
-    var isConnected: Bool { manager.state == .connected }
+    @Published
+    private(set) var state: State = .disconnected
     
     private lazy var manager: MQTTSessionManager = {
         let manager = MQTTSessionManager(persistence: false,
@@ -191,6 +182,21 @@ final class MQTTSessionManagerClient: NSObject, SMPMQTTClient, MQTTSessionManage
     func sessionManager(_ sessionManager: MQTTSessionManager!,
                         didChange newState: MQTTSessionManagerState) {
         NSLog("SMP manager didChangeState state: \(newState)")
+        state = .init(newState)
+    }
+}
+
+extension SMPMQTTClient.State {
+    init(_ state: MQTTSessionManagerState) {
+        switch state {
+        case .starting,
+             .error,
+             .closing,
+             .closed: self = .disconnected
+        case .connecting: self = .connecting
+        case .connected: self = .connected
+        @unknown default: self = .disconnected
+        }
     }
 }
 

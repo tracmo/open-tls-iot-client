@@ -17,7 +17,10 @@ final class Core {
     
     let dataStore = DataStore.Keychained()
     
-    private lazy var client: SMPMQTTClient = MQTTSessionManagerClient()
+    @Published
+    private(set) var state: SMPMQTTClient.State = .disconnected
+    
+    private lazy var client = SMPMQTTClient()
     
     @Published
     private(set) var connectError: Error?
@@ -26,6 +29,14 @@ final class Core {
     
     init() {
         connect()
+        
+        client.$state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                self.state = $0
+            }
+            .store(in: &bag)
         
         dataStore.$settings
             .receive(on: DispatchQueue.main)
@@ -82,7 +93,7 @@ final class Core {
                 completionHandler(.success)
             } catch {
                 let newError: Error
-                if let publishError = error as? MQTTSessionManagerClient.PublishError,
+                if let publishError = error as? SMPMQTTClient.PublishError,
                    publishError == .clientNotConnected {
                     newError = PublishError.clientNotConnected(connectError: self.connectError)
                 } else { newError = error }

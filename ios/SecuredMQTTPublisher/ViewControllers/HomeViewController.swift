@@ -267,6 +267,28 @@ final class HomeViewController: UIViewController {
                 self.displaySettings($0)
             }
             .store(in: &bag)
+        
+        core.$state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                let state: ButtonCell.State
+                let errorMessage: String?
+                switch $0 {
+                case .disconnected:
+                    state = .disabled
+                    errorMessage = self.core.connectError?.homeViewControllerErrorMessage
+                case .connecting:
+                    state = .disabled
+                    errorMessage = "connecting..."
+                case .connected:
+                    state = .normal
+                    errorMessage = nil
+                }
+                self.buttonConfigs.mutateEach { $1.state = state }
+                self.errorMessageTextView.text = errorMessage
+            }
+            .store(in: &bag)
     }
     
     private func displaySettings(_ settings: Settings) {
@@ -300,7 +322,8 @@ extension HomeViewController: UICollectionViewDelegate {
         guard let buttonConfig = buttonConfigs[safe: buttonConfigIndex],
               let action = core.dataStore.settings.actions[safe: buttonConfigIndex] else { return }
         
-        guard buttonConfig.state != .busy else { return }
+        guard buttonConfig.state != .busy,
+              buttonConfig.state != .disabled else { return }
         
         buttonConfigs[safe: buttonConfigIndex]?.state = .busy
         errorMessageTextView.text = nil
@@ -345,7 +368,7 @@ extension HomeViewController: UICollectionViewDelegate {
     private func isSettingsError(_ error: Error?) -> Bool {
         guard let error = error else { return false }
         
-        if let connectError = error as? MQTTSessionManagerClient.ConnectError {
+        if let connectError = error as? SMPMQTTClient.ConnectError {
             switch connectError {
             case .endpointEmpty,
                  .certificateEmpty,
@@ -354,7 +377,7 @@ extension HomeViewController: UICollectionViewDelegate {
             }
         }
         
-        if let publishError = error as? MQTTSessionManagerClient.PublishError {
+        if let publishError = error as? SMPMQTTClient.PublishError {
             switch publishError {
             case .messageEmpty,
                  .topicEmpty,
@@ -379,7 +402,7 @@ extension HomeViewController: UICollectionViewDelegate {
 
 extension Error {
     fileprivate var homeViewControllerErrorMessage: String {
-        if let connectError = self as? MQTTSessionManagerClient.ConnectError {
+        if let connectError = self as? SMPMQTTClient.ConnectError {
             switch connectError {
             case .endpointEmpty: return "MQTT endpoint empty"
             case .certificateEmpty: return "certificate empty"
@@ -388,7 +411,7 @@ extension Error {
             }
         }
         
-        if let publishError = self as? MQTTSessionManagerClient.PublishError {
+        if let publishError = self as? SMPMQTTClient.PublishError {
             switch publishError {
             case .messageEmpty: return "message Empty"
             case .topicEmpty: return "MQTT topic Empty"
