@@ -9,14 +9,21 @@
 import Foundation
 
 final class Core {
+    enum PublishError: Error {
+        case clientNotConnected(connectError: Error?)
+    }
+    
     static let shared = Core()
     
     let dataStore = DataStore.Keychained()
     
     private lazy var client: SMPMQTTClient = MQTTSessionManagerClient()
     
+    private var connectError: Error?
+    
     func connect(completionHandler: @escaping (Result<Void, Error>) -> Void) {
         NSLog("SMP connect")
+        connectError = nil
         client.connect(endpoint: dataStore.settings.endpoint,
                        clientID: dataStore.settings.clientID,
                        certificate: dataStore.settings.certificate,
@@ -27,6 +34,7 @@ final class Core {
                 NSLog("SMP connect Success")
             } catch {
                 NSLog("SMP connect Failure: \(error)")
+                self.connectError = error
             }
             completionHandler($0)
         }
@@ -53,11 +61,16 @@ final class Core {
             do {
                 let _ = try $0.get()
                 NSLog("SMP publish \"\(topic)\": \"\(message)\" Success")
+                completionHandler(.success)
             } catch {
-                NSLog("SMP publish \"\(topic)\": \"\(message)\" Failure: \(error)")
+                let newError: Error
+                if let publishError = error as? MQTTSessionManagerClient.PublishError,
+                   publishError == .clientNotConnected {
+                    newError = PublishError.clientNotConnected(connectError: self.connectError)
+                } else { newError = error }
+                NSLog("SMP publish \"\(topic)\": \"\(message)\" Failure: \(newError)")
+                completionHandler(.failure(newError))
             }
-            
-            completionHandler($0)
         }
     }
 }

@@ -36,7 +36,7 @@ final class MQTTSessionManagerClient: NSObject, SMPMQTTClient, MQTTSessionManage
     enum PublishError: Error {
         case messageEmpty
         case topicEmpty
-        case clientNotConnected(connectError: Error?)
+        case clientNotConnected
         case timeout
     }
     
@@ -55,8 +55,6 @@ final class MQTTSessionManagerClient: NSObject, SMPMQTTClient, MQTTSessionManage
         return manager
     }()
     
-    private var connectError: Error?
-    
     private var publishCompletionHandlers: [UInt16: (Result<Void, Error>) -> Void] = [:]
     private let publishTimeout: TimeInterval = 5
     
@@ -66,24 +64,16 @@ final class MQTTSessionManagerClient: NSObject, SMPMQTTClient, MQTTSessionManage
                  privateKey: String,
                  rootCA: String?,
                  completionHandler: @escaping (Result<Void, Error>) -> Void) {
-        connectError = nil
-        
         guard !endpoint.isEmpty else {
-            let error = ConnectError.endpointEmpty
-            connectError = error
-            completionHandler(.failure(error))
+            completionHandler(.failure(ConnectError.endpointEmpty))
             return
         }
         guard !certificate.isEmpty else {
-            let error = ConnectError.certificateEmpty
-            connectError = error
-            completionHandler(.failure(error))
+            completionHandler(.failure(ConnectError.certificateEmpty))
             return
         }
         guard !privateKey.isEmpty else {
-            let error = ConnectError.privateKeyEmpty
-            connectError = error
-            completionHandler(.failure(error))
+            completionHandler(.failure(ConnectError.privateKeyEmpty))
             return
         }
         
@@ -111,18 +101,11 @@ final class MQTTSessionManagerClient: NSObject, SMPMQTTClient, MQTTSessionManage
                                              securityPolicy: policy,
                                              certificates: clientCertificates,
                                              protocolLevel: .version311) {
-                            if let connectError = $0 { self.connectError = connectError }
                             completionHandler($0 == nil ? .success : .failure($0!))
                         }
-                    } catch {
-                        self.connectError = error
-                        completionHandler(.failure(error))
-                    }
+                    } catch { completionHandler(.failure(error)) }
                 }
-            } catch {
-                self.connectError = error
-                completionHandler(.failure(error))
-            }
+            } catch { completionHandler(.failure(error)) }
         }
     }
     
@@ -181,7 +164,7 @@ final class MQTTSessionManagerClient: NSObject, SMPMQTTClient, MQTTSessionManage
             return
         }
         guard manager.state == .connected else {
-            completionHandler(.failure(PublishError.clientNotConnected(connectError: connectError)))
+            completionHandler(.failure(PublishError.clientNotConnected))
             return
         }
         let messageID = manager.send(message.data(using: .utf8),

@@ -408,11 +408,17 @@ extension Error {
             switch publishError {
             case .messageEmpty: return "message Empty"
             case .topicEmpty: return "MQTT topic Empty"
+            case .clientNotConnected: return "client not connected"
+            case .timeout: return "timeout"
+            }
+        }
+        
+        if let corePublishError = self as? Core.PublishError {
+            switch corePublishError {
             case .clientNotConnected(let connectError):
                 return (connectError == nil) ?
                     "client not connected" :
                     connectError!.homeViewControllerErrorMessage
-            case .timeout: return "timeout"
             }
         }
         
