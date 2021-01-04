@@ -9,6 +9,14 @@
 import UIKit
 
 extension UIViewController {
+    static var home: HomeViewController { .init() }
+    
+    static func actionEdit(index: Int) -> ActionEditViewController? {
+        guard let action = Core.shared.dataStore.settings.actions[safe: index] else { return nil }
+        return .init(action: action,
+                     actionDidChangeHandler: { Core.shared.dataStore.settings.actions[safe: index] = $0 })
+    }
+    
     static var settings: SettingsViewController {
         .init(settings: Core.shared.dataStore.settings,
               settingsDidChangeHandler: { Core.shared.dataStore.settings = $0 })

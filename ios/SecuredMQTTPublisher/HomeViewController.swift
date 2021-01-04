@@ -145,7 +145,7 @@ final class HomeViewController: UIViewController {
             guard oldValue != isEditing else { return }
             utilityButtonsContainer.isHidden = isEditing
             okButton.isHidden = !isEditing
-            buttonConfigs.mutateEach { $0.isEditing = isEditing }
+            buttonConfigs.mutateEach { $1.isEditing = isEditing }
         }
     }
     
@@ -166,10 +166,12 @@ final class HomeViewController: UIViewController {
     
     init() {
         let actions = Core.shared.dataStore.settings.actions
-        self.buttonConfigs = actions.map { .init(title: $0.title,
-                                                 isEditing: false,
-                                                 isHidden: Core.shared.dataStore.settings.isUnusedButtonHidden && $0.isEmpty,
-                                                 state: .normal) }
+        buttonConfigs = actions.map { _ in
+            .init(title: "",
+                  isEditing: false,
+                  isHidden: false,
+                  state: .normal)
+        }
         super.init(nibName: nil, bundle: nil)
         setupLayouts()
         displayButtonConfigs()
@@ -242,25 +244,16 @@ final class HomeViewController: UIViewController {
                          animatingDifferences: false)
     }
     
-    private func displaySettings() {
-        titleLabel.text = Core.shared.dataStore.settings.homeTitle
-        for index in buttonConfigs.indices {
-            guard let action = Core.shared.dataStore.settings.actions[safe: index] else { return }
-            let isHidden = Core.shared.dataStore.settings.isUnusedButtonHidden && action.isEmpty
-            buttonConfigs[safe: index]?.isHidden = isHidden
-        }
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        buttonConfigs.mutateEach { $0.state = .normal }
+        buttonConfigs.mutateEach { $1.state = .normal }
         
         Core.shared.$connectError
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self = self else { return }
-                if $0 == nil { self.buttonConfigs.mutateEach { $0.state = .normal } }
+                if $0 == nil { self.buttonConfigs.mutateEach { $1.state = .normal } }
                 self.errorMessageTextView.text = $0?.homeViewControllerErrorMessage
             }
             .store(in: &bag)
@@ -274,6 +267,17 @@ final class HomeViewController: UIViewController {
             .store(in: &bag)
     }
     
+    private func displaySettings() {
+        titleLabel.text = Core.shared.dataStore.settings.homeTitle
+        
+        buttonConfigs.mutateEach {
+            guard let action = Core.shared.dataStore.settings.actions[safe: $0] else { return }
+            $1.title = action.title
+            $1.isEditing = isEditing
+            $1.isHidden = Core.shared.dataStore.settings.isUnusedButtonHidden && action.isEmpty
+        }
+    }
+    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         bag.removeAll()
@@ -283,24 +287,11 @@ final class HomeViewController: UIViewController {
 extension HomeViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard !isEditing else {
-            presentActionEditViewController(buttonConfigIndex: indexPath.item)
+            present(.actionEdit(index: indexPath.item), in: .fullScreen)
             return
         }
         
         handleButtonSelected(buttonConfigIndex: indexPath.item)
-    }
-    
-    private func presentActionEditViewController(buttonConfigIndex: Int) {
-        guard let action = Core.shared.dataStore.settings.actions[safe: buttonConfigIndex] else { return }
-        
-        present(ActionEditViewController(
-                    action: action,
-                    actionDidChangeHandler: { [weak self] in
-                        guard let self = self else { return }
-                        Core.shared.dataStore.settings.actions[safe: buttonConfigIndex] = $0
-                        self.buttonConfigs[safe: buttonConfigIndex]?.isHidden = Core.shared.dataStore.settings.isUnusedButtonHidden && $0.isEmpty
-                    }),
-                in: .fullScreen)
     }
     
     private func handleButtonSelected(buttonConfigIndex: Int) {
