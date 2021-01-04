@@ -55,12 +55,7 @@ final class HomeViewController: UIViewController {
     private lazy var settingsButton = UIButton(systemImageName: "gearshape.fill",
                                                size: Layout.utilityButtonSize) { [weak self] _ in
         guard let self = self else { return }
-        let settingsViewController = SettingsViewController(
-            settings: Core.shared.dataStore.settings,
-            settingsDidChangeHandler: { newSettings in
-                Core.shared.dataStore.settings = newSettings
-            })
-        self.present(settingsViewController, in: .fullScreen)
+        self.present(.settings, in: .fullScreen)
     }
     
     private lazy var titleLabel: UILabel = {
