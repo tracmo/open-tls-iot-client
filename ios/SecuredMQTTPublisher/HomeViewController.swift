@@ -184,23 +184,6 @@ final class HomeViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         setupLayouts()
         displayButtonConfigs()
-        
-        Core.shared.$connectError
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                guard let self = self else { return }
-                if $0 == nil { self.buttonConfigs.mutateEach { $0.state = .normal } }
-                self.errorMessageTextView.text = $0?.homeViewControllerErrorMessage
-            }
-            .store(in: &bag)
-        
-        Core.shared.dataStore.$settings
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-                self.displaySettings()
-            }
-            .store(in: &bag)
     }
     
     private func setupLayouts() {
@@ -282,7 +265,28 @@ final class HomeViewController: UIViewController {
         super.viewWillAppear(animated)
         
         buttonConfigs.mutateEach { $0.state = .normal }
-        errorMessageTextView.text = nil
+        
+        Core.shared.$connectError
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                if $0 == nil { self.buttonConfigs.mutateEach { $0.state = .normal } }
+                self.errorMessageTextView.text = $0?.homeViewControllerErrorMessage
+            }
+            .store(in: &bag)
+        
+        Core.shared.dataStore.$settings
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.displaySettings()
+            }
+            .store(in: &bag)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        bag.removeAll()
     }
 }
 
