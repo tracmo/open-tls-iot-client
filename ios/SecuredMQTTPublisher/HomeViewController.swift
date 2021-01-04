@@ -18,10 +18,10 @@ fileprivate extension Action {
 final class HomeViewController: UIViewController {
     struct ButtonConfig: Hashable {
         let id = UUID()
+        var title: String
         var isEditing: Bool
-        var state: ButtonCell.State
-        var action: Action
         var isHidden: Bool
+        var state: ButtonCell.State
     }
     
     private enum Layout {
@@ -99,7 +99,7 @@ final class HomeViewController: UIViewController {
         let dataSource = DataSource(collectionView: collectionView,
                                     cellRegistrationHandler: { buttonCell, _, config in
                                         buttonCell.state = config.state
-                                        buttonCell.display(title: config.action.title)
+                                        buttonCell.display(title: config.title)
                                         buttonCell.isHidden = config.isHidden
                                     })
         let pencilBadgeRegistration = UICollectionView.SupplementaryRegistration<PencilBadge>(elementKind: ElementKind.pencilBadge.rawValue) { [weak self] badge, _, indexPath in
@@ -155,32 +155,21 @@ final class HomeViewController: UIViewController {
     private var buttonConfigs: [ButtonConfig] {
         didSet {
             guard oldValue != buttonConfigs else { return }
-            actions = buttonConfigs.map { $0.action }
             displayButtonConfigs()
         }
     }
-    
-    private var actions: [Action] {
-        didSet {
-            guard oldValue != actions else { return }
-            actionsDidChangeHandler(actions)
-        }
-    }
-    private let actionsDidChangeHandler: ([Action]) -> Void
     
     private var actionResultDisplayer: [Int: () -> ()] = [:]
     private let buttonBusyIntervalMinimum: TimeInterval = 2
     
     private var bag: Set<AnyCancellable> = []
     
-    init(actions: [Action],
-         actionsDidChangeHandler: @escaping ([Action]) -> Void) {
-        self.actions = actions
-        self.actionsDidChangeHandler = actionsDidChangeHandler
-        self.buttonConfigs = actions.map { .init(isEditing: false,
-                                                 state: .normal,
-                                                 action: $0,
-                                                 isHidden: Core.shared.dataStore.settings.isUnusedButtonHidden && $0.isEmpty) }
+    init() {
+        let actions = Core.shared.dataStore.settings.actions
+        self.buttonConfigs = actions.map { .init(title: $0.title,
+                                                 isEditing: false,
+                                                 isHidden: Core.shared.dataStore.settings.isUnusedButtonHidden && $0.isEmpty,
+                                                 state: .normal) }
         super.init(nibName: nil, bundle: nil)
         setupLayouts()
         displayButtonConfigs()
@@ -255,9 +244,10 @@ final class HomeViewController: UIViewController {
     
     private func displaySettings() {
         titleLabel.text = Core.shared.dataStore.settings.homeTitle
-        buttonConfigs.mutateEach {
-            let isHidden = Core.shared.dataStore.settings.isUnusedButtonHidden && $0.action.isEmpty
-            $0.isHidden = isHidden
+        for index in buttonConfigs.indices {
+            guard let action = Core.shared.dataStore.settings.actions[safe: index] else { return }
+            let isHidden = Core.shared.dataStore.settings.isUnusedButtonHidden && action.isEmpty
+            buttonConfigs[safe: index]?.isHidden = isHidden
         }
     }
     
@@ -301,20 +291,21 @@ extension HomeViewController: UICollectionViewDelegate {
     }
     
     private func presentActionEditViewController(buttonConfigIndex: Int) {
-        guard let action = buttonConfigs[safe: buttonConfigIndex]?.action else { return }
+        guard let action = Core.shared.dataStore.settings.actions[safe: buttonConfigIndex] else { return }
         
         present(ActionEditViewController(
                     action: action,
                     actionDidChangeHandler: { [weak self] in
                         guard let self = self else { return }
-                        self.buttonConfigs[safe: buttonConfigIndex]?.action = $0
+                        Core.shared.dataStore.settings.actions[safe: buttonConfigIndex] = $0
                         self.buttonConfigs[safe: buttonConfigIndex]?.isHidden = Core.shared.dataStore.settings.isUnusedButtonHidden && $0.isEmpty
                     }),
                 in: .fullScreen)
     }
     
     private func handleButtonSelected(buttonConfigIndex: Int) {
-        guard let buttonConfig = buttonConfigs[safe: buttonConfigIndex] else { return }
+        guard let buttonConfig = buttonConfigs[safe: buttonConfigIndex],
+              let action = Core.shared.dataStore.settings.actions[safe: buttonConfigIndex] else { return }
         
         guard buttonConfig.state != .busy else { return }
         
@@ -329,8 +320,8 @@ extension HomeViewController: UICollectionViewDelegate {
             actionResultDisplayer()
         }
         
-        Core.shared.publish(message: buttonConfig.action.message,
-                            to: buttonConfig.action.topic) {
+        Core.shared.publish(message: action.message,
+                            to: action.topic) {
             let error = $0.getError()
             
             let actionResultDisplayer = {
