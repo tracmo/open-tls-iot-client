@@ -186,6 +186,17 @@
 			path = CertificateConverter;
 			sourceTree = "<group>";
 		};
+		079D070625A39BFA00F56392 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				079D070425A34DCE00F56392 /* ViewControllers.swift */,
+				07E1D5CA257FC6730057B9AC /* HomeViewController.swift */,
+				070290CF25817CD3004E2BC4 /* ActionEditViewController.swift */,
+				070290D42581E5AC004E2BC4 /* SettingsViewController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
 		07C0C5A725939DD9001DB311 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
@@ -354,18 +365,15 @@
 				07C0C6352593B169001DB311 /* Resources */,
 				07E1D5C6257FC6730057B9AC /* AppDelegate.swift */,
 				07E1D5C8257FC6730057B9AC /* SceneDelegate.swift */,
-				079D070425A34DCE00F56392 /* ViewControllers.swift */,
-				07E1D5CA257FC6730057B9AC /* HomeViewController.swift */,
-				070290CF25817CD3004E2BC4 /* ActionEditViewController.swift */,
-				070290D42581E5AC004E2BC4 /* SettingsViewController.swift */,
-				07BD178C2589530600784BFA /* Colors.swift */,
-				07BD1788258952F100784BFA /* Widgets.swift */,
-				07C0C6332593AE7E001DB311 /* SoundEffect.swift */,
-				07C7E41125892B0700581737 /* Utilities.swift */,
 				07E1D5E8257FC8580057B9AC /* Core.swift */,
 				07BD1784258952B600784BFA /* DataStore.swift */,
 				07940B57259276A1003EB4FA /* MQTTClient.swift */,
 				07940B532592762D003EB4FA /* CertificateConverter */,
+				079D070625A39BFA00F56392 /* ViewControllers */,
+				07BD178C2589530600784BFA /* Colors.swift */,
+				07BD1788258952F100784BFA /* Widgets.swift */,
+				07C0C6332593AE7E001DB311 /* SoundEffect.swift */,
+				07C7E41125892B0700581737 /* Utilities.swift */,
 				07E1D5CF257FC6750057B9AC /* Assets.xcassets */,
 				07E1D5D1257FC6750057B9AC /* LaunchScreen.storyboard */,
 				07E1D5D4257FC6750057B9AC /* Info.plist */,
