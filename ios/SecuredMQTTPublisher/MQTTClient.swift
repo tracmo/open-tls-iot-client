@@ -48,7 +48,7 @@ final class MQTTSessionManagerClient: NSObject, SMPMQTTClient, MQTTSessionManage
                                          maxMessages: 1024,
                                          maxSize: 64 * 1024 * 1024,
                                          maxConnectionRetryInterval: 64,
-                                         connectInForeground: true,
+                                         connectInForeground: false,
                                          streamSSLLevel: kCFStreamSocketSecurityLevelNegotiatedSSL as String,
                                          queue: .main)!
         manager.delegate = self

@@ -20,5 +20,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
         self.window = window
     }
+    
+    func sceneWillResignActive(_ scene: UIScene) {
+        Core.shared.disconnect()
+    }
+    
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        Core.shared.connect()
+    }
 }
 
