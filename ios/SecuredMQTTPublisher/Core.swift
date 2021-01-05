@@ -54,12 +54,10 @@ final class Core {
             .store(in: &bag)
     }
     
-    @discardableResult
     private func disconnectThenConnect() -> AnyPublisher<Void, Error> {
         disconnect().flatMap { self.connect() }.eraseToAnyPublisher()
     }
     
-    @discardableResult
     func connect() -> AnyPublisher<Void, Error> {
         NSLog("SMP connect")
         connectError = nil
@@ -81,7 +79,6 @@ final class Core {
             .eraseToAnyPublisher()
     }
     
-    @discardableResult
     func disconnect() -> AnyPublisher<Void, Error> {
         NSLog("SMP disconnect")
         return client.disconnect()
@@ -95,7 +92,6 @@ final class Core {
             .eraseToAnyPublisher()
     }
     
-    @discardableResult
     func publish(message: String,
                  to topic: String) -> AnyPublisher<Void, Error> {
         NSLog("SMP publish \"\(topic)\": \"\(message)\"")

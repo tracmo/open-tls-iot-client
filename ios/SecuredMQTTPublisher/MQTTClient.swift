@@ -51,7 +51,6 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
     
     private var bag = Set<AnyCancellable>()
     
-    @discardableResult
     func connect(endpoint: String,
                  clientID: String,
                  certificate: String,
@@ -107,7 +106,6 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
         .eraseToAnyPublisher()
     }
     
-    @discardableResult
     private func makeClientCertificates(certificate: String,
                                         privateKey: String) -> AnyPublisher<[Any], Error> {
         Future<[Any], Error> { promise in
@@ -128,7 +126,6 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
         .eraseToAnyPublisher()
     }
     
-    @discardableResult
     private func makePolicy(rootCA: String?) -> AnyPublisher<MQTTSSLSecurityPolicy, Error> {
         Future<MQTTSSLSecurityPolicy, Error> { promise in
             guard let rootCA = rootCA else {
@@ -152,7 +149,6 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
         .eraseToAnyPublisher()
     }
     
-    @discardableResult
     func disconnect() -> AnyPublisher<Void, Error> {
         Future<Void, Error> { [weak self] promise in
             guard let self = self else { return }
@@ -161,7 +157,6 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
         .eraseToAnyPublisher()
     }
     
-    @discardableResult
     func publish(message: String,
                  to topic: String) -> AnyPublisher<Void, Error> {
         Future<Void, Error> { [weak self] promise in
