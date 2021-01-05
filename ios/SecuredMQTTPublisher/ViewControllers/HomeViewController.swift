@@ -2,18 +2,26 @@
 //  Project Secured MQTT Publisher
 //  Copyright 2021 Tracmo, Inc. ("Tracmo").
 //  Open Source Project Licensed under MIT License.
-//  Please refer to https://github.com/tracmo/secured_mqtt_pub_ios
+//  Please refer to https://github.com/tracmo/open-tls-iot-client
 //  for the license and the contributors information.
 //
 
 import UIKit
+import Combine
+
+fileprivate extension Action {
+    var isEmpty: Bool {
+        title.isEmpty && topic.isEmpty && message.isEmpty
+    }
+}
 
 final class HomeViewController: UIViewController {
     struct ButtonConfig: Hashable {
         let id = UUID()
+        var title: String
         var isEditing: Bool
+        var isHidden: Bool
         var state: ButtonCell.State
-        var action: Action
     }
     
     private enum Layout {
@@ -24,7 +32,9 @@ final class HomeViewController: UIViewController {
     
     private typealias DataSource = UICollectionViewDiffableDataSource<Section, ButtonConfig>.SingleCellType<ButtonCell>
     
-    private let pencelBadgeElementKind = "pencilBadge"
+    private enum ElementKind: String {
+        case pencilBadge
+    }
     
     private lazy var utilityButtonsContainer: UIView = {
         let view = UIView()
@@ -45,24 +55,7 @@ final class HomeViewController: UIViewController {
     private lazy var settingsButton = UIButton(systemImageName: "gearshape.fill",
                                                size: Layout.utilityButtonSize) { [weak self] _ in
         guard let self = self else { return }
-        let settingsViewController = SettingsViewController(
-            settings: Core.shared.dataStore.settings,
-            settingsDidChangeHandler: { newSettings in
-                Core.shared.dataStore.settings = newSettings
-                self.displaySettings()
-                self.errorMessageTextView.text = nil
-                Core.shared.disconnect() {
-                    if let error = $0.getError() {
-                        self.errorMessageTextView.text = error.homeViewControllerErrorMessage
-                    }
-                }
-                Core.shared.connect {
-                    if let error = $0.getError() {
-                        self.errorMessageTextView.text = error.homeViewControllerErrorMessage
-                    }
-                }
-            })
-        self.present(settingsViewController, in: .fullScreen)
+        self.present(.settings, in: .fullScreen)
     }
     
     private lazy var titleLabel: UILabel = {
@@ -70,7 +63,6 @@ final class HomeViewController: UIViewController {
         label.font = .systemFont(ofSize: 64)
         label.textAlignment = .center
         label.textColor = .accent
-        label.text = Core.shared.dataStore.settings.homeTitle
         label.adjustsFontSizeToFitWidth = true
         return label
     }()
@@ -86,7 +78,7 @@ final class HomeViewController: UIViewController {
     private lazy var layout: UICollectionViewCompositionalLayout = {
         let pencilBadge = NSCollectionLayoutSupplementaryItem(layoutSize: .init(widthDimension: .absolute(72),
                                                                                 heightDimension: .absolute(72)),
-                                                              elementKind: pencelBadgeElementKind,
+                                                              elementKind: ElementKind.pencilBadge.rawValue,
                                                               containerAnchor: .init(edges: [.top, .trailing],
                                                                                      absoluteOffset: .zero))
         
@@ -106,11 +98,13 @@ final class HomeViewController: UIViewController {
         let dataSource = DataSource(collectionView: collectionView,
                                     cellRegistrationHandler: { buttonCell, _, config in
                                         buttonCell.state = config.state
-                                        buttonCell.display(title: config.action.title)
+                                        buttonCell.display(title: config.title)
+                                        buttonCell.isHidden = config.isHidden
                                     })
-        let pencilBadgeRegistration = UICollectionView.SupplementaryRegistration<PencilBadge>(elementKind: pencelBadgeElementKind) { [weak self] badge, _, _ in
+        let pencilBadgeRegistration = UICollectionView.SupplementaryRegistration<PencilBadge>(elementKind: ElementKind.pencilBadge.rawValue) { [weak self] badge, _, indexPath in
             guard let self = self else { return }
-            badge.isHidden = !self.isEditing
+            guard let config = self.buttonConfigs[safe: indexPath.item] else { return }
+            badge.isHidden = config.isHidden || !self.isEditing
         }
         dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
             collectionView.dequeueConfiguredReusableSupplementary(using: pencilBadgeRegistration, for: indexPath)
@@ -150,7 +144,7 @@ final class HomeViewController: UIViewController {
             guard oldValue != isEditing else { return }
             utilityButtonsContainer.isHidden = isEditing
             okButton.isHidden = !isEditing
-            buttonConfigs.mutateEach { $0.isEditing = isEditing }
+            buttonConfigs.mutateEach { $1.isEditing = isEditing }
         }
     }
     
@@ -160,37 +154,29 @@ final class HomeViewController: UIViewController {
     private var buttonConfigs: [ButtonConfig] {
         didSet {
             guard oldValue != buttonConfigs else { return }
-            actions = buttonConfigs.map { $0.action }
             displayButtonConfigs()
         }
     }
     
-    private var actions: [Action] {
-        didSet {
-            guard oldValue != actions else { return }
-            actionsDidChangeHandler(actions)
-        }
-    }
-    private let actionsDidChangeHandler: ([Action]) -> Void
-    
     private var actionResultDisplayer: [Int: () -> ()] = [:]
     private let buttonBusyIntervalMinimum: TimeInterval = 2
     
-    init(actions: [Action],
-         actionsDidChangeHandler: @escaping ([Action]) -> Void) {
-        self.actions = actions
-        self.actionsDidChangeHandler = actionsDidChangeHandler
-        self.buttonConfigs = actions.map { .init(isEditing: false, state: .normal, action: $0) }
+    private var bag: Set<AnyCancellable> = []
+    
+    private let core: Core
+    
+    init(core: Core) {
+        self.core = core
+        
+        buttonConfigs = core.dataStore.settings.actions.map { _ in
+            .init(title: "",
+                  isEditing: false,
+                  isHidden: false,
+                  state: .normal)
+        }
         super.init(nibName: nil, bundle: nil)
         setupLayouts()
         displayButtonConfigs()
-        displaySettings()
-        
-        Core.shared.connect {
-            if let error = $0.getError() {
-                self.errorMessageTextView.text = error.homeViewControllerErrorMessage
-            }
-        }
     }
     
     private func setupLayouts() {
@@ -260,42 +246,84 @@ final class HomeViewController: UIViewController {
                          animatingDifferences: false)
     }
     
-    private func displaySettings() { titleLabel.text = Core.shared.dataStore.settings.homeTitle }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        buttonConfigs.mutateEach { $0.state = .normal }
-        errorMessageTextView.text = nil
+        buttonConfigs.mutateEach { $1.state = .normal }
+        
+        core.$connectError
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                if $0 == nil { self.buttonConfigs.mutateEach { $1.state = .normal } }
+                self.errorMessageTextView.text = $0?.homeViewControllerErrorMessage
+            }
+            .store(in: &bag)
+        
+        core.dataStore.$settings
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                self.displaySettings($0)
+            }
+            .store(in: &bag)
+        
+        core.$state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                let state: ButtonCell.State
+                let errorMessage: String?
+                switch $0 {
+                case .disconnected:
+                    state = .disabled
+                    errorMessage = self.core.connectError?.homeViewControllerErrorMessage
+                case .connecting:
+                    state = .disabled
+                    errorMessage = "connecting..."
+                case .connected:
+                    state = .normal
+                    errorMessage = nil
+                }
+                self.buttonConfigs.mutateEach { $1.state = state }
+                self.errorMessageTextView.text = errorMessage
+            }
+            .store(in: &bag)
+    }
+    
+    private func displaySettings(_ settings: Settings) {
+        titleLabel.text = settings.homeTitle
+        
+        buttonConfigs.mutateEach {
+            guard let action = settings.actions[safe: $0] else { return }
+            $1.title = action.title
+            $1.isEditing = isEditing
+            $1.isHidden = settings.isUnusedButtonHidden && action.isEmpty
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        bag.removeAll()
     }
 }
 
 extension HomeViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard !isEditing else {
-            presentActionEditViewController(buttonConfigIndex: indexPath.item)
+            present(.actionEdit(index: indexPath.item), in: .fullScreen)
             return
         }
         
         handleButtonSelected(buttonConfigIndex: indexPath.item)
     }
     
-    private func presentActionEditViewController(buttonConfigIndex: Int) {
-        guard let action = buttonConfigs[safe: buttonConfigIndex]?.action else { return }
-        
-        present(ActionEditViewController(
-                    action: action,
-                    actionDidChangeHandler: { [weak self] in
-                        guard let self = self else { return }
-                        self.buttonConfigs[safe: buttonConfigIndex]?.action = $0
-                    }),
-                in: .fullScreen)
-    }
-    
     private func handleButtonSelected(buttonConfigIndex: Int) {
-        guard let buttonConfig = buttonConfigs[safe: buttonConfigIndex] else { return }
+        guard let buttonConfig = buttonConfigs[safe: buttonConfigIndex],
+              let action = core.dataStore.settings.actions[safe: buttonConfigIndex] else { return }
         
-        guard buttonConfig.state != .busy else { return }
+        guard buttonConfig.state != .busy,
+              buttonConfig.state != .disabled else { return }
         
         buttonConfigs[safe: buttonConfigIndex]?.state = .busy
         errorMessageTextView.text = nil
@@ -308,8 +336,8 @@ extension HomeViewController: UICollectionViewDelegate {
             actionResultDisplayer()
         }
         
-        Core.shared.publish(message: buttonConfig.action.message,
-                            to: buttonConfig.action.topic) {
+        core.publish(message: action.message,
+                            to: action.topic) {
             let error = $0.getError()
             
             let actionResultDisplayer = {
@@ -340,7 +368,7 @@ extension HomeViewController: UICollectionViewDelegate {
     private func isSettingsError(_ error: Error?) -> Bool {
         guard let error = error else { return false }
         
-        if let connectError = error as? MQTTSessionManagerClient.ConnectError {
+        if let connectError = error as? SMPMQTTClient.ConnectError {
             switch connectError {
             case .endpointEmpty,
                  .certificateEmpty,
@@ -349,7 +377,7 @@ extension HomeViewController: UICollectionViewDelegate {
             }
         }
         
-        if let publishError = error as? MQTTSessionManagerClient.PublishError {
+        if let publishError = error as? SMPMQTTClient.PublishError {
             switch publishError {
             case .messageEmpty,
                  .topicEmpty,
@@ -374,7 +402,7 @@ extension HomeViewController: UICollectionViewDelegate {
 
 extension Error {
     fileprivate var homeViewControllerErrorMessage: String {
-        if let connectError = self as? MQTTSessionManagerClient.ConnectError {
+        if let connectError = self as? SMPMQTTClient.ConnectError {
             switch connectError {
             case .endpointEmpty: return "MQTT endpoint empty"
             case .certificateEmpty: return "certificate empty"
@@ -383,15 +411,21 @@ extension Error {
             }
         }
         
-        if let publishError = self as? MQTTSessionManagerClient.PublishError {
+        if let publishError = self as? SMPMQTTClient.PublishError {
             switch publishError {
             case .messageEmpty: return "message Empty"
             case .topicEmpty: return "MQTT topic Empty"
+            case .clientNotConnected: return "client not connected"
+            case .timeout: return "timeout"
+            }
+        }
+        
+        if let corePublishError = self as? Core.PublishError {
+            switch corePublishError {
             case .clientNotConnected(let connectError):
                 return (connectError == nil) ?
                     "client not connected" :
                     connectError!.homeViewControllerErrorMessage
-            case .timeout: return "timeout"
             }
         }
         

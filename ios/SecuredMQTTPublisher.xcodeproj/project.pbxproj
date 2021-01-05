@@ -11,6 +11,7 @@
 		070290D52581E5AC004E2BC4 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070290D42581E5AC004E2BC4 /* SettingsViewController.swift */; };
 		07940B5525927643003EB4FA /* CertificateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B5425927643003EB4FA /* CertificateConverter.swift */; };
 		07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B57259276A1003EB4FA /* MQTTClient.swift */; };
+		079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079D070425A34DCE00F56392 /* ViewControllers.swift */; };
 		07BD1785258952B600784BFA /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BD1784258952B600784BFA /* DataStore.swift */; };
 		07BD1789258952F100784BFA /* Widgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BD1788258952F100784BFA /* Widgets.swift */; };
 		07BD178D2589530600784BFA /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BD178C2589530600784BFA /* Colors.swift */; };
@@ -50,6 +51,7 @@
 		070290D42581E5AC004E2BC4 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		07940B5425927643003EB4FA /* CertificateConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateConverter.swift; sourceTree = "<group>"; };
 		07940B57259276A1003EB4FA /* MQTTClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MQTTClient.swift; sourceTree = "<group>"; };
+		079D070425A34DCE00F56392 /* ViewControllers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllers.swift; sourceTree = "<group>"; };
 		07BD1784258952B600784BFA /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
 		07BD1788258952F100784BFA /* Widgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Widgets.swift; sourceTree = "<group>"; };
 		07BD178C2589530600784BFA /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
@@ -182,6 +184,17 @@
 				07940B5425927643003EB4FA /* CertificateConverter.swift */,
 			);
 			path = CertificateConverter;
+			sourceTree = "<group>";
+		};
+		079D070625A39BFA00F56392 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				079D070425A34DCE00F56392 /* ViewControllers.swift */,
+				07E1D5CA257FC6730057B9AC /* HomeViewController.swift */,
+				070290CF25817CD3004E2BC4 /* ActionEditViewController.swift */,
+				070290D42581E5AC004E2BC4 /* SettingsViewController.swift */,
+			);
+			path = ViewControllers;
 			sourceTree = "<group>";
 		};
 		07C0C5A725939DD9001DB311 /* Dependencies */ = {
@@ -352,17 +365,15 @@
 				07C0C6352593B169001DB311 /* Resources */,
 				07E1D5C6257FC6730057B9AC /* AppDelegate.swift */,
 				07E1D5C8257FC6730057B9AC /* SceneDelegate.swift */,
-				07E1D5CA257FC6730057B9AC /* HomeViewController.swift */,
-				070290CF25817CD3004E2BC4 /* ActionEditViewController.swift */,
-				070290D42581E5AC004E2BC4 /* SettingsViewController.swift */,
-				07BD178C2589530600784BFA /* Colors.swift */,
-				07BD1788258952F100784BFA /* Widgets.swift */,
-				07C0C6332593AE7E001DB311 /* SoundEffect.swift */,
-				07C7E41125892B0700581737 /* Utilities.swift */,
 				07E1D5E8257FC8580057B9AC /* Core.swift */,
 				07BD1784258952B600784BFA /* DataStore.swift */,
 				07940B57259276A1003EB4FA /* MQTTClient.swift */,
 				07940B532592762D003EB4FA /* CertificateConverter */,
+				079D070625A39BFA00F56392 /* ViewControllers */,
+				07BD178C2589530600784BFA /* Colors.swift */,
+				07BD1788258952F100784BFA /* Widgets.swift */,
+				07C0C6332593AE7E001DB311 /* SoundEffect.swift */,
+				07C7E41125892B0700581737 /* Utilities.swift */,
 				07E1D5CF257FC6750057B9AC /* Assets.xcassets */,
 				07E1D5D1257FC6750057B9AC /* LaunchScreen.storyboard */,
 				07E1D5D4257FC6750057B9AC /* Info.plist */,
@@ -509,6 +520,7 @@
 				07E1D5CB257FC6730057B9AC /* HomeViewController.swift in Sources */,
 				07F17EF6258CFA4D0029169A /* CertificateConverter.m in Sources */,
 				07C0C6342593AE7E001DB311 /* SoundEffect.swift in Sources */,
+				079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */,
 				07BD1785258952B600784BFA /* DataStore.swift in Sources */,
 				07940B5525927643003EB4FA /* CertificateConverter.swift in Sources */,
 				07E1D5C7257FC6730057B9AC /* AppDelegate.swift in Sources */,

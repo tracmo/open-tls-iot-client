@@ -2,7 +2,7 @@
 //  Project Secured MQTT Publisher
 //  Copyright 2021 Tracmo, Inc. ("Tracmo").
 //  Open Source Project Licensed under MIT License.
-//  Please refer to https://github.com/tracmo/secured_mqtt_pub_ios
+//  Please refer to https://github.com/tracmo/open-tls-iot-client
 //  for the license and the contributors information.
 //
 
@@ -14,11 +14,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController =
-            HomeViewController(actions: Core.shared.dataStore.settings.actions,
-                               actionsDidChangeHandler: { Core.shared.dataStore.settings.actions = $0 })
+        window.rootViewController = .home
         window.makeKeyAndVisible()
         self.window = window
+    }
+    
+    func sceneWillResignActive(_ scene: UIScene) {
+        Core.shared.disconnect()
+    }
+    
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        Core.shared.connect()
     }
 }
 

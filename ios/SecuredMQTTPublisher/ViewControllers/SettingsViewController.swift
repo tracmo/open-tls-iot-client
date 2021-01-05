@@ -2,7 +2,7 @@
 //  Project Secured MQTT Publisher
 //  Copyright 2021 Tracmo, Inc. ("Tracmo").
 //  Open Source Project Licensed under MIT License.
-//  Please refer to https://github.com/tracmo/secured_mqtt_pub_ios
+//  Please refer to https://github.com/tracmo/open-tls-iot-client
 //  for the license and the contributors information.
 //
 
@@ -58,8 +58,12 @@ final class SettingsViewController: UIViewController {
         var value: String
     }
     
-    private let textViewTitleViewElementKind = "textViewTitleView"
-    private let okCancelButtonsViewElementKind = "okCancelButtonsView"
+    private enum ElementKind: String {
+        case textViewTitleView
+        case biometricAuthSwitch
+        case hideUnusedButtonSwitch
+        case okCancelButtonsView
+    }
     
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -73,13 +77,27 @@ final class SettingsViewController: UIViewController {
             guard let self = self else { return nil }
             guard let section = Section.allCases[safe: sectionIndex] else { return nil }
             let layoutSection = self.makeLayoutSection(textViewHeight: section.textViewHeight)
+            let biometricAuthSwitch = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: .init(widthDimension: .fractionalWidth(1.0),
+                                  heightDimension: .absolute(64)),
+                elementKind: ElementKind.biometricAuthSwitch.rawValue,
+                alignment: .bottom)
+            let hideUnusedButtonSwitch = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: .init(widthDimension: .fractionalWidth(1.0),
+                                  heightDimension: .absolute(64)),
+                elementKind: ElementKind.hideUnusedButtonSwitch.rawValue,
+                alignment: .bottom,
+                absoluteOffset: .init(x: 0, y: 64))
             let okCancelButtonsView = NSCollectionLayoutBoundarySupplementaryItem(
                 layoutSize: .init(widthDimension: .fractionalWidth(1.0),
                                   heightDimension: .absolute(64)),
-                elementKind: self.okCancelButtonsViewElementKind,
-                alignment: .bottom)
+                elementKind: ElementKind.okCancelButtonsView.rawValue,
+                alignment: .bottom,
+                absoluteOffset: .init(x: 0, y: 128))
             if sectionIndex == Section.allCases.indices.last {
-                layoutSection.boundarySupplementaryItems.append(okCancelButtonsView)
+                layoutSection.boundarySupplementaryItems.append(contentsOf: [biometricAuthSwitch,
+                                                                             hideUnusedButtonSwitch,
+                                                                             okCancelButtonsView])
             }
             return layoutSection
         }
@@ -94,7 +112,7 @@ final class SettingsViewController: UIViewController {
         let textViewTitleView = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: .init(widthDimension: .fractionalWidth(1.0),
                               heightDimension: .absolute(36)),
-            elementKind: textViewTitleViewElementKind,
+            elementKind: ElementKind.textViewTitleView.rawValue,
             alignment: .top)
         let section = NSCollectionLayoutSection(group: group)
         section.boundarySupplementaryItems = [textViewTitleView]
@@ -115,13 +133,31 @@ final class SettingsViewController: UIViewController {
                 textViewCell.textView.returnKeyType = section.isTextViewOneline ? .done : .default
             })
         let textViewTitleViewRegistration = UICollectionView.SupplementaryRegistration<TextViewTitleView>(
-            elementKind: textViewTitleViewElementKind) { [weak self] textViewTitleView, _, indexPath in
+            elementKind: ElementKind.textViewTitleView.rawValue) { [weak self] textViewTitleView, _, indexPath in
             guard let self = self else { return }
             guard let section = Section.allCases[safe: indexPath.section] else { return }
             textViewTitleView.display(title: section.title)
         }
+        let biometricAuthSwitchRegistration = UICollectionView.SupplementaryRegistration<LabelSwitchView>(
+            elementKind: ElementKind.biometricAuthSwitch.rawValue) { [weak self] biometricAuthSwitch, _, _ in
+            guard let self = self else { return }
+            biometricAuthSwitch.display(title: "Touch ID/Face ID")
+            biometricAuthSwitch.display(isSwitchOn: self.editingSettings.isBiometricAuthEnabled)
+            biometricAuthSwitch.setSwitchValueDidChangeHandler { _ in
+                self.editingSettings.isBiometricAuthEnabled = biometricAuthSwitch.isOn
+            }
+        }
+        let hideUnusedButtonSwitchRegistration = UICollectionView.SupplementaryRegistration<LabelSwitchView>(
+            elementKind: ElementKind.hideUnusedButtonSwitch.rawValue) { [weak self] hideUnusedButtonSwitch, _, _ in
+            guard let self = self else { return }
+            hideUnusedButtonSwitch.display(title: "Hide Unused Buttons")
+            hideUnusedButtonSwitch.display(isSwitchOn: self.editingSettings.isUnusedButtonHidden)
+            hideUnusedButtonSwitch.setSwitchValueDidChangeHandler { _ in
+                self.editingSettings.isUnusedButtonHidden = hideUnusedButtonSwitch.isOn
+            }
+        }
         let okCancelButtonsViewRegistration = UICollectionView.SupplementaryRegistration<OkCancelButtonsView>(
-            elementKind: okCancelButtonsViewElementKind) { [weak self] okCancelButtonsView, _, _ in
+            elementKind: ElementKind.okCancelButtonsView.rawValue) { [weak self] okCancelButtonsView, _, _ in
             guard let self = self else { return }
             okCancelButtonsView.setOKHandler { [weak self] _ in
                 guard let self = self else { return }
@@ -135,14 +171,20 @@ final class SettingsViewController: UIViewController {
         }
         dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
             guard let self = self else { return nil }
+            guard let kind = ElementKind(rawValue: kind) else { return nil }
             switch kind {
-            case self.textViewTitleViewElementKind:
+            case .textViewTitleView:
                 return collectionView.dequeueConfiguredReusableSupplementary(using: textViewTitleViewRegistration,
                                                                              for: indexPath)
-            case self.okCancelButtonsViewElementKind:
+            case .biometricAuthSwitch:
+                return collectionView.dequeueConfiguredReusableSupplementary(using: biometricAuthSwitchRegistration,
+                                                                             for: indexPath)
+            case .hideUnusedButtonSwitch:
+                return collectionView.dequeueConfiguredReusableSupplementary(using: hideUnusedButtonSwitchRegistration,
+                                                                             for: indexPath)
+            case .okCancelButtonsView:
                 return collectionView.dequeueConfiguredReusableSupplementary(using: okCancelButtonsViewRegistration,
                                                                              for: indexPath)
-            default: return nil
             }
         }
         return dataSource

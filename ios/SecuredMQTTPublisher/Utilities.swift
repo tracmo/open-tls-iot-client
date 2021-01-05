@@ -2,7 +2,7 @@
 //  Project Secured MQTT Publisher
 //  Copyright 2021 Tracmo, Inc. ("Tracmo").
 //  Open Source Project Licensed under MIT License.
-//  Please refer to https://github.com/tracmo/secured_mqtt_pub_ios
+//  Please refer to https://github.com/tracmo/open-tls-iot-client
 //  for the license and the contributors information.
 //
 
@@ -20,8 +20,8 @@ public extension Result {
 }
 
 extension MutableCollection {
-    mutating func mutateEach(_ body: (inout Element) throws -> Void) rethrows {
-        for index in indices { try body(&self[index]) }
+    mutating func mutateEach(_ body: (Index, inout Element) throws -> Void) rethrows {
+        for index in indices { try body(index, &self[index]) }
     }
 }
 
@@ -37,12 +37,13 @@ public extension MutableCollection {
 }
 
 extension UIViewController {
-    func present(_ viewControllerToPresent: UIViewController,
+    func present(_ destination: UIViewController?,
                  in modalPresentationStyle: UIModalPresentationStyle = .automatic,
                  animated: Bool = true,
                  completion: (() -> Void)? = nil) {
-        viewControllerToPresent.modalPresentationStyle = modalPresentationStyle
-        present(viewControllerToPresent, animated: animated, completion: completion)
+        guard let destination = destination else { return }
+        destination.modalPresentationStyle = modalPresentationStyle
+        present(destination, animated: animated, completion: completion)
     }
 }
 

@@ -2,21 +2,57 @@
 //  Project Secured MQTT Publisher
 //  Copyright 2021 Tracmo, Inc. ("Tracmo").
 //  Open Source Project Licensed under MIT License.
-//  Please refer to https://github.com/tracmo/secured_mqtt_pub_ios
+//  Please refer to https://github.com/tracmo/open-tls-iot-client
 //  for the license and the contributors information.
 //
 
-import Foundation
+import Combine
 
 final class Core {
+    enum PublishError: Error {
+        case clientNotConnected(connectError: Error?)
+    }
+    
     static let shared = Core()
     
-    let dataStore = DataStore()
+    let dataStore = DataStore.Keychained()
     
-    private lazy var client: SMPMQTTClient = MQTTSessionManagerClient()
+    @Published
+    private(set) var state: SMPMQTTClient.State = .disconnected
     
-    func connect(completionHandler: @escaping (Result<Void, Error>) -> Void) {
+    private lazy var client = SMPMQTTClient()
+    
+    @Published
+    private(set) var connectError: Error?
+    
+    private var bag: Set<AnyCancellable> = []
+    
+    init() {
+        connect()
+        
+        client.$state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                self.state = $0
+            }
+            .store(in: &bag)
+        
+        dataStore.$settings
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.disconnect { [weak self] _ in
+                    guard let self = self else { return }
+                    self.connect()
+                }
+            }
+            .store(in: &bag)
+    }
+    
+    func connect(completionHandler: ((Result<Void, Error>) -> Void)? = nil) {
         NSLog("SMP connect")
+        connectError = nil
         client.connect(endpoint: dataStore.settings.endpoint,
                        clientID: dataStore.settings.clientID,
                        certificate: dataStore.settings.certificate,
@@ -27,12 +63,13 @@ final class Core {
                 NSLog("SMP connect Success")
             } catch {
                 NSLog("SMP connect Failure: \(error)")
+                self.connectError = error
             }
-            completionHandler($0)
+            completionHandler?($0)
         }
     }
     
-    func disconnect(completionHandler: @escaping (Result<Void, Error>) -> Void) {
+    func disconnect(completionHandler: ((Result<Void, Error>) -> Void)? = nil) {
         NSLog("SMP disconnect")
         client.disconnect {
             do {
@@ -41,7 +78,7 @@ final class Core {
             } catch {
                 NSLog("SMP disconnect Failure: \(error)")
             }
-            completionHandler($0)
+            completionHandler?($0)
         }
     }
     
@@ -53,11 +90,16 @@ final class Core {
             do {
                 let _ = try $0.get()
                 NSLog("SMP publish \"\(topic)\": \"\(message)\" Success")
+                completionHandler(.success)
             } catch {
-                NSLog("SMP publish \"\(topic)\": \"\(message)\" Failure: \(error)")
+                let newError: Error
+                if let publishError = error as? SMPMQTTClient.PublishError,
+                   publishError == .clientNotConnected {
+                    newError = PublishError.clientNotConnected(connectError: self.connectError)
+                } else { newError = error }
+                NSLog("SMP publish \"\(topic)\": \"\(message)\" Failure: \(newError)")
+                completionHandler(.failure(newError))
             }
-            
-            completionHandler($0)
         }
     }
 }
