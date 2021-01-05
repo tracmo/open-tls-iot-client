@@ -158,7 +158,7 @@ final class HomeViewController: UIViewController {
         }
     }
     
-    private var actionResultDisplayer: [Int: () -> ()] = [:]
+    private var publishResultDisplayer: [Int: () -> ()] = [:]
     private let buttonBusyIntervalMinimum: TimeInterval = 2
     
     private var bag: Set<AnyCancellable> = []
@@ -328,41 +328,49 @@ extension HomeViewController: UICollectionViewDelegate {
         buttonConfigs[safe: buttonConfigIndex]?.state = .busy
         errorMessageTextView.text = nil
         
-        // Add a placeholder actionResultDisplayer
-        actionResultDisplayer[buttonConfigIndex] = {}
+        // Add a placeholder publishResultDisplayer
+        publishResultDisplayer[buttonConfigIndex] = {}
         Timer.scheduledTimer(withTimeInterval: buttonBusyIntervalMinimum, repeats: false) { _ in
-            guard let actionResultDisplayer = self.actionResultDisplayer[buttonConfigIndex] else { return }
-            self.actionResultDisplayer[buttonConfigIndex] = nil
+            guard let actionResultDisplayer = self.publishResultDisplayer[buttonConfigIndex] else { return }
+            self.publishResultDisplayer[buttonConfigIndex] = nil
             actionResultDisplayer()
         }
         
         core.publish(message: action.message,
-                            to: action.topic) {
-            let error = $0.getError()
-            
-            let actionResultDisplayer = {
-                self.errorMessageTextView.text = (error == nil) ? nil : error!.homeViewControllerErrorMessage
-                self.buttonConfigs[safe: buttonConfigIndex]?.state = (error == nil) ? .success : .failure
+                     to: action.topic)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { [weak self] completion in
+                guard let self = self else { return }
+                let publishError: Error?
+                switch completion {
+                case .finished: publishError = nil
+                case .failure(let error): publishError = error
+                }
                 
-                let soundEffect: SoundEffect = (error == nil) ? .success : .failure
-                soundEffect.play()
-            }
-            
-            let displayImmediately = self.isSettingsError(error)
-            if displayImmediately {
-                self.actionResultDisplayer[buttonConfigIndex] = nil
-                actionResultDisplayer()
-                return
-            }
-            
-            let displayWhenButtonBusyIntervalMinimumReached = (self.actionResultDisplayer[buttonConfigIndex] != nil)
-            if displayWhenButtonBusyIntervalMinimumReached {
-                self.actionResultDisplayer[buttonConfigIndex] = actionResultDisplayer
-                return
-            }
-            
-            actionResultDisplayer()
-        }
+                let publishResultDisplayer = {
+                    self.errorMessageTextView.text = (publishError == nil) ? nil : publishError!.homeViewControllerErrorMessage
+                    self.buttonConfigs[safe: buttonConfigIndex]?.state = (publishError == nil) ? .success : .failure
+                    
+                    let soundEffect: SoundEffect = (publishError == nil) ? .success : .failure
+                    soundEffect.play()
+                }
+                
+                let displayImmediately = self.isSettingsError(publishError)
+                if displayImmediately {
+                    self.publishResultDisplayer[buttonConfigIndex] = nil
+                    publishResultDisplayer()
+                    return
+                }
+                
+                let displayWhenButtonBusyIntervalMinimumReached = (self.publishResultDisplayer[buttonConfigIndex] != nil)
+                if displayWhenButtonBusyIntervalMinimumReached {
+                    self.publishResultDisplayer[buttonConfigIndex] = publishResultDisplayer
+                    return
+                }
+                
+                publishResultDisplayer()
+            }, receiveValue: { _ in })
+            .store(in: &bag)
     }
     
     private func isSettingsError(_ error: Error?) -> Bool {

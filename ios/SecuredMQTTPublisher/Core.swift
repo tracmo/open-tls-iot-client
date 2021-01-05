@@ -100,24 +100,28 @@ final class Core {
         .eraseToAnyPublisher()
     }
     
+    @discardableResult
     func publish(message: String,
-                 to topic: String,
-                 completionHandler: @escaping (Result<Void, Error>) -> Void) {
-        NSLog("SMP publish \"\(topic)\": \"\(message)\"")
-        client.publish(message: message, to: topic) {
-            do {
-                let _ = try $0.get()
-                NSLog("SMP publish \"\(topic)\": \"\(message)\" Success")
-                completionHandler(.success)
-            } catch {
-                let newError: Error
-                if let publishError = error as? SMPMQTTClient.PublishError,
-                   publishError == .clientNotConnected {
-                    newError = PublishError.clientNotConnected(connectError: self.connectError)
-                } else { newError = error }
-                NSLog("SMP publish \"\(topic)\": \"\(message)\" Failure: \(newError)")
-                completionHandler(.failure(newError))
+                 to topic: String) -> AnyPublisher<Void, Error> {
+        Future<Void, Error> { [weak self] promise in
+            guard let self = self else { return }
+            NSLog("SMP publish \"\(topic)\": \"\(message)\"")
+            self.client.publish(message: message, to: topic) {
+                do {
+                    let _ = try $0.get()
+                    NSLog("SMP publish \"\(topic)\": \"\(message)\" Success")
+                    promise($0)
+                } catch {
+                    let newError: Error
+                    if let publishError = error as? SMPMQTTClient.PublishError,
+                       publishError == .clientNotConnected {
+                        newError = PublishError.clientNotConnected(connectError: self.connectError)
+                    } else { newError = error }
+                    NSLog("SMP publish \"\(topic)\": \"\(message)\" Failure: \(newError)")
+                    promise(.failure(newError))
+                }
             }
         }
+        .eraseToAnyPublisher()
     }
 }
