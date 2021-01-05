@@ -58,28 +58,24 @@ final class Core {
     
     @discardableResult
     func connect() -> AnyPublisher<Void, Error> {
-        Future<Void, Error> { [weak self] promise in
-            guard let self = self else { return }
-            NSLog("SMP connect")
-            self.connectError = nil
-            let settings = self.dataStore.settings
-            self.client.connect(endpoint: settings.endpoint,
-                                clientID: settings.clientID,
-                                certificate: settings.certificate,
-                                privateKey: settings.privateKey,
-                                rootCA: settings.rootCA) { [weak self] in
+        NSLog("SMP connect")
+        connectError = nil
+        let settings = self.dataStore.settings
+        return client.connect(endpoint: settings.endpoint,
+                              clientID: settings.clientID,
+                              certificate: settings.certificate,
+                              privateKey: settings.privateKey,
+                              rootCA: settings.rootCA)
+            .handleEvents(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
-                do {
-                    let _ = try $0.get()
-                    NSLog("SMP connect Success")
-                } catch {
+                if let error = completion.getError() {
                     NSLog("SMP connect Failure: \(error)")
                     self.connectError = error
+                } else {
+                    NSLog("SMP connect Success")
                 }
-                promise($0)
-            }
-        }
-        .eraseToAnyPublisher()
+            })
+            .eraseToAnyPublisher()
     }
     
     @discardableResult

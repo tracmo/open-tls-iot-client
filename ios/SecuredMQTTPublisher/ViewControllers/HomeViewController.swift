@@ -341,11 +341,8 @@ extension HomeViewController: UICollectionViewDelegate {
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
-                let publishError: Error?
-                switch completion {
-                case .finished: publishError = nil
-                case .failure(let error): publishError = error
-                }
+                
+                let publishError = completion.getError()
                 
                 let publishResultDisplayer = {
                     self.errorMessageTextView.text = (publishError == nil) ? nil : publishError!.homeViewControllerErrorMessage

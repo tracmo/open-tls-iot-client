@@ -49,55 +49,60 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
     private var publishCompletionHandlers: [UInt16: (Result<Void, Error>) -> Void] = [:]
     private let publishTimeout: TimeInterval = 5
     
+    @discardableResult
     func connect(endpoint: String,
                  clientID: String,
                  certificate: String,
                  privateKey: String,
-                 rootCA: String?,
-                 completionHandler: @escaping (Result<Void, Error>) -> Void) {
-        guard !endpoint.isEmpty else {
-            completionHandler(.failure(ConnectError.endpointEmpty))
-            return
+                 rootCA: String?) -> AnyPublisher<Void, Error> {
+        Future<Void, Error> { [weak self] promise in
+            guard let self = self else { return }
+            
+            guard !endpoint.isEmpty else {
+                promise(.failure(ConnectError.endpointEmpty))
+                return
+            }
+            guard !certificate.isEmpty else {
+                promise(.failure(ConnectError.certificateEmpty))
+                return
+            }
+            guard !privateKey.isEmpty else {
+                promise(.failure(ConnectError.privateKeyEmpty))
+                return
+            }
+            
+            self.makeClientCertificates(certificate: certificate,
+                                        privateKey: privateKey) {
+                do {
+                    let clientCertificates = try $0.get()
+                    self.makePolicy(rootCA: rootCA) {
+                        do {
+                            let policy = try $0.get()
+                            self.manager.connect(to: endpoint,
+                                                 port: 8883,
+                                                 tls: true,
+                                                 keepalive: 60,
+                                                 clean: true,
+                                                 auth: false,
+                                                 user: nil,
+                                                 pass: nil,
+                                                 will: false,
+                                                 willTopic: nil,
+                                                 willMsg: nil,
+                                                 willQos: .atMostOnce,
+                                                 willRetainFlag: false,
+                                                 withClientId: clientID,
+                                                 securityPolicy: policy,
+                                                 certificates: clientCertificates,
+                                                 protocolLevel: .version311) {
+                                promise($0 == nil ? .success : .failure($0!))
+                            }
+                        } catch { promise(.failure(error)) }
+                    }
+                } catch { promise(.failure(error)) }
+            }
         }
-        guard !certificate.isEmpty else {
-            completionHandler(.failure(ConnectError.certificateEmpty))
-            return
-        }
-        guard !privateKey.isEmpty else {
-            completionHandler(.failure(ConnectError.privateKeyEmpty))
-            return
-        }
-        
-        makeClientCertificates(certificate: certificate,
-                               privateKey: privateKey) {
-            do {
-                let clientCertificates = try $0.get()
-                self.makePolicy(rootCA: rootCA) {
-                    do {
-                        let policy = try $0.get()
-                        self.manager.connect(to: endpoint,
-                                             port: 8883,
-                                             tls: true,
-                                             keepalive: 60,
-                                             clean: true,
-                                             auth: false,
-                                             user: nil,
-                                             pass: nil,
-                                             will: false,
-                                             willTopic: nil,
-                                             willMsg: nil,
-                                             willQos: .atMostOnce,
-                                             willRetainFlag: false,
-                                             withClientId: clientID,
-                                             securityPolicy: policy,
-                                             certificates: clientCertificates,
-                                             protocolLevel: .version311) {
-                            completionHandler($0 == nil ? .success : .failure($0!))
-                        }
-                    } catch { completionHandler(.failure(error)) }
-                }
-            } catch { completionHandler(.failure(error)) }
-        }
+        .eraseToAnyPublisher()
     }
     
     private func makeClientCertificates(certificate: String,

@@ -7,12 +7,22 @@
 //
 
 import UIKit
+import Combine
 
-public extension Result where Success == Void {
+extension Subscribers.Completion {
+    func getError() -> Failure? {
+        switch self {
+        case .finished: return nil
+        case .failure(let error): return error
+        }
+    }
+}
+
+extension Result where Success == Void {
     static var success: Result<Success, Failure> { .success(()) }
 }
 
-public extension Result {
+extension Result {
     func getError() -> Failure? {
         guard case let .failure(error) = self else { return nil }
         return error
@@ -25,7 +35,7 @@ extension MutableCollection {
     }
 }
 
-public extension MutableCollection {
+extension MutableCollection {
     subscript(safe index: Index) -> Element? {
         get { self.indices.contains(index) ? self[index] : nil }
         set {
