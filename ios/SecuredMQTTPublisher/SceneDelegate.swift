@@ -7,9 +7,12 @@
 //
 
 import UIKit
+import Combine
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
+    
+    private var bag = Set<AnyCancellable>()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
@@ -21,10 +24,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     func sceneWillResignActive(_ scene: UIScene) {
         Core.shared.disconnect()
+            .sink(receiveCompletion: { _ in },
+                  receiveValue: { _ in })
+            .store(in: &bag)
     }
     
     func sceneDidBecomeActive(_ scene: UIScene) {
         Core.shared.connect()
+            .sink(receiveCompletion: { _ in },
+                  receiveValue: { _ in })
+            .store(in: &bag)
     }
 }
 

@@ -339,10 +339,10 @@ extension HomeViewController: UICollectionViewDelegate {
         core.publish(message: action.message,
                      to: action.topic)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { [weak self] completion in
+            .sink(receiveCompletion: { [weak self] in
                 guard let self = self else { return }
                 
-                let publishError = completion.getError()
+                let publishError = $0.getError()
                 
                 let publishResultDisplayer = {
                     self.errorMessageTextView.text = (publishError == nil) ? nil : publishError!.homeViewControllerErrorMessage

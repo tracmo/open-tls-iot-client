@@ -29,6 +29,9 @@ final class Core {
     
     init() {
         connect()
+            .sink(receiveCompletion: { _ in },
+                  receiveValue: { _ in })
+            .store(in: &bag)
         
         client.$state
             .receive(on: DispatchQueue.main)
@@ -66,9 +69,9 @@ final class Core {
                               certificate: settings.certificate,
                               privateKey: settings.privateKey,
                               rootCA: settings.rootCA)
-            .handleEvents(receiveCompletion: { [weak self] completion in
+            .handleEvents(receiveCompletion: { [weak self] in
                 guard let self = self else { return }
-                if let error = completion.getError() {
+                if let error = $0.getError() {
                     NSLog("SMP connect Failure: \(error)")
                     self.connectError = error
                 } else {

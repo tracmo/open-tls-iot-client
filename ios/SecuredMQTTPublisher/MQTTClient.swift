@@ -76,8 +76,8 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
             self.makeClientCertificates(certificate: certificate,
                                         privateKey: privateKey)
                 .combineLatest(self.makePolicy(rootCA: rootCA))
-                .sink(receiveCompletion: { completion in
-                    guard let error = completion.getError() else { return }
+                .sink(receiveCompletion: { 
+                    guard let error = $0.getError() else { return }
                     promise(.failure(error))
                 }, receiveValue: { [weak self] clientCertificates, policy in
                     guard let self = self else { return }
