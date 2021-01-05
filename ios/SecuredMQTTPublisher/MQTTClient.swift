@@ -108,45 +108,40 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
     
     private func makeClientCertificates(certificate: String,
                                         privateKey: String) -> AnyPublisher<[Any], Error> {
+        let password = UUID().uuidString
+        return CertificateConverter.makeP12Data(pemCertificate: certificate,
+                                                pemPrivateKey: privateKey,
+                                                password: password)
+            .mapError { $0 }
+            .flatMap { self.makeClientCertificates(p12Data: $0, password: password) }
+            .eraseToAnyPublisher()
+    }
+    
+    private func makeClientCertificates(p12Data: Data,
+                                        password: String) -> AnyPublisher<[Any], Error> {
         Future<[Any], Error> { promise in
-            let p12Password = UUID().uuidString
-            CertificateConverter.makeP12Data(pemCertificate: certificate,
-                                             pemPrivateKey: privateKey,
-                                             password: p12Password) {
-                do {
-                    let clientP12Data = try $0.get()
-                    let clientCertificates = MQTTCFSocketTransport.clientCerts(fromP12Data: clientP12Data,
-                                                                               passphrase: p12Password)
-                    promise(clientCertificates == nil ?
-                                .failure(ConnectError.clientCertificatesCreateFailure) :
-                                .success(clientCertificates!))
-                } catch { promise(.failure(error)) }
-            }
+            let clientCertificates = MQTTCFSocketTransport.clientCerts(fromP12Data: p12Data,
+                                                                       passphrase: password)
+            promise(clientCertificates == nil ?
+                        .failure(ConnectError.clientCertificatesCreateFailure) :
+                        .success(clientCertificates!))
         }
         .eraseToAnyPublisher()
     }
     
     private func makePolicy(rootCA: String?) -> AnyPublisher<MQTTSSLSecurityPolicy, Error> {
-        Future<MQTTSSLSecurityPolicy, Error> { promise in
-            guard let rootCA = rootCA else {
-                promise(.success(.init(pinningMode: .none)))
-                return
-            }
-            
-            CertificateConverter.makeDERCertificateData(pemCertificate: rootCA) {
-                do {
-                    let rootCAData = try $0.get()
-                    
-                    let policy = MQTTSSLSecurityPolicy(pinningMode: .certificate)!
-                    policy.pinnedCertificates = [rootCAData]
-                    policy.allowInvalidCertificates = true
-                    policy.validatesCertificateChain = false
-                    
-                    promise(.success(policy))
-                } catch { promise(.failure(error))}
-            }
+        guard let rootCA = rootCA else {
+            return Just(.init(pinningMode: .none))
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
         }
-        .eraseToAnyPublisher()
+        
+        return CertificateConverter.makeDERCertificateData(pemCertificate: rootCA)
+            .mapError { $0 }
+            .map { .init(pinnedCertificates: [$0],
+                         allowInvalidCertificates: true,
+                         validatesCertificateChain: false) }
+            .eraseToAnyPublisher()
     }
     
     func disconnect() -> AnyPublisher<Void, Error> {
@@ -229,5 +224,16 @@ extension MQTTSessionManagerState: CustomStringConvertible {
         case .closed: return ".closed"
         @unknown default: return "\(rawValue)"
         }
+    }
+}
+
+fileprivate extension MQTTSSLSecurityPolicy {
+    convenience init(pinnedCertificates: [Any],
+                     allowInvalidCertificates: Bool,
+                     validatesCertificateChain: Bool) {
+        self.init(pinningMode: .certificate)
+        self.pinnedCertificates = pinnedCertificates
+        self.allowInvalidCertificates = allowInvalidCertificates
+        self.validatesCertificateChain = validatesCertificateChain
     }
 }

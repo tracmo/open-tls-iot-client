@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 extension CertificateConverter {
     enum ConvertError: Error {
@@ -29,37 +30,41 @@ extension CertificateConverter {
     
     static func makeP12Data(pemCertificate: String,
                             pemPrivateKey: String,
-                            password: String,
-                            completionHandler: @escaping (Result<Data, ConvertError>) -> Void) {
-        p12Data(fromPemCertificate: pemCertificate,
-                                   pemPrivateKey: pemPrivateKey,
-                                   password: password) { p12Data, error in
-            if let p12Data = p12Data {
-                completionHandler(.success(p12Data))
-                return
+                            password: String) -> AnyPublisher<Data, ConvertError> {
+        Future<Data, ConvertError> { promise in
+            p12Data(fromPemCertificate: pemCertificate,
+                    pemPrivateKey: pemPrivateKey,
+                    password: password) { p12Data, error in
+                if let p12Data = p12Data {
+                    promise(.success(p12Data))
+                    return
+                }
+                guard let error = error,
+                      let code = CertificateConverterErrorCode(rawValue: UInt((error as NSError).code)) else {
+                    promise(.failure(.unknown))
+                    return
+                }
+                promise(.failure(.init(code)))
             }
-            guard let error = error,
-                  let code = CertificateConverterErrorCode(rawValue: UInt((error as NSError).code)) else {
-                completionHandler(.failure(.unknown))
-                return
-            }
-            completionHandler(.failure(.init(code)))
         }
+        .eraseToAnyPublisher()
     }
     
-    static func makeDERCertificateData(pemCertificate: String,
-                                       completionHandler: @escaping (Result<Data, ConvertError>) -> Void) {
-        derCertificateData(fromPemCertificate: pemCertificate) { derCertificateData, error in
-            if let derCertificateData = derCertificateData {
-                completionHandler(.success(derCertificateData))
-                return
+    static func makeDERCertificateData(pemCertificate: String) -> AnyPublisher<Data, ConvertError> {
+        Future<Data, ConvertError> { promise in
+            derCertificateData(fromPemCertificate: pemCertificate) { derCertificateData, error in
+                if let derCertificateData = derCertificateData {
+                    promise(.success(derCertificateData))
+                    return
+                }
+                guard let error = error,
+                      let code = CertificateConverterErrorCode(rawValue: UInt((error as NSError).code)) else {
+                    promise(.failure(.unknown))
+                    return
+                }
+                promise(.failure(.init(code)))
             }
-            guard let error = error,
-                  let code = CertificateConverterErrorCode(rawValue: UInt((error as NSError).code)) else {
-                completionHandler(.failure(.unknown))
-                return
-            }
-            completionHandler(.failure(.init(code)))
         }
+        .eraseToAnyPublisher()
     }
 }
