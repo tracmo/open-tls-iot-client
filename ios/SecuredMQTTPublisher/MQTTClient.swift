@@ -56,54 +56,27 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
                  certificate: String,
                  privateKey: String,
                  rootCA: String?) -> AnyPublisher<Void, Error> {
-        Future<Void, Error> { [weak self] promise in
-            guard let self = self else { return }
-            
-            guard !endpoint.isEmpty else {
-                promise(.failure(ConnectError.endpointEmpty))
-                return
-            }
-            guard !certificate.isEmpty else {
-                promise(.failure(ConnectError.certificateEmpty))
-                return
-            }
-            guard !privateKey.isEmpty else {
-                promise(.failure(ConnectError.privateKeyEmpty))
-                return
-            }
-            
-            self.makeClientCertificates(certificate: certificate,
-                                        privateKey: privateKey)
-                .combineLatest(self.makePolicy(rootCA: rootCA))
-                .sink(receiveCompletion: { 
-                    guard let error = $0.getError() else { return }
-                    promise(.failure(error))
-                }, receiveValue: { [weak self] clientCertificates, policy in
-                    guard let self = self else { return }
-                    
-                    self.manager.connect(to: endpoint,
-                                         port: 8883,
-                                         tls: true,
-                                         keepalive: 60,
-                                         clean: true,
-                                         auth: false,
-                                         user: nil,
-                                         pass: nil,
-                                         will: false,
-                                         willTopic: nil,
-                                         willMsg: nil,
-                                         willQos: .atMostOnce,
-                                         willRetainFlag: false,
-                                         withClientId: clientID,
-                                         securityPolicy: policy,
-                                         certificates: clientCertificates,
-                                         protocolLevel: .version311) {
-                        promise($0 == nil ? .success : .failure($0!))
-                    }
-                })
-                .store(in: &self.bag)
+        guard !endpoint.isEmpty else {
+            return Fail(error: ConnectError.endpointEmpty)
+                .eraseToAnyPublisher()
         }
-        .eraseToAnyPublisher()
+        guard !certificate.isEmpty else {
+            return Fail(error: ConnectError.certificateEmpty)
+                .eraseToAnyPublisher()
+        }
+        guard !privateKey.isEmpty else {
+            return Fail(error: ConnectError.privateKeyEmpty)
+                .eraseToAnyPublisher()
+        }
+        
+        return makeClientCertificates(certificate: certificate,
+                                      privateKey: privateKey)
+            .combineLatest(self.makePolicy(rootCA: rootCA))
+            .flatMap { self.connect(endpoint: endpoint,
+                                    clientID: clientID,
+                                    clientCertificates: $0,
+                                    policy: $1) }
+            .eraseToAnyPublisher()
     }
     
     private func makeClientCertificates(certificate: String,
@@ -142,6 +115,34 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
                          allowInvalidCertificates: true,
                          validatesCertificateChain: false) }
             .eraseToAnyPublisher()
+    }
+    
+    private func connect(endpoint: String,
+                         clientID: String,
+                         clientCertificates: [Any],
+                         policy: MQTTSSLSecurityPolicy) -> AnyPublisher<Void, Error> {
+        Future<Void, Error> { promise in
+            self.manager.connect(to: endpoint,
+                                 port: 8883,
+                                 tls: true,
+                                 keepalive: 60,
+                                 clean: true,
+                                 auth: false,
+                                 user: nil,
+                                 pass: nil,
+                                 will: false,
+                                 willTopic: nil,
+                                 willMsg: nil,
+                                 willQos: .atMostOnce,
+                                 willRetainFlag: false,
+                                 withClientId: clientID,
+                                 securityPolicy: policy,
+                                 certificates: clientCertificates,
+                                 protocolLevel: .version311) {
+                promise($0 == nil ? .success : .failure($0!))
+            }
+        }
+        .eraseToAnyPublisher()
     }
     
     func disconnect() -> AnyPublisher<Void, Error> {
