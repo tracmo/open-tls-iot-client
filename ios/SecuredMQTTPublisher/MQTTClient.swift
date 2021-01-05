@@ -49,6 +49,8 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
     private var publishCompletionHandlers: [UInt16: (Result<Void, Error>) -> Void] = [:]
     private let publishTimeout: TimeInterval = 5
     
+    private var bag = Set<AnyCancellable>()
+    
     @discardableResult
     func connect(endpoint: String,
                  clientID: String,
@@ -72,76 +74,82 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
             }
             
             self.makeClientCertificates(certificate: certificate,
-                                        privateKey: privateKey) {
-                do {
-                    let clientCertificates = try $0.get()
-                    self.makePolicy(rootCA: rootCA) {
-                        do {
-                            let policy = try $0.get()
-                            self.manager.connect(to: endpoint,
-                                                 port: 8883,
-                                                 tls: true,
-                                                 keepalive: 60,
-                                                 clean: true,
-                                                 auth: false,
-                                                 user: nil,
-                                                 pass: nil,
-                                                 will: false,
-                                                 willTopic: nil,
-                                                 willMsg: nil,
-                                                 willQos: .atMostOnce,
-                                                 willRetainFlag: false,
-                                                 withClientId: clientID,
-                                                 securityPolicy: policy,
-                                                 certificates: clientCertificates,
-                                                 protocolLevel: .version311) {
-                                promise($0 == nil ? .success : .failure($0!))
-                            }
-                        } catch { promise(.failure(error)) }
+                                        privateKey: privateKey)
+                .combineLatest(self.makePolicy(rootCA: rootCA))
+                .sink(receiveCompletion: { completion in
+                    guard let error = completion.getError() else { return }
+                    promise(.failure(error))
+                }, receiveValue: { [weak self] clientCertificates, policy in
+                    guard let self = self else { return }
+                    
+                    self.manager.connect(to: endpoint,
+                                         port: 8883,
+                                         tls: true,
+                                         keepalive: 60,
+                                         clean: true,
+                                         auth: false,
+                                         user: nil,
+                                         pass: nil,
+                                         will: false,
+                                         willTopic: nil,
+                                         willMsg: nil,
+                                         willQos: .atMostOnce,
+                                         willRetainFlag: false,
+                                         withClientId: clientID,
+                                         securityPolicy: policy,
+                                         certificates: clientCertificates,
+                                         protocolLevel: .version311) {
+                        promise($0 == nil ? .success : .failure($0!))
                     }
+                })
+                .store(in: &self.bag)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    @discardableResult
+    private func makeClientCertificates(certificate: String,
+                                        privateKey: String) -> AnyPublisher<[Any], Error> {
+        Future<[Any], Error> { promise in
+            let p12Password = UUID().uuidString
+            CertificateConverter.makeP12Data(pemCertificate: certificate,
+                                             pemPrivateKey: privateKey,
+                                             password: p12Password) {
+                do {
+                    let clientP12Data = try $0.get()
+                    let clientCertificates = MQTTCFSocketTransport.clientCerts(fromP12Data: clientP12Data,
+                                                                               passphrase: p12Password)
+                    promise(clientCertificates == nil ?
+                                .failure(ConnectError.clientCertificatesCreateFailure) :
+                                .success(clientCertificates!))
                 } catch { promise(.failure(error)) }
             }
         }
         .eraseToAnyPublisher()
     }
     
-    private func makeClientCertificates(certificate: String,
-                                        privateKey: String,
-                                        completionHandler: @escaping (Result<[Any], Error>) -> Void) {
-        let p12Password = UUID().uuidString
-        CertificateConverter.makeP12Data(pemCertificate: certificate,
-                                         pemPrivateKey: privateKey,
-                                         password: p12Password) {
-            do {
-                let clientP12Data = try $0.get()
-                let clientCertificates = MQTTCFSocketTransport.clientCerts(fromP12Data: clientP12Data,
-                                                                           passphrase: p12Password)
-                completionHandler(clientCertificates == nil ?
-                                    .failure(ConnectError.clientCertificatesCreateFailure) :
-                                    .success(clientCertificates!))
-            } catch { completionHandler(.failure(error)) }
+    @discardableResult
+    private func makePolicy(rootCA: String?) -> AnyPublisher<MQTTSSLSecurityPolicy, Error> {
+        Future<MQTTSSLSecurityPolicy, Error> { promise in
+            guard let rootCA = rootCA else {
+                promise(.success(.init(pinningMode: .none)))
+                return
+            }
+            
+            CertificateConverter.makeDERCertificateData(pemCertificate: rootCA) {
+                do {
+                    let rootCAData = try $0.get()
+                    
+                    let policy = MQTTSSLSecurityPolicy(pinningMode: .certificate)!
+                    policy.pinnedCertificates = [rootCAData]
+                    policy.allowInvalidCertificates = true
+                    policy.validatesCertificateChain = false
+                    
+                    promise(.success(policy))
+                } catch { promise(.failure(error))}
+            }
         }
-    }
-    
-    private func makePolicy(rootCA: String?,
-                            completionHandler: @escaping (Result<MQTTSSLSecurityPolicy, Error>) -> Void) {
-        guard let rootCA = rootCA else {
-            completionHandler(.success(.init(pinningMode: .none)))
-            return
-        }
-        
-        CertificateConverter.makeDERCertificateData(pemCertificate: rootCA) {
-            do {
-                let rootCAData = try $0.get()
-                
-                let policy = MQTTSSLSecurityPolicy(pinningMode: .certificate)!
-                policy.pinnedCertificates = [rootCAData]
-                policy.allowInvalidCertificates = true
-                policy.validatesCertificateChain = false
-                
-                completionHandler(.success(policy))
-            } catch { completionHandler(.failure(error))}
-        }
+        .eraseToAnyPublisher()
     }
     
     func disconnect(completionHandler: @escaping (Result<Void, Error>) -> Void) {
