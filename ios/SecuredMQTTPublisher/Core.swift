@@ -42,44 +42,62 @@ final class Core {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self = self else { return }
-                self.disconnect { [weak self] _ in
-                    guard let self = self else { return }
-                    self.connect()
-                }
+                self.disconnectThenConnect()
+                    .receive(on: DispatchQueue.main)
+                    .sink(receiveCompletion: { _ in },
+                          receiveValue: { _ in })
+                    .store(in: &self.bag)
             }
             .store(in: &bag)
     }
     
-    func connect(completionHandler: ((Result<Void, Error>) -> Void)? = nil) {
-        NSLog("SMP connect")
-        connectError = nil
-        client.connect(endpoint: dataStore.settings.endpoint,
-                       clientID: dataStore.settings.clientID,
-                       certificate: dataStore.settings.certificate,
-                       privateKey: dataStore.settings.privateKey,
-                       rootCA: dataStore.settings.rootCA) {
-            do {
-                let _ = try $0.get()
-                NSLog("SMP connect Success")
-            } catch {
-                NSLog("SMP connect Failure: \(error)")
-                self.connectError = error
-            }
-            completionHandler?($0)
-        }
+    @discardableResult
+    private func disconnectThenConnect() -> AnyPublisher<Void, Error> {
+        disconnect().flatMap { self.connect() }.eraseToAnyPublisher()
     }
     
-    func disconnect(completionHandler: ((Result<Void, Error>) -> Void)? = nil) {
-        NSLog("SMP disconnect")
-        client.disconnect {
-            do {
-                let _ = try $0.get()
-                NSLog("SMP disconnect Success")
-            } catch {
-                NSLog("SMP disconnect Failure: \(error)")
+    @discardableResult
+    func connect() -> AnyPublisher<Void, Error> {
+        Future<Void, Error> { [weak self] promise in
+            guard let self = self else { return }
+            NSLog("SMP connect")
+            self.connectError = nil
+            let settings = self.dataStore.settings
+            self.client.connect(endpoint: settings.endpoint,
+                                clientID: settings.clientID,
+                                certificate: settings.certificate,
+                                privateKey: settings.privateKey,
+                                rootCA: settings.rootCA) { [weak self] in
+                guard let self = self else { return }
+                do {
+                    let _ = try $0.get()
+                    NSLog("SMP connect Success")
+                } catch {
+                    NSLog("SMP connect Failure: \(error)")
+                    self.connectError = error
+                }
+                promise($0)
             }
-            completionHandler?($0)
         }
+        .eraseToAnyPublisher()
+    }
+    
+    @discardableResult
+    func disconnect() -> AnyPublisher<Void, Error> {
+        Future<Void,Error> { [weak self] promise in
+            guard let self = self else { return }
+            NSLog("SMP disconnect")
+            self.client.disconnect {
+                do {
+                    let _ = try $0.get()
+                    NSLog("SMP disconnect Success")
+                } catch {
+                    NSLog("SMP disconnect Failure: \(error)")
+                }
+                promise($0)
+            }
+        }
+        .eraseToAnyPublisher()
     }
     
     func publish(message: String,
