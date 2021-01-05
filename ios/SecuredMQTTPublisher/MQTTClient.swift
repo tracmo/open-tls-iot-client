@@ -93,14 +93,12 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
     
     private func makeClientCertificates(p12Data: Data,
                                         password: String) -> AnyPublisher<[Any], Error> {
-        Future<[Any], Error> { promise in
-            let clientCertificates = MQTTCFSocketTransport.clientCerts(fromP12Data: p12Data,
-                                                                       passphrase: password)
-            promise(clientCertificates == nil ?
-                        .failure(ConnectError.clientCertificatesCreateFailure) :
-                        .success(clientCertificates!))
-        }
-        .eraseToAnyPublisher()
+        let clientCertificates = MQTTCFSocketTransport.clientCerts(fromP12Data: p12Data,
+                                                                   passphrase: password)
+        let result: Result<[Any], Error> = clientCertificates == nil ?
+            .failure(ConnectError.clientCertificatesCreateFailure) :
+            .success(clientCertificates!)
+        return result.publisher.eraseToAnyPublisher()
     }
     
     private func makePolicy(rootCA: String?) -> AnyPublisher<MQTTSSLSecurityPolicy, Error> {
@@ -264,11 +262,9 @@ fileprivate extension MQTTSessionManager {
                              qos: .atLeastOnce,
                              retain: false)
         let isMessageDropped = (qos != .atMostOnce) && (messageID == 0)
-        return isMessageDropped ?
-            Fail(error: SendError.messageDropped)
-            .eraseToAnyPublisher() :
-            Just(messageID)
-            .setFailureType(to: SendError.self)
-            .eraseToAnyPublisher()
+        let result: Result<UInt16, SendError> = isMessageDropped ?
+            .failure(.messageDropped) :
+            .success(messageID)
+        return result.publisher.eraseToAnyPublisher()
     }
 }

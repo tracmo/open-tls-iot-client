@@ -55,7 +55,9 @@ final class Core {
     }
     
     private func disconnectThenConnect() -> AnyPublisher<Void, Error> {
-        disconnect().flatMap { self.connect() }.eraseToAnyPublisher()
+        disconnect()
+            .flatMap { self.connect() }
+            .eraseToAnyPublisher()
     }
     
     func connect() -> AnyPublisher<Void, Error> {
