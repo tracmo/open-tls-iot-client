@@ -309,6 +309,9 @@ final class OkCancelButtonsView: UICollectionReusableView {
 }
 
 final class LabelSwitchView: UICollectionReusableView {
+    @Published
+    private(set) var isOn: Bool = false
+    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .accent
@@ -316,9 +319,23 @@ final class LabelSwitchView: UICollectionReusableView {
         return label
     }()
     
-    private lazy var mySwitch = UISwitch()
+    private lazy var mySwitch: UISwitch = {
+        let mySwitch = UISwitch()
+        mySwitch.publisher(for: \.isOn)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                self.isOn = $0
+            }
+            .store(in: &bag)
+        mySwitch.addAction(.init { [weak self] _ in
+            guard let self = self else { return }
+            self.isOn = mySwitch.isOn
+        },
+        for: .valueChanged)
+        return mySwitch
+    }()
     
-    var isOn: Bool { mySwitch.isOn }
+    private var bag = Set<AnyCancellable>()
     
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -343,10 +360,5 @@ final class LabelSwitchView: UICollectionReusableView {
     }
     
     func display(title: String?) { titleLabel.text = title }
-    
     func display(isSwitchOn: Bool) { mySwitch.isOn = isSwitchOn }
-    
-    func setSwitchValueDidChangeHandler(_ handler: @escaping (UIAction) -> Void) {
-        mySwitch.addAction(.init(handler: handler), for: .valueChanged)
-    }
 }

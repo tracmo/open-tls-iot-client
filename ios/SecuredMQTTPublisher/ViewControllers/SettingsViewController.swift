@@ -144,18 +144,26 @@ final class SettingsViewController: UIViewController {
             guard let self = self else { return }
             biometricAuthSwitch.display(title: "Touch ID/Face ID")
             biometricAuthSwitch.display(isSwitchOn: self.editingSettings.isBiometricAuthEnabled)
-            biometricAuthSwitch.setSwitchValueDidChangeHandler { _ in
-                self.editingSettings.isBiometricAuthEnabled = biometricAuthSwitch.isOn
-            }
+            biometricAuthSwitch.$isOn
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] in
+                    guard let self = self else { return }
+                    self.editingSettings.isBiometricAuthEnabled = $0
+                }
+                .store(in: &self.bag)
         }
         let hideUnusedButtonSwitchRegistration = UICollectionView.SupplementaryRegistration<LabelSwitchView>(
             elementKind: ElementKind.hideUnusedButtonSwitch.rawValue) { [weak self] hideUnusedButtonSwitch, _, _ in
             guard let self = self else { return }
             hideUnusedButtonSwitch.display(title: "Hide Unused Buttons")
             hideUnusedButtonSwitch.display(isSwitchOn: self.editingSettings.isUnusedButtonHidden)
-            hideUnusedButtonSwitch.setSwitchValueDidChangeHandler { _ in
-                self.editingSettings.isUnusedButtonHidden = hideUnusedButtonSwitch.isOn
-            }
+            hideUnusedButtonSwitch.$isOn
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] in
+                    guard let self = self else { return }
+                    self.editingSettings.isUnusedButtonHidden = $0
+                }
+                .store(in: &self.bag)
         }
         let okCancelButtonsViewRegistration = UICollectionView.SupplementaryRegistration<OkCancelButtonsView>(
             elementKind: ElementKind.okCancelButtonsView.rawValue) { [weak self] okCancelButtonsView, _, _ in
