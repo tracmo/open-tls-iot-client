@@ -83,44 +83,35 @@ final class Core {
     
     @discardableResult
     func disconnect() -> AnyPublisher<Void, Error> {
-        Future<Void,Error> { [weak self] promise in
-            guard let self = self else { return }
-            NSLog("SMP disconnect")
-            self.client.disconnect {
-                do {
-                    let _ = try $0.get()
-                    NSLog("SMP disconnect Success")
-                } catch {
+        NSLog("SMP disconnect")
+        return client.disconnect()
+            .handleEvents(receiveCompletion: {
+                if let error = $0.getError() {
                     NSLog("SMP disconnect Failure: \(error)")
+                } else {
+                    NSLog("SMP disconnect Success")
                 }
-                promise($0)
-            }
-        }
-        .eraseToAnyPublisher()
+            })
+            .eraseToAnyPublisher()
     }
     
     @discardableResult
     func publish(message: String,
                  to topic: String) -> AnyPublisher<Void, Error> {
-        Future<Void, Error> { [weak self] promise in
-            guard let self = self else { return }
-            NSLog("SMP publish \"\(topic)\": \"\(message)\"")
-            self.client.publish(message: message, to: topic) {
-                do {
-                    let _ = try $0.get()
-                    NSLog("SMP publish \"\(topic)\": \"\(message)\" Success")
-                    promise($0)
-                } catch {
-                    let newError: Error
-                    if let publishError = error as? SMPMQTTClient.PublishError,
-                       publishError == .clientNotConnected {
-                        newError = PublishError.clientNotConnected(connectError: self.connectError)
-                    } else { newError = error }
-                    NSLog("SMP publish \"\(topic)\": \"\(message)\" Failure: \(newError)")
-                    promise(.failure(newError))
-                }
+        NSLog("SMP publish \"\(topic)\": \"\(message)\"")
+        return client.publish(message: message, to: topic)
+            .mapError {
+                guard let publishError = $0 as? SMPMQTTClient.PublishError,
+                      publishError == .clientNotConnected else { return $0 }
+                return PublishError.clientNotConnected(connectError: self.connectError) as Error
             }
-        }
-        .eraseToAnyPublisher()
+            .handleEvents(receiveCompletion: {
+                if let error = $0.getError() {
+                    NSLog("SMP publish \"\(topic)\": \"\(message)\" Failure: \(error)")
+                } else {
+                    NSLog("SMP publish \"\(topic)\": \"\(message)\" Success")
+                }
+            })
+            .eraseToAnyPublisher()
     }
 }

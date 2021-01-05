@@ -46,7 +46,7 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
         return manager
     }()
     
-    private var publishCompletionHandlers: [UInt16: (Result<Void, Error>) -> Void] = [:]
+    private var publishPromises: [UInt16: Future<Void, Error>.Promise] = [:]
     private let publishTimeout: TimeInterval = 5
     
     private var bag = Set<AnyCancellable>()
@@ -152,44 +152,54 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
         .eraseToAnyPublisher()
     }
     
-    func disconnect(completionHandler: @escaping (Result<Void, Error>) -> Void) {
-        manager.disconnect { completionHandler($0 == nil ? .success : .failure($0!)) }
+    @discardableResult
+    func disconnect() -> AnyPublisher<Void, Error> {
+        Future<Void, Error> { [weak self] promise in
+            guard let self = self else { return }
+            self.manager.disconnect { promise($0 == nil ? .success : .failure($0!)) }
+        }
+        .eraseToAnyPublisher()
     }
     
+    @discardableResult
     func publish(message: String,
-                 to topic: String,
-                 completionHandler: @escaping (Result<Void, Error>) -> Void) {
-        guard !message.isEmpty else {
-            completionHandler(.failure(PublishError.messageEmpty))
-            return
+                 to topic: String) -> AnyPublisher<Void, Error> {
+        Future<Void, Error> { [weak self] promise in
+            guard let self = self else { return }
+            
+            guard !message.isEmpty else {
+                promise(.failure(PublishError.messageEmpty))
+                return
+            }
+            guard !topic.isEmpty else {
+                promise(.failure(PublishError.topicEmpty))
+                return
+            }
+            guard self.manager.state == .connected else {
+                promise(.failure(PublishError.clientNotConnected))
+                return
+            }
+            let messageID = self.manager.send(message.data(using: .utf8),
+                                              topic: topic,
+                                              qos: .atLeastOnce,
+                                              retain: false)
+            self.publishPromises[messageID] = promise
+            Timer.scheduledTimer(withTimeInterval: self.publishTimeout, repeats: false) { _ in
+                guard let promise = self.publishPromises[messageID] else { return }
+                self.publishPromises[messageID] = nil
+                promise(.failure(PublishError.timeout))
+            }
         }
-        guard !topic.isEmpty else {
-            completionHandler(.failure(PublishError.topicEmpty))
-            return
-        }
-        guard manager.state == .connected else {
-            completionHandler(.failure(PublishError.clientNotConnected))
-            return
-        }
-        let messageID = manager.send(message.data(using: .utf8),
-                                     topic: topic,
-                                     qos: .atLeastOnce,
-                                     retain: false)
-        publishCompletionHandlers[messageID] = completionHandler
-        Timer.scheduledTimer(withTimeInterval: publishTimeout, repeats: false) { _ in
-            guard let completionHandler = self.publishCompletionHandlers[messageID] else { return }
-            self.publishCompletionHandlers[messageID] = nil
-            completionHandler(.failure(PublishError.timeout))
-        }
+        .eraseToAnyPublisher()
     }
     
     // MARK - MQTTSessionManagerDelegate
     
     func sessionManager(_ sessionManager: MQTTSessionManager!,
                         didDeliverMessage msgID: UInt16) {
-        guard let completionHandler = publishCompletionHandlers[msgID] else { return }
-        publishCompletionHandlers[msgID] = nil
-        completionHandler(.success)
+        guard let promise = publishPromises[msgID] else { return }
+        publishPromises[msgID] = nil
+        promise(.success)
     }
     
     func sessionManager(_ sessionManager: MQTTSessionManager!,
