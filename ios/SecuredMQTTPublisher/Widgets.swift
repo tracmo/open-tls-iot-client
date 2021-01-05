@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Combine
 
 final class ButtonCell: UICollectionViewCell {
     enum State {
@@ -249,12 +250,24 @@ final class TextViewCell: UICollectionViewCell {
 }
 
 final class OkCancelButtonsView: UICollectionReusableView {
+    enum Action {
+        case ok
+        case cancel
+    }
+    
+    let actionPublisher = PassthroughSubject<Action, Never>()
+    
     private lazy var okButton: UIButton = {
         let button = RoundedButton()
         button.backgroundColor = .accent
         button.tintColor = .secondary
         button.titleLabel?.font = .systemFont(ofSize: 36)
         button.setTitle("OK", for: .normal)
+        button.addAction(.init { [weak self] _ in
+            guard let self = self else { return }
+            self.actionPublisher.send(.ok)
+        },
+        for: .touchUpInside)
         return button
     }()
     
@@ -264,6 +277,11 @@ final class OkCancelButtonsView: UICollectionReusableView {
         button.tintColor = .secondary
         button.titleLabel?.font = .systemFont(ofSize: 36)
         button.setTitle("CANCEL", for: .normal)
+        button.addAction(.init { [weak self] _ in
+            guard let self = self else { return }
+            self.actionPublisher.send(.cancel)
+        },
+        for: .touchUpInside)
         return button
     }()
     
@@ -287,14 +305,6 @@ final class OkCancelButtonsView: UICollectionReusableView {
                         .leading(to: leading)
                         .trailing(to: trailing)
                         .bottom(to: bottom))
-    }
-    
-    func setOKHandler(_ handler: @escaping (UIAction) -> Void) {
-        okButton.addAction(.init(handler: handler), for: .touchUpInside)
-    }
-    
-    func setCancelHandler(_ handler: @escaping (UIAction) -> Void) {
-        cancelButton.addAction(.init(handler: handler), for: .touchUpInside)
     }
 }
 

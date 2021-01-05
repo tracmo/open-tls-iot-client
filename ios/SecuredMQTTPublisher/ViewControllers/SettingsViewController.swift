@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Combine
 
 final class SettingsViewController: UIViewController {
     private typealias DataSource = UICollectionViewDiffableDataSource<Section, Text>.SingleCellType<TextViewCell>
@@ -159,15 +160,19 @@ final class SettingsViewController: UIViewController {
         let okCancelButtonsViewRegistration = UICollectionView.SupplementaryRegistration<OkCancelButtonsView>(
             elementKind: ElementKind.okCancelButtonsView.rawValue) { [weak self] okCancelButtonsView, _, _ in
             guard let self = self else { return }
-            okCancelButtonsView.setOKHandler { [weak self] _ in
-                guard let self = self else { return }
-                self.settings = self.editingSettings
-                self.dismiss(animated: true)
-            }
-            okCancelButtonsView.setCancelHandler { [weak self] _ in
-                guard let self = self else { return }
-                self.dismiss(animated: true)
-            }
+            okCancelButtonsView.actionPublisher
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] in
+                    guard let self = self else { return }
+                    switch $0 {
+                    case .ok:
+                        self.settings = self.editingSettings
+                        self.dismiss(animated: true)
+                    case .cancel:
+                        self.dismiss(animated: true)
+                    }
+                }
+                .store(in: &self.bag)
         }
         dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
             guard let self = self else { return nil }
@@ -222,6 +227,8 @@ final class SettingsViewController: UIViewController {
         }
     }
     private let settingsDidChangeHandler: (Settings) -> Void
+    
+    private var bag = Set<AnyCancellable>()
     
     init(settings: Settings,
          settingsDidChangeHandler: @escaping (Settings) -> Void) {
