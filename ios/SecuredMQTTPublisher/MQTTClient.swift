@@ -27,6 +27,7 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
         case messageEmpty
         case topicEmpty
         case clientNotConnected
+        case messageDropped
         case timeout
     }
     
@@ -155,30 +156,36 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
     
     func publish(message: String,
                  to topic: String) -> AnyPublisher<Void, Error> {
-        Future<Void, Error> { [weak self] promise in
+        guard !message.isEmpty else {
+            return Fail(error: PublishError.messageEmpty)
+                .eraseToAnyPublisher()
+        }
+        guard !topic.isEmpty else {
+            return Fail(error: PublishError.topicEmpty)
+                .eraseToAnyPublisher()
+        }
+        guard self.manager.state == .connected else {
+            return Fail(error: PublishError.clientNotConnected)
+                .eraseToAnyPublisher()
+        }
+        
+        return manager.send(message: message,
+                            topic: topic,
+                            qos: .atLeastOnce,
+                            retain: false)
+            .mapError { $0 }
+            .flatMap { self.scheduledTimeoutPublishPromise(messageID: $0) }
+            .eraseToAnyPublisher()
+    }
+    
+    private func scheduledTimeoutPublishPromise(messageID: UInt16) -> AnyPublisher<Void, Error> {
+        Future<Void, Error> { [weak self] publishPromise in
             guard let self = self else { return }
-            
-            guard !message.isEmpty else {
-                promise(.failure(PublishError.messageEmpty))
-                return
-            }
-            guard !topic.isEmpty else {
-                promise(.failure(PublishError.topicEmpty))
-                return
-            }
-            guard self.manager.state == .connected else {
-                promise(.failure(PublishError.clientNotConnected))
-                return
-            }
-            let messageID = self.manager.send(message.data(using: .utf8),
-                                              topic: topic,
-                                              qos: .atLeastOnce,
-                                              retain: false)
-            self.publishPromises[messageID] = promise
+            self.publishPromises[messageID] = publishPromise
             Timer.scheduledTimer(withTimeInterval: self.publishTimeout, repeats: false) { _ in
-                guard let promise = self.publishPromises[messageID] else { return }
+                guard let publishPromise = self.publishPromises[messageID] else { return }
                 self.publishPromises[messageID] = nil
-                promise(.failure(PublishError.timeout))
+                publishPromise(.failure(PublishError.timeout))
             }
         }
         .eraseToAnyPublisher()
@@ -188,9 +195,13 @@ final class SMPMQTTClient: NSObject, MQTTSessionManagerDelegate {
     
     func sessionManager(_ sessionManager: MQTTSessionManager!,
                         didDeliverMessage msgID: UInt16) {
-        guard let promise = publishPromises[msgID] else { return }
-        publishPromises[msgID] = nil
-        promise(.success)
+        fullfillPublishPromise(messageID: msgID)
+    }
+    
+    private func fullfillPublishPromise(messageID: UInt16) {
+        guard let publishPromise = publishPromises[messageID] else { return }
+        publishPromises[messageID] = nil
+        publishPromise(.success)
     }
     
     func sessionManager(_ sessionManager: MQTTSessionManager!,
@@ -236,5 +247,28 @@ fileprivate extension MQTTSSLSecurityPolicy {
         self.pinnedCertificates = pinnedCertificates
         self.allowInvalidCertificates = allowInvalidCertificates
         self.validatesCertificateChain = validatesCertificateChain
+    }
+}
+
+fileprivate extension MQTTSessionManager {
+    enum SendError: Error {
+        case messageDropped
+    }
+    
+    func send(message: String,
+              topic: String,
+              qos: MQTTQosLevel,
+              retain: Bool) -> AnyPublisher<UInt16, SendError> {
+        let messageID = send(message.data(using: .utf8),
+                             topic: topic,
+                             qos: .atLeastOnce,
+                             retain: false)
+        let isMessageDropped = (qos != .atMostOnce) && (messageID == 0)
+        return isMessageDropped ?
+            Fail(error: SendError.messageDropped)
+            .eraseToAnyPublisher() :
+            Just(messageID)
+            .setFailureType(to: SendError.self)
+            .eraseToAnyPublisher()
     }
 }

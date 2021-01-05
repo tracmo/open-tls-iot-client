@@ -387,7 +387,8 @@ extension HomeViewController: UICollectionViewDelegate {
             case .messageEmpty,
                  .topicEmpty,
                  .clientNotConnected: return true
-            case .timeout: return false
+            case .messageDropped,
+                 .timeout: return false
             }
         }
         
@@ -418,9 +419,10 @@ extension Error {
         
         if let publishError = self as? SMPMQTTClient.PublishError {
             switch publishError {
-            case .messageEmpty: return "message Empty"
-            case .topicEmpty: return "MQTT topic Empty"
+            case .messageEmpty: return "message empty"
+            case .topicEmpty: return "MQTT topic empty"
             case .clientNotConnected: return "client not connected"
+            case .messageDropped: return "message dropped"
             case .timeout: return "timeout"
             }
         }
