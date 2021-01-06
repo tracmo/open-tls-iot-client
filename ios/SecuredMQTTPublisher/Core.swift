@@ -7,6 +7,7 @@
 //
 
 import Combine
+import UIKit
 
 final class Core {
     enum PublishError: Error {
@@ -28,6 +29,26 @@ final class Core {
     private var bag: Set<AnyCancellable> = []
     
     init() {
+        NotificationCenter.default.addObserver(forName: UIApplication.willResignActiveNotification,
+                                               object: nil,
+                                               queue: .main) { [weak self] _ in
+            guard let self = self else { return }
+            self.disconnect()
+                .sink(receiveCompletion: { _ in },
+                      receiveValue: { _ in })
+                .store(in: &self.bag)
+        }
+        
+        NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
+                                               object: nil,
+                                               queue: .main) { [weak self] _ in
+            guard let self = self else { return }
+            self.connect()
+                .sink(receiveCompletion: { _ in },
+                      receiveValue: { _ in })
+                .store(in: &self.bag)
+        }
+        
         connect()
             .sink(receiveCompletion: { _ in },
                   receiveValue: { _ in })
@@ -60,7 +81,7 @@ final class Core {
             .eraseToAnyPublisher()
     }
     
-    func connect() -> AnyPublisher<Void, Error> {
+    private func connect() -> AnyPublisher<Void, Error> {
         NSLog("SMP connect")
         connectError = nil
         let settings = self.dataStore.settings
@@ -81,7 +102,7 @@ final class Core {
             .eraseToAnyPublisher()
     }
     
-    func disconnect() -> AnyPublisher<Void, Error> {
+    private func disconnect() -> AnyPublisher<Void, Error> {
         NSLog("SMP disconnect")
         return client.disconnect()
             .handleEvents(receiveCompletion: {
