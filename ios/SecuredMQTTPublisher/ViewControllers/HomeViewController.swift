@@ -254,54 +254,37 @@ final class HomeViewController: UIViewController {
         buttonConfigs.mutateEach { $1.state = .normal }
         
         core.$connectError
+            .combineLatest(core.$state)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
+            .map { (connectError, state) -> (ButtonCell.State, String?) in
+                switch state {
+                case .disconnected: return (.disabled, connectError?.homeViewControllerErrorMessage)
+                case .connecting: return (.disabled, "connecting...")
+                case .connected: return (.normal, nil)
+                }
+            }
+            .sink { [weak self] buttonCellState, errorMessage in
                 guard let self = self else { return }
-                if $0 == nil { self.buttonConfigs.mutateEach { $1.state = .normal } }
-                self.errorMessageTextView.text = $0?.homeViewControllerErrorMessage
+                self.buttonConfigs.mutateEach { $1.state = buttonCellState }
+                self.errorMessageTextView.text = errorMessage
             }
             .store(in: &bag)
         
         core.dataStore.$settings
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
+            .sink { [weak self] settings in
                 guard let self = self else { return }
-                self.displaySettings($0)
-            }
-            .store(in: &bag)
-        
-        core.$state
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                guard let self = self else { return }
-                let state: ButtonCell.State
-                let errorMessage: String?
-                switch $0 {
-                case .disconnected:
-                    state = .disabled
-                    errorMessage = self.core.connectError?.homeViewControllerErrorMessage
-                case .connecting:
-                    state = .disabled
-                    errorMessage = "connecting..."
-                case .connected:
-                    state = .normal
-                    errorMessage = nil
+                
+                self.titleLabel.text = settings.homeTitle
+                
+                self.buttonConfigs.mutateEach {
+                    guard let action = settings.actions[safe: $0] else { return }
+                    $1.title = action.title
+                    $1.isEditing = self.isEditing
+                    $1.isHidden = settings.isUnusedButtonHidden && action.isEmpty
                 }
-                self.buttonConfigs.mutateEach { $1.state = state }
-                self.errorMessageTextView.text = errorMessage
             }
             .store(in: &bag)
-    }
-    
-    private func displaySettings(_ settings: Settings) {
-        titleLabel.text = settings.homeTitle
-        
-        buttonConfigs.mutateEach {
-            guard let action = settings.actions[safe: $0] else { return }
-            $1.title = action.title
-            $1.isEditing = isEditing
-            $1.isHidden = settings.isUnusedButtonHidden && action.isEmpty
-        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
