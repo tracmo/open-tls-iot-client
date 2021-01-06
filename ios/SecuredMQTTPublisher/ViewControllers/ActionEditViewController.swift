@@ -175,13 +175,15 @@ final class ActionEditViewController: UIViewController {
         // init with a big enough height to avoid constraint error
         let toolBar = UIToolbar(frame: .init(x: 0, y: 0, width: 0, height: 100))
         toolBar.setItems([.init(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
-                              .init(barButtonSystemItem: .done, target: self, action: #selector(doneToolBarDoneButtonDidTap(_:)))],
-                             animated: false)
+                          .init(barButtonSystemItem: .done, target: self, action: #selector(doneToolBarDoneButtonDidTap(_:)))],
+                         animated: false)
         toolBar.sizeToFit()
         return toolBar
     }()
     
     @objc private func doneToolBarDoneButtonDidTap(_ sender: Any) { view.endEditing(true) }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle { .darkContent }
     
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }

@@ -139,6 +139,8 @@ final class HomeViewController: UIViewController {
         return button
     }()
     
+    override var preferredStatusBarStyle: UIStatusBarStyle { .darkContent }
+    
     override var isEditing: Bool {
         didSet {
             guard oldValue != isEditing else { return }

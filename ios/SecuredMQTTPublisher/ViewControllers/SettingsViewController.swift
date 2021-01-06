@@ -223,6 +223,8 @@ final class SettingsViewController: UIViewController {
     
     @objc private func doneToolBarDoneButtonDidTap(_ sender: Any) { view.endEditing(true) }
     
+    override var preferredStatusBarStyle: UIStatusBarStyle { .darkContent }
+    
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
