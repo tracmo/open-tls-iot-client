@@ -9,6 +9,11 @@
 import UIKit
 import Combine
 
+extension UIWindow {
+    static var main: UIWindow?
+    static var auth: UIWindow?
+}
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     
@@ -16,10 +21,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
-        let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = .home
-        window.makeKeyAndVisible()
-        self.window = window
+        
+        let mainWindow = UIWindow(windowScene: windowScene)
+        mainWindow.rootViewController = .home
+        mainWindow.makeKeyAndVisible()
+        self.window = mainWindow
+        UIWindow.main = mainWindow
+        
+        let authWindow = UIWindow(windowScene: windowScene)
+        authWindow.windowLevel = .normal + 1
+        authWindow.rootViewController = .auth
+        authWindow.isHidden = true
+        UIWindow.auth = authWindow
     }
 }
 

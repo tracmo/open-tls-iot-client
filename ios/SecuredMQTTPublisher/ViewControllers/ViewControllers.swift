@@ -9,6 +9,8 @@
 import UIKit
 
 extension UIViewController {
+    static var auth: AuthViewController { .init() }
+    
     static var home: HomeViewController { .init(core: .shared) }
     
     static func actionEdit(index: Int) -> ActionEditViewController? {

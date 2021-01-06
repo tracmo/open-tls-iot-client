@@ -37,6 +37,8 @@ final class Core {
                 .sink(receiveCompletion: { _ in },
                       receiveValue: { _ in })
                 .store(in: &self.bag)
+            
+            self.showAuthIfNeeded()
         }
         
         NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
@@ -73,6 +75,11 @@ final class Core {
                     .store(in: &self.bag)
             }
             .store(in: &bag)
+    }
+    
+    private func showAuthIfNeeded() {
+        guard self.dataStore.settings.isBiometricAuthEnabled else { return }
+        UIWindow.auth?.isHidden = false
     }
     
     private func disconnectThenConnect() -> AnyPublisher<Void, Error> {

@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		070290D025817CD3004E2BC4 /* ActionEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070290CF25817CD3004E2BC4 /* ActionEditViewController.swift */; };
 		070290D52581E5AC004E2BC4 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070290D42581E5AC004E2BC4 /* SettingsViewController.swift */; };
+		075ACB6B25A5C78B00E2AAC1 /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075ACB6A25A5C78B00E2AAC1 /* AuthViewController.swift */; };
+		075ACB6D25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075ACB6C25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift */; };
 		07940B5525927643003EB4FA /* CertificateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B5425927643003EB4FA /* CertificateConverter.swift */; };
 		07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B57259276A1003EB4FA /* MQTTClient.swift */; };
 		079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079D070425A34DCE00F56392 /* ViewControllers.swift */; };
@@ -49,6 +51,8 @@
 /* Begin PBXFileReference section */
 		070290CF25817CD3004E2BC4 /* ActionEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionEditViewController.swift; sourceTree = "<group>"; };
 		070290D42581E5AC004E2BC4 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		075ACB6A25A5C78B00E2AAC1 /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
+		075ACB6C25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceOwnerAuthenticator.swift; sourceTree = "<group>"; };
 		07940B5425927643003EB4FA /* CertificateConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateConverter.swift; sourceTree = "<group>"; };
 		07940B57259276A1003EB4FA /* MQTTClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MQTTClient.swift; sourceTree = "<group>"; };
 		079D070425A34DCE00F56392 /* ViewControllers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllers.swift; sourceTree = "<group>"; };
@@ -190,6 +194,7 @@
 			isa = PBXGroup;
 			children = (
 				079D070425A34DCE00F56392 /* ViewControllers.swift */,
+				075ACB6A25A5C78B00E2AAC1 /* AuthViewController.swift */,
 				07E1D5CA257FC6730057B9AC /* HomeViewController.swift */,
 				070290CF25817CD3004E2BC4 /* ActionEditViewController.swift */,
 				070290D42581E5AC004E2BC4 /* SettingsViewController.swift */,
@@ -366,6 +371,7 @@
 				07E1D5C6257FC6730057B9AC /* AppDelegate.swift */,
 				07E1D5C8257FC6730057B9AC /* SceneDelegate.swift */,
 				07E1D5E8257FC8580057B9AC /* Core.swift */,
+				075ACB6C25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift */,
 				07BD1784258952B600784BFA /* DataStore.swift */,
 				07940B57259276A1003EB4FA /* MQTTClient.swift */,
 				07940B532592762D003EB4FA /* CertificateConverter */,
@@ -523,12 +529,14 @@
 				079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */,
 				07BD1785258952B600784BFA /* DataStore.swift in Sources */,
 				07940B5525927643003EB4FA /* CertificateConverter.swift in Sources */,
+				075ACB6B25A5C78B00E2AAC1 /* AuthViewController.swift in Sources */,
 				07E1D5C7257FC6730057B9AC /* AppDelegate.swift in Sources */,
 				07BD178D2589530600784BFA /* Colors.swift in Sources */,
 				07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */,
 				07C0C60425939DDA001DB311 /* KeychainSwiftDistrib.swift in Sources */,
 				07C7E41225892B0700581737 /* Utilities.swift in Sources */,
 				07BD1789258952F100784BFA /* Widgets.swift in Sources */,
+				075ACB6D25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift in Sources */,
 				07E1D5E9257FC8580057B9AC /* Core.swift in Sources */,
 				07E1D5C9257FC6730057B9AC /* SceneDelegate.swift in Sources */,
 				070290D025817CD3004E2BC4 /* ActionEditViewController.swift in Sources */,
@@ -676,6 +684,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2020122801;
+				DEVELOPMENT_TEAM = HYYE4X7AJA;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/**",
@@ -718,6 +727,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2020122801;
+				DEVELOPMENT_TEAM = HYYE4X7AJA;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/**",
