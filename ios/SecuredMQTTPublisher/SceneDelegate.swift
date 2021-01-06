@@ -31,7 +31,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let authWindow = UIWindow(windowScene: windowScene)
         authWindow.windowLevel = .normal + 1
         authWindow.rootViewController = .auth
-        authWindow.isHidden = true
+        authWindow.isHidden = !Core.shared.dataStore.settings.isBiometricAuthEnabled
         UIWindow.auth = authWindow
     }
 }
