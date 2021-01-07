@@ -13,7 +13,7 @@ This open source project is co-sponsored by Tracmo, Inc. The goal is to build an
 * Prevent Middle-Man Attack
 * No need to set a NAT port forward for the end IoT device
 
-![Conceptual Architecture](https://github.com/tracmo/open-tls-iot-client/blob/main/images/figures/Secured%20MQTT-Page-1.png?raw=true)
+![Conceptual Architecture](https://github.com/tracmo/open-tls-iot-client/blob/main/images/figures/Secured-MQTT-Page-1.png?raw=true)
 
 ### How is this project organized?
 
