@@ -19,10 +19,16 @@ This open source project is co-sponsored by Tracmo, Inc. The goal is to build an
 
 | Folder     | Description                                                  |
 |------------|--------------------------------------------------------------|
-| esp32      | Source and the binary build of ESP32 based target IoT Device |
-| images     | Icon and image files                                         |
-| ios        | Source code of the iOS app                                   |
-| test_tools | Test tools to simulate the target IoT Device                 |
+| [esp32](https://github.com/tracmo/open-tls-iot-client/tree/main/esp32)      | Source and the binary build of ESP32 based target IoT Device |
+| [images](https://github.com/tracmo/open-tls-iot-client/tree/main/images)     | Icon and image files                                         |
+| [ios](https://github.com/tracmo/open-tls-iot-client/tree/main/ios)        | Source code of the iOS app                                   |
+| [test_tools](https://github.com/tracmo/open-tls-iot-client/tree/main/test_tools) | Test tools to simulate the target IoT Device                 |
+
+### More Information
+
+Each folder has its own README document. Please open the folder to see the document. For the overall technical instructions, please go to the project Wiki page.
+
+[Open TLS IoT Wiki](https://github.com/tracmo/open-tls-iot-client/wiki)
 
 ### Contributors
 
