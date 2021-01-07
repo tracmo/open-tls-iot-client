@@ -13,7 +13,7 @@ This open source project is co-sponsored by Tracmo, Inc. The goal is to build an
 * Prevent Middle-Man Attack
 * No need to set a NAT port forward for the end IoT device
 
-[[/images/figures/Secured MQTT-Page-1.png||Conceptual Architecture]]
+![Conceptual Architecture](/images/figures/Secured MQTT-Page-1.png)
 
 ### How is this project organized?
 
