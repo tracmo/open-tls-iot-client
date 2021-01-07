@@ -69,23 +69,17 @@ SOFTWARE.
 
 This project makes use of the following third party libraries:
 
-##### MQTT Client Framework
-
-https://github.com/novastone-media/MQTT-Client-Framework
+##### [MQTT Client Framework](https://github.com/novastone-media/MQTT-Client-Framework)
 
 License
 https://github.com/novastone-media/MQTT-Client-Framework/blob/master/LICENSE
 
-##### Open SSL for iOS
-
-https://github.com/x2on/OpenSSL-for-iPhone
+##### [Open SSL for iOS](https://github.com/x2on/OpenSSL-for-iPhone)
 
 License
 https://github.com/x2on/OpenSSL-for-iPhone/blob/master/LICENSE
 
-##### Keychain Swift
-
-https://github.com/evgenyneu/keychain-swift
+##### [Keychain Swift](https://github.com/evgenyneu/keychain-swift)
 
 License
 https://github.com/evgenyneu/keychain-swift/blob/master/LICENSE
