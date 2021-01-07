@@ -14,7 +14,12 @@ This open source project is co-sponsored by Tracmo, Inc. The goal is to build an
 * No need to set a NAT port forward for the end IoT device
 
 ### How is this project organized?
-
+| Folder     | Description                                                  |
+|------------|--------------------------------------------------------------|
+| esp32      | Source and the binary build of ESP32 based target IoT Device |
+| images     | Icon and image files                                         |
+| ios        | Source code of the iOS app                                   |
+| test_tools | Test tools to simulate the target IoT Device                 |
 
 ### Contributors
 
@@ -22,6 +27,7 @@ This open source project is co-sponsored by Tracmo, Inc. The goal is to build an
 |-------------|--------------------------|--------------------------------------------|
 | Samson Chen | samson AT mytracmo.com   | Project Coordinator, ESP32, Documentations |
 | Eric Jan    | janeric11yt AT gmail.com | iOS App                                    |
+| Jie Chien   | jie AT mytracmo.com      | App Icon Designer                          |
 
 We welcome your participations. If you are interested in joining this project, please email us via
 opensource AT mytracmo.com
@@ -52,10 +58,25 @@ SOFTWARE.
 
 ### Acknowledgements
 
-This application makes use of the following third party libraries:
+This project makes use of the following third party libraries:
 
-MQTT Client Framework
+##### MQTT Client Framework
+
 https://github.com/novastone-media/MQTT-Client-Framework
 
 License
 https://github.com/novastone-media/MQTT-Client-Framework/blob/master/LICENSE
+
+##### Open SSL for iOS
+
+https://github.com/x2on/OpenSSL-for-iPhone
+
+License
+https://github.com/x2on/OpenSSL-for-iPhone/blob/master/LICENSE
+
+##### Keychain Swift
+
+https://github.com/evgenyneu/keychain-swift
+
+License
+https://github.com/evgenyneu/keychain-swift/blob/master/LICENSE
