@@ -14,6 +14,7 @@ This open source project is co-sponsored by Tracmo, Inc. The goal is to build an
 * No need to set a NAT port forward for the end IoT device
 
 ### How is this project organized?
+
 | Folder     | Description                                                  |
 |------------|--------------------------------------------------------------|
 | esp32      | Source and the binary build of ESP32 based target IoT Device |
@@ -27,7 +28,7 @@ This open source project is co-sponsored by Tracmo, Inc. The goal is to build an
 |-------------|--------------------------|--------------------------------------------|
 | Samson Chen | samson AT mytracmo.com   | Project Coordinator, ESP32, Documentations |
 | Eric Jan    | janeric11yt AT gmail.com | iOS App                                    |
-| Jie Chien   | jie AT mytracmo.com      | App Icon Designer                          |
+| Jie Chien   | jie AT mytracmo.com      | App Icon Design                            |
 
 We welcome your participations. If you are interested in joining this project, please email us via
 opensource AT mytracmo.com
