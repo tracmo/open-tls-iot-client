@@ -1,12 +1,9 @@
 /*
- * Copyright (c) 2020
- * TRACMO Inc. ("tracMo").
- * All rights reserved.
- *
- * The information contained herein is confidential and proprietary to
- * tracMo. Use of this information by anyone other than authorized employees
- * of tracMo is granted only under a written non-disclosure agreement,
- * expressly prescribing the scope and manner of such use.
+ *  Project Secured MQTT Publisher
+ *  Copyright 2021 Tracmo, Inc. ("Tracmo").
+ *  Open Source Project Licensed under MIT License.
+ *  Please refer to https://github.com/tracmo/open-tls-iot-client
+ *  for the license and the contributors information.
  */
 
 // MQTT Broker Test, the publisher
