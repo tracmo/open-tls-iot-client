@@ -86,8 +86,7 @@ final class AuthViewController: UIViewController {
     private func auth() {
         DeviceOwnerAuthenticator.auth()
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { [weak self] in
-                guard let self = self else { return }
+            .sink(receiveCompletion: {
                 guard $0.getError() == nil else { return }
                 UIWindow.auth?.isHidden = true
             }, receiveValue: { _ in })

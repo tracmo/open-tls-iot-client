@@ -221,6 +221,8 @@ final class TextViewTitleView: UICollectionReusableView {
 final class TextViewCell: UICollectionViewCell {
     lazy var textView: UITextView = {
         let textView = UITextView()
+        textView.backgroundColor = .white
+        textView.textColor = .black
         textView.autocorrectionType = .no
         textView.font = .systemFont(ofSize: 24)
         textView.layer.borderWidth = 2

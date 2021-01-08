@@ -43,8 +43,11 @@ final class HomeViewController: UIViewController {
         return view
     }()
     
-    private lazy var infoButton = UIButton(systemImageName: "info.circle.fill",
-                                           size: Layout.utilityButtonSize) { _ in }
+    private lazy var aboutButton = UIButton(systemImageName: "info.circle.fill",
+                                            size: Layout.utilityButtonSize) { [weak self] _ in
+        guard let self = self else { return }
+        self.present(.about, in: .pageSheet, animated: true)
+    }
     
     private lazy var editButton = UIButton(systemImageName: "pencil.circle.fill",
                                            size: Layout.utilityButtonSize) { [weak self] _ in
@@ -222,7 +225,7 @@ final class HomeViewController: UIViewController {
         )
         
         utilityButtonsContainer.addSubviews(
-            infoButton
+            aboutButton
                 .top(to: utilityButtonsContainer.top)
                 .leading(to: utilityButtonsContainer.leading)
                 .width(to: Layout.utilityButtonSize)

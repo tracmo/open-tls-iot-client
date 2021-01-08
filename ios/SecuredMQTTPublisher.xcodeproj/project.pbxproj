@@ -11,6 +11,7 @@
 		070290D52581E5AC004E2BC4 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070290D42581E5AC004E2BC4 /* SettingsViewController.swift */; };
 		075ACB6B25A5C78B00E2AAC1 /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075ACB6A25A5C78B00E2AAC1 /* AuthViewController.swift */; };
 		075ACB6D25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075ACB6C25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift */; };
+		075ACB7725A8B73800E2AAC1 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075ACB7625A8B73800E2AAC1 /* AboutViewController.swift */; };
 		07940B5525927643003EB4FA /* CertificateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B5425927643003EB4FA /* CertificateConverter.swift */; };
 		07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B57259276A1003EB4FA /* MQTTClient.swift */; };
 		079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079D070425A34DCE00F56392 /* ViewControllers.swift */; };
@@ -53,6 +54,7 @@
 		070290D42581E5AC004E2BC4 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		075ACB6A25A5C78B00E2AAC1 /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
 		075ACB6C25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceOwnerAuthenticator.swift; sourceTree = "<group>"; };
+		075ACB7625A8B73800E2AAC1 /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
 		07940B5425927643003EB4FA /* CertificateConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateConverter.swift; sourceTree = "<group>"; };
 		07940B57259276A1003EB4FA /* MQTTClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MQTTClient.swift; sourceTree = "<group>"; };
 		079D070425A34DCE00F56392 /* ViewControllers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllers.swift; sourceTree = "<group>"; };
@@ -196,6 +198,7 @@
 				079D070425A34DCE00F56392 /* ViewControllers.swift */,
 				075ACB6A25A5C78B00E2AAC1 /* AuthViewController.swift */,
 				07E1D5CA257FC6730057B9AC /* HomeViewController.swift */,
+				075ACB7625A8B73800E2AAC1 /* AboutViewController.swift */,
 				070290CF25817CD3004E2BC4 /* ActionEditViewController.swift */,
 				070290D42581E5AC004E2BC4 /* SettingsViewController.swift */,
 			);
@@ -532,6 +535,7 @@
 				075ACB6B25A5C78B00E2AAC1 /* AuthViewController.swift in Sources */,
 				07E1D5C7257FC6730057B9AC /* AppDelegate.swift in Sources */,
 				07BD178D2589530600784BFA /* Colors.swift in Sources */,
+				075ACB7725A8B73800E2AAC1 /* AboutViewController.swift in Sources */,
 				07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */,
 				07C0C60425939DDA001DB311 /* KeychainSwiftDistrib.swift in Sources */,
 				07C7E41225892B0700581737 /* Utilities.swift in Sources */,
@@ -684,7 +688,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2020122801;
-				DEVELOPMENT_TEAM = HYYE4X7AJA;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/**",
@@ -727,7 +731,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2020122801;
-				DEVELOPMENT_TEAM = HYYE4X7AJA;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/**",
