@@ -9,12 +9,12 @@
 import UIKit
 
 final class HomeCoordinator: Coordinator {
-    private let window: UIWindow
+    private let navigationController: UINavigationController
     
     private var children = [Coordinator]()
     
-    init(window: UIWindow) {
-        self.window = window
+    init(navigationController: UINavigationController) {
+        self.navigationController = navigationController
     }
     
     func start() {
@@ -23,16 +23,15 @@ final class HomeCoordinator: Coordinator {
                                coordinationHandler: { [weak self] in
                                 guard let self = self else { return }
                                 switch $1 {
-                                case .about: self.coordinateWithAbout(presenter: $0)
-                                case .actionEdit(let index): self.coordinateWithActionEdit(presenter: $0, actionIndex: index)
-                                case .settings: self.coordinateWithSettings(presenter: $0)
+                                case .about: self.showAbout(presenter: $0)
+                                case .actionEdit(let index): self.showActionEdit(presenter: $0, actionIndex: index)
+                                case .settings: self.showSettings(presenter: $0)
                                 }
                                })
-        window.rootViewController = homeViewController
-        window.makeKeyAndVisible()
+        navigationController.viewControllers = [homeViewController]
     }
     
-    private func coordinateWithAbout(presenter: UIViewController) {
+    private func showAbout(presenter: UIViewController) {
         let aboutCoordinator =
             AboutCoordinator(presenter: presenter,
                              didFinishHandler: { [weak self] coordinator in
@@ -44,7 +43,7 @@ final class HomeCoordinator: Coordinator {
         children.append(aboutCoordinator)
     }
     
-    private func coordinateWithActionEdit(presenter: UIViewController, actionIndex: Int) {
+    private func showActionEdit(presenter: UIViewController, actionIndex: Int) {
         let actionEditCoordinator =
             ActionEditCoordinator(presenter: presenter,
                                   actionIndex: actionIndex,
@@ -57,7 +56,7 @@ final class HomeCoordinator: Coordinator {
         children.append(actionEditCoordinator)
     }
     
-    private func coordinateWithSettings(presenter: UIViewController) {
+    private func showSettings(presenter: UIViewController) {
         let settingsCoordinator =
             SettingsCoordinator(presenter: presenter,
                                 didFinishHandler: { [weak self] coordinator in

@@ -8,29 +8,16 @@
 
 import UIKit
 
-extension UIWindow {
-    static var auth: UIWindow?
-}
-
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    var window: UIWindow?
     private var coordinator: AppCoordinator?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
-        let window = UIWindow(windowScene: windowScene)
-        let coordinator = AppCoordinator(window: window)
+        let coordinator = AppCoordinator(windowScene: windowScene)
         coordinator.start()
         
-        self.window = window
         self.coordinator = coordinator
-        
-        let authWindow = UIWindow(windowScene: windowScene)
-        authWindow.windowLevel = .normal + 1
-        authWindow.rootViewController = AuthViewController()
-        authWindow.isHidden = !Core.shared.dataStore.settings.isBiometricAuthEnabled
-        UIWindow.auth = authWindow
     }
 }
 

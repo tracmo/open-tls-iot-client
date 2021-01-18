@@ -27,6 +27,7 @@
 		078D946B25B5909E008DC438 /* AboutCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D946A25B5909E008DC438 /* AboutCoordinator.swift */; };
 		078D946F25B5AE66008DC438 /* ActionEditCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D946E25B5AE66008DC438 /* ActionEditCoordinator.swift */; };
 		078D947125B5B0EF008DC438 /* SettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D947025B5B0EF008DC438 /* SettingsCoordinator.swift */; };
+		078D947325B5B368008DC438 /* AuthCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D947225B5B368008DC438 /* AuthCoordinator.swift */; };
 		07940B5525927643003EB4FA /* CertificateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B5425927643003EB4FA /* CertificateConverter.swift */; };
 		07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B57259276A1003EB4FA /* MQTTClient.swift */; };
 		07BD1785258952B600784BFA /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BD1784258952B600784BFA /* DataStore.swift */; };
@@ -84,6 +85,7 @@
 		078D946A25B5909E008DC438 /* AboutCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutCoordinator.swift; sourceTree = "<group>"; };
 		078D946E25B5AE66008DC438 /* ActionEditCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionEditCoordinator.swift; sourceTree = "<group>"; };
 		078D947025B5B0EF008DC438 /* SettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCoordinator.swift; sourceTree = "<group>"; };
+		078D947225B5B368008DC438 /* AuthCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthCoordinator.swift; sourceTree = "<group>"; };
 		07940B5425927643003EB4FA /* CertificateConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateConverter.swift; sourceTree = "<group>"; };
 		07940B57259276A1003EB4FA /* MQTTClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MQTTClient.swift; sourceTree = "<group>"; };
 		07BD1784258952B600784BFA /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
@@ -222,6 +224,7 @@
 			isa = PBXGroup;
 			children = (
 				075ACB6A25A5C78B00E2AAC1 /* AuthViewController.swift */,
+				078D947225B5B368008DC438 /* AuthCoordinator.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -673,6 +676,7 @@
 				07E1D5C9257FC6730057B9AC /* SceneDelegate.swift in Sources */,
 				070290D025817CD3004E2BC4 /* ActionEditViewController.swift in Sources */,
 				078D945925B58550008DC438 /* RoundedButton.swift in Sources */,
+				078D947325B5B368008DC438 /* AuthCoordinator.swift in Sources */,
 				070290D52581E5AC004E2BC4 /* SettingsViewController.swift in Sources */,
 				078D944E25B5844E008DC438 /* ButtonCell.swift in Sources */,
 				078D946F25B5AE66008DC438 /* ActionEditCoordinator.swift in Sources */,

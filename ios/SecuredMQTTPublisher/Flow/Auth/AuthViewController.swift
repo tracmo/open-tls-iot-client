@@ -10,6 +10,8 @@ import UIKit
 import Combine
 
 final class AuthViewController: UIViewController {
+    private let authDidSucceedHandler: (AuthViewController) -> Void
+    
     private lazy var titleLabel: UILabel = {
         let appName = Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "Secured MQTT Publisher"
         let label = UILabel()
@@ -50,7 +52,8 @@ final class AuthViewController: UIViewController {
     
     private var bag = Set<AnyCancellable>()
     
-    init() {
+    init(authDidSucceedHandler: @escaping (AuthViewController) -> Void) {
+        self.authDidSucceedHandler = authDidSucceedHandler
         super.init(nibName: nil, bundle: nil)
         setupLayouts()
     }
@@ -86,9 +89,10 @@ final class AuthViewController: UIViewController {
     private func auth() {
         DeviceOwnerAuthenticator.auth()
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: {
+            .sink(receiveCompletion: { [weak self] in
                 guard $0.getError() == nil else { return }
-                UIWindow.auth?.isHidden = true
+                guard let self = self else { return }
+                self.authDidSucceedHandler(self)
             }, receiveValue: { _ in })
             .store(in: &self.bag)
     }

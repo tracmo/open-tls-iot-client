@@ -49,10 +49,12 @@ extension MutableCollection {
 extension UIViewController {
     func present(_ destination: UIViewController?,
                  in modalPresentationStyle: UIModalPresentationStyle = .automatic,
+                 with modalTransitionStyle: UIModalTransitionStyle = .coverVertical,
                  animated: Bool = true,
                  completion: (() -> Void)? = nil) {
         guard let destination = destination else { return }
         destination.modalPresentationStyle = modalPresentationStyle
+        destination.modalTransitionStyle = modalTransitionStyle
         present(destination, animated: animated, completion: completion)
     }
 }
