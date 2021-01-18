@@ -21,6 +21,7 @@ final class SettingsViewController: UIViewController {
         case certificate
         case privateKey
         case rootCA
+        case timestampKey
         
         var title: String {
             switch self {
@@ -30,6 +31,7 @@ final class SettingsViewController: UIViewController {
             case .certificate: return "Certificate:"
             case .privateKey: return "Private Key:"
             case .rootCA: return "Root CA:"
+            case .timestampKey: return "Timestamp Key:"
             }
         }
         
@@ -37,7 +39,8 @@ final class SettingsViewController: UIViewController {
             switch self {
             case .homeTitle: return 50
             case .mqttEndpoint,
-                 .clientID: return 74
+                 .clientID,
+                 .timestampKey: return 74
             case .certificate,
                  .privateKey,
                  .rootCA: return 300
@@ -48,7 +51,8 @@ final class SettingsViewController: UIViewController {
             switch self {
             case .homeTitle,
                  .mqttEndpoint,
-                 .clientID: return true
+                 .clientID,
+                 .timestampKey: return true
             case .certificate,
                  .privateKey,
                  .rootCA: return false
@@ -310,6 +314,7 @@ final class SettingsViewController: UIViewController {
             case .certificate: snapshot.appendItems([.init(value: editingSettings.certificate)])
             case .privateKey: snapshot.appendItems([.init(value: editingSettings.privateKey)])
             case .rootCA: snapshot.appendItems([.init(value: editingSettings.rootCA ?? "")])
+            case .timestampKey: snapshot.appendItems([.init(value: editingSettings.timestampKey ?? "")])
             }
         }
         dataSource.apply(snapshot)
@@ -354,6 +359,7 @@ extension SettingsViewController: UITextViewDelegate {
         case .certificate: editingSettings.certificate = newText
         case .privateKey: editingSettings.privateKey = newText
         case .rootCA: editingSettings.rootCA = newText.isEmpty ? nil : newText
+        case .timestampKey: editingSettings.timestampKey = newText.isEmpty ? nil : newText
         }
         
         return true
