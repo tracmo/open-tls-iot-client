@@ -23,6 +23,8 @@
 		078D945F25B585B8008DC438 /* OkCancelButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D945E25B585B8008DC438 /* OkCancelButtonsView.swift */; };
 		078D946525B58D36008DC438 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D946425B58D36008DC438 /* Coordinator.swift */; };
 		078D946725B58D66008DC438 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D946625B58D66008DC438 /* AppCoordinator.swift */; };
+		078D946925B58FDA008DC438 /* HomeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D946825B58FDA008DC438 /* HomeCoordinator.swift */; };
+		078D946B25B5909E008DC438 /* AboutCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D946A25B5909E008DC438 /* AboutCoordinator.swift */; };
 		07940B5525927643003EB4FA /* CertificateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B5425927643003EB4FA /* CertificateConverter.swift */; };
 		07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B57259276A1003EB4FA /* MQTTClient.swift */; };
 		079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079D070425A34DCE00F56392 /* ViewControllers.swift */; };
@@ -77,6 +79,8 @@
 		078D946325B58B45008DC438 /* SecuredMQTTPublisher-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SecuredMQTTPublisher-Bridging-Header.h"; sourceTree = "<group>"; };
 		078D946425B58D36008DC438 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		078D946625B58D66008DC438 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		078D946825B58FDA008DC438 /* HomeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCoordinator.swift; sourceTree = "<group>"; };
+		078D946A25B5909E008DC438 /* AboutCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutCoordinator.swift; sourceTree = "<group>"; };
 		07940B5425927643003EB4FA /* CertificateConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateConverter.swift; sourceTree = "<group>"; };
 		07940B57259276A1003EB4FA /* MQTTClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MQTTClient.swift; sourceTree = "<group>"; };
 		079D070425A34DCE00F56392 /* ViewControllers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllers.swift; sourceTree = "<group>"; };
@@ -224,6 +228,7 @@
 			isa = PBXGroup;
 			children = (
 				07E1D5CA257FC6730057B9AC /* HomeViewController.swift */,
+				078D946825B58FDA008DC438 /* HomeCoordinator.swift */,
 				078D944C25B58441008DC438 /* Widget */,
 			);
 			path = Home;
@@ -233,6 +238,7 @@
 			isa = PBXGroup;
 			children = (
 				075ACB7625A8B73800E2AAC1 /* AboutViewController.swift */,
+				078D946A25B5909E008DC438 /* AboutCoordinator.swift */,
 			);
 			path = About;
 			sourceTree = "<group>";
@@ -641,6 +647,7 @@
 				078D945F25B585B8008DC438 /* OkCancelButtonsView.swift in Sources */,
 				07C0C6342593AE7E001DB311 /* SoundEffect.swift in Sources */,
 				079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */,
+				078D946B25B5909E008DC438 /* AboutCoordinator.swift in Sources */,
 				078D946725B58D66008DC438 /* AppCoordinator.swift in Sources */,
 				078D945125B58480008DC438 /* PencelBadge.swift in Sources */,
 				07BD1785258952B600784BFA /* DataStore.swift in Sources */,
@@ -653,6 +660,7 @@
 				075ACB7725A8B73800E2AAC1 /* AboutViewController.swift in Sources */,
 				07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */,
 				07C0C60425939DDA001DB311 /* KeychainSwiftDistrib.swift in Sources */,
+				078D946925B58FDA008DC438 /* HomeCoordinator.swift in Sources */,
 				078D944725B583B7008DC438 /* ConstraintsApplier.swift in Sources */,
 				07C7E41225892B0700581737 /* Misc.swift in Sources */,
 				078D945D25B5858E008DC438 /* TextViewCell.swift in Sources */,

@@ -23,6 +23,9 @@ final class HomeViewController: UIViewController {
         var isHidden: Bool
         var state: ButtonCell.State
     }
+    enum Coordination {
+        case about
+    }
     
     private enum Layout {
         static let utilityButtonSize: CGFloat = 48
@@ -46,7 +49,7 @@ final class HomeViewController: UIViewController {
     private lazy var aboutButton = UIButton(systemImageName: "info.circle.fill",
                                             size: Layout.utilityButtonSize) { [weak self] _ in
         guard let self = self else { return }
-        self.present(.about, in: .pageSheet, animated: true)
+        self.coordinationPublisher.send(.about)
     }
     
     private lazy var editButton = UIButton(systemImageName: "pencil.circle.fill",
@@ -169,6 +172,8 @@ final class HomeViewController: UIViewController {
     private var bag: Set<AnyCancellable> = []
     
     private let core: Core
+    
+    let coordinationPublisher = PassthroughSubject<Coordination, Never>()
     
     init(core: Core) {
         self.core = core

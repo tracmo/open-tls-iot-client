@@ -7,8 +7,11 @@
 //
 
 import UIKit
+import Combine
 
 final class AboutViewController: UIViewController {
+    let didDisappearPublisher = PassthroughSubject<Void, Never>()
+    
     private lazy var textView: UITextView = {
         let textView = UITextView()
         textView.backgroundColor = .clear
@@ -43,6 +46,11 @@ final class AboutViewController: UIViewController {
                                 .leading(to: container.leading)
                                 .trailing(to: container.trailing)
                                 .bottom(to: container.bottom))
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        didDisappearPublisher.send()
     }
 }
 

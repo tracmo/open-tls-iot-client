@@ -11,12 +11,16 @@ import UIKit
 final class AppCoordinator: Cooridinator {
     private var window: UIWindow
     
+    private var children = [Cooridinator]()
+    
     init(window: UIWindow) {
         self.window = window
     }
     
     func start() {
-        window.rootViewController = .home
-        window.makeKeyAndVisible()
+        let homeCooridinator = HomeCoordinator(window: window)
+        homeCooridinator.start()
+        
+        children.append(homeCooridinator)
     }
 }
