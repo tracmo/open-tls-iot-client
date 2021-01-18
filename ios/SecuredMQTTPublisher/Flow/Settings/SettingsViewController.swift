@@ -10,6 +10,8 @@ import UIKit
 import Combine
 
 final class SettingsViewController: UIViewController {
+    enum Action { case ok, cancel }
+    
     private typealias DataSource = UICollectionViewDiffableDataSource<Section, Text>.SingleCellType<TextViewCell>
     
     private enum Section: CaseIterable {
@@ -66,7 +68,7 @@ final class SettingsViewController: UIViewController {
         case okCancelButtonsView
     }
     
-    private let didDisappearHandler: (SettingsViewController) -> Void
+    private let actionHandler: (SettingsViewController, Action) -> Void
     
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -175,10 +177,12 @@ final class SettingsViewController: UIViewController {
                 .sink { [weak self] in
                     guard let self = self else { return }
                     switch $0 {
-                    case .ok: self.settings = self.editingSettings
-                    case .cancel: break
+                    case .ok:
+                        self.settings = self.editingSettings
+                        self.actionHandler(self, .ok)
+                    case .cancel:
+                        self.actionHandler(self, .cancel)
                     }
-                    self.dismiss(animated: true)
                 }
                 .store(in: &self.bag)
         }
@@ -242,10 +246,10 @@ final class SettingsViewController: UIViewController {
     
     init(settings: Settings,
          settingsDidChangeHandler: @escaping (Settings) -> Void,
-         didDisappearHandler: @escaping (SettingsViewController) -> Void) {
+         actionHandler: @escaping (SettingsViewController, Action) -> Void) {
         self.settings = settings
         self.settingsDidChangeHandler = settingsDidChangeHandler
-        self.didDisappearHandler = didDisappearHandler
+        self.actionHandler = actionHandler
         self.editingSettings = settings
         super.init(nibName: nil, bundle: nil)
         let notificationCenter = NotificationCenter.default
@@ -329,11 +333,6 @@ final class SettingsViewController: UIViewController {
     }
     
     @objc private func viewDidTap(_ sender: Any) { view.endEditing(true) }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        didDisappearHandler(self)
-    }
 }
 
 extension SettingsViewController: UITextViewDelegate {

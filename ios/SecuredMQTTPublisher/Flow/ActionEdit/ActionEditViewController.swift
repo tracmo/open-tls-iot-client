@@ -10,6 +10,8 @@ import UIKit
 import Combine
 
 final class ActionEditViewController: UIViewController {
+    enum Action { case ok, cancel, delete }
+    
     private typealias DataSource = UICollectionViewDiffableDataSource<Section, Text>.SingleCellType<TextViewCell>
     
     private enum Section: CaseIterable {
@@ -52,7 +54,7 @@ final class ActionEditViewController: UIViewController {
         case okCancelButtonsView
     }
     
-    private let didDisappearHandler: (ActionEditViewController) -> Void
+    private let actionHandler: (ActionEditViewController, Action) -> Void
     
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -121,10 +123,12 @@ final class ActionEditViewController: UIViewController {
                 .sink { [weak self] in
                     guard let self = self else { return }
                     switch $0 {
-                    case .ok: self.action = self.editingAction
-                    case .cancel: break
+                    case .ok:
+                        self.action = self.editingAction
+                        self.actionHandler(self, .ok)
+                    case .cancel:
+                        self.actionHandler(self, .cancel)
                     }
-                    self.dismiss(animated: true)
                 }
                 .store(in: &self.bag)
         }
@@ -166,7 +170,7 @@ final class ActionEditViewController: UIViewController {
                                 self.action = .init(title: "",
                                                     topic: "",
                                                     message: "")
-                                self.dismiss(animated: true)
+                                self.actionHandler(self, .delete)
                               }))
         self.present(alert, animated: true)
     }
@@ -188,24 +192,24 @@ final class ActionEditViewController: UIViewController {
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
-    private var editingAction: Action
+    private var editingAction: SecuredMQTTPublisher.Action
     
-    private var action: Action {
+    private var action: SecuredMQTTPublisher.Action {
         didSet {
             guard oldValue != action else { return }
             actionDidChangeHandler(action)
         }
     }
-    private let actionDidChangeHandler: (Action) -> Void
+    private let actionDidChangeHandler: (SecuredMQTTPublisher.Action) -> Void
     
     private var bag = Set<AnyCancellable>()
     
-    init(action: Action,
-         actionDidChangeHandler: @escaping (Action) -> Void,
-         didDisappearHandler: @escaping (ActionEditViewController) -> Void) {
+    init(action: SecuredMQTTPublisher.Action,
+         actionDidChangeHandler: @escaping (SecuredMQTTPublisher.Action) -> Void,
+         actionHandler: @escaping (ActionEditViewController, Action) -> Void) {
         self.action = action
-        self.didDisappearHandler = didDisappearHandler
         self.actionDidChangeHandler = actionDidChangeHandler
+        self.actionHandler = actionHandler
         self.editingAction = action
         super.init(nibName: nil, bundle: nil)
         let notificationCenter = NotificationCenter.default
@@ -293,11 +297,6 @@ final class ActionEditViewController: UIViewController {
     }
     
     @objc private func viewDidTap(_ sender: Any) { view.endEditing(true) }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        didDisappearHandler(self)
-    }
 }
 
 extension ActionEditViewController: UITextViewDelegate {

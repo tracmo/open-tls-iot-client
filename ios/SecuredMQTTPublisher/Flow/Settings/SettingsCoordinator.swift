@@ -22,8 +22,9 @@ final class SettingsCoordinator: Coordinator {
         let settingsViewController =
             SettingsViewController(settings: Core.shared.dataStore.settings,
                                    settingsDidChangeHandler: { Core.shared.dataStore.settings = $0 },
-                                   didDisappearHandler: { [weak self] _ in
+                                   actionHandler: { [weak self] settingsViewController, _ in
                                     guard let self = self else { return }
+                                    settingsViewController.dismiss(animated: true)
                                     self.didFinishHandler(self)
                                    })
         

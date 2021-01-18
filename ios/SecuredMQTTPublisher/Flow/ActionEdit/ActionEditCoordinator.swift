@@ -29,8 +29,9 @@ final class ActionEditCoordinator: Coordinator {
                                         guard let self = self else { return }
                                         Core.shared.dataStore.settings.actions[safe: self.actionIndex] = $0
                                      },
-                                     didDisappearHandler: { [weak self] _ in
+                                     actionHandler: { [weak self] actionEditViewController, _ in
                                         guard let self = self else { return }
+                                        actionEditViewController.dismiss(animated: true)
                                         self.didFinishHandler(self)
                                      })
         
