@@ -7,26 +7,24 @@
 //
 
 import UIKit
-import Combine
 
 extension UIWindow {
-    static var main: UIWindow?
     static var auth: UIWindow?
 }
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
-    
-    private var bag = Set<AnyCancellable>()
+    private var coordinator: AppCoordinator?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
-        let mainWindow = UIWindow(windowScene: windowScene)
-        mainWindow.rootViewController = .home
-        mainWindow.makeKeyAndVisible()
-        self.window = mainWindow
-        UIWindow.main = mainWindow
+        let window = UIWindow(windowScene: windowScene)
+        let coordinator = AppCoordinator(window: window)
+        coordinator.start()
+        
+        self.window = window
+        self.coordinator = coordinator
         
         let authWindow = UIWindow(windowScene: windowScene)
         authWindow.windowLevel = .normal + 1

@@ -21,6 +21,8 @@
 		078D945B25B5856B008DC438 /* TextViewTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D945A25B5856B008DC438 /* TextViewTitleView.swift */; };
 		078D945D25B5858E008DC438 /* TextViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D945C25B5858E008DC438 /* TextViewCell.swift */; };
 		078D945F25B585B8008DC438 /* OkCancelButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D945E25B585B8008DC438 /* OkCancelButtonsView.swift */; };
+		078D946525B58D36008DC438 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D946425B58D36008DC438 /* Coordinator.swift */; };
+		078D946725B58D66008DC438 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D946625B58D66008DC438 /* AppCoordinator.swift */; };
 		07940B5525927643003EB4FA /* CertificateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B5425927643003EB4FA /* CertificateConverter.swift */; };
 		07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B57259276A1003EB4FA /* MQTTClient.swift */; };
 		079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079D070425A34DCE00F56392 /* ViewControllers.swift */; };
@@ -73,6 +75,8 @@
 		078D945C25B5858E008DC438 /* TextViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewCell.swift; sourceTree = "<group>"; };
 		078D945E25B585B8008DC438 /* OkCancelButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OkCancelButtonsView.swift; sourceTree = "<group>"; };
 		078D946325B58B45008DC438 /* SecuredMQTTPublisher-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SecuredMQTTPublisher-Bridging-Header.h"; sourceTree = "<group>"; };
+		078D946425B58D36008DC438 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
+		078D946625B58D66008DC438 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		07940B5425927643003EB4FA /* CertificateConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateConverter.swift; sourceTree = "<group>"; };
 		07940B57259276A1003EB4FA /* MQTTClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MQTTClient.swift; sourceTree = "<group>"; };
 		079D070425A34DCE00F56392 /* ViewControllers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllers.swift; sourceTree = "<group>"; };
@@ -203,6 +207,7 @@
 			children = (
 				07E1D5C6257FC6730057B9AC /* AppDelegate.swift */,
 				07E1D5C8257FC6730057B9AC /* SceneDelegate.swift */,
+				078D946625B58D66008DC438 /* AppCoordinator.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -256,6 +261,7 @@
 				079D070425A34DCE00F56392 /* ViewControllers.swift */,
 				07BD178C2589530600784BFA /* Colors.swift */,
 				078D944625B583B7008DC438 /* ConstraintsApplier.swift */,
+				078D946425B58D36008DC438 /* Coordinator.swift */,
 				07C7E41125892B0700581737 /* Misc.swift */,
 			);
 			path = Utility;
@@ -635,6 +641,7 @@
 				078D945F25B585B8008DC438 /* OkCancelButtonsView.swift in Sources */,
 				07C0C6342593AE7E001DB311 /* SoundEffect.swift in Sources */,
 				079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */,
+				078D946725B58D66008DC438 /* AppCoordinator.swift in Sources */,
 				078D945125B58480008DC438 /* PencelBadge.swift in Sources */,
 				07BD1785258952B600784BFA /* DataStore.swift in Sources */,
 				07940B5525927643003EB4FA /* CertificateConverter.swift in Sources */,
@@ -650,6 +657,7 @@
 				07C7E41225892B0700581737 /* Misc.swift in Sources */,
 				078D945D25B5858E008DC438 /* TextViewCell.swift in Sources */,
 				075ACB6D25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift in Sources */,
+				078D946525B58D36008DC438 /* Coordinator.swift in Sources */,
 				07E1D5E9257FC8580057B9AC /* Core.swift in Sources */,
 				07E1D5C9257FC6730057B9AC /* SceneDelegate.swift in Sources */,
 				070290D025817CD3004E2BC4 /* ActionEditViewController.swift in Sources */,
