@@ -9,7 +9,7 @@
 import UIKit
 
 final class AboutViewController: UIViewController {
-    private let didDisappearHandler: (AboutViewController) -> Void
+    private let okHandler: (AboutViewController) -> Void
     
     private lazy var textView: UITextView = {
         let textView = UITextView()
@@ -20,11 +20,27 @@ final class AboutViewController: UIViewController {
         return textView
     }()
     
+    private lazy var okButton: UIButton = {
+        let button = RoundedButton()
+        button.backgroundColor = .accent
+        button.tintColor = .secondary
+        button.titleLabel?.font = .systemFont(ofSize: 36)
+        button.setTitle("OK", for: .normal)
+        button.addAction(
+            .init { [weak self] _ in
+                guard let self = self else { return }
+                self.okHandler(self)
+            },
+            for: .touchUpInside
+        )
+        return button
+    }()
+    
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
-    init(didDisappearHandler: @escaping (AboutViewController) -> Void) {
-        self.didDisappearHandler = didDisappearHandler
+    init(okHandler: @escaping (AboutViewController) -> Void) {
+        self.okHandler = okHandler
         super.init(nibName: nil, bundle: nil)
         setupLayouts()
     }
@@ -44,13 +60,13 @@ final class AboutViewController: UIViewController {
         container.addSubviews(textView
                                 .top(to: container.top)
                                 .leading(to: container.leading)
+                                .trailing(to: container.trailing),
+                              okButton
+                                .top(to: textView.bottom, 16)
+                                .leading(to: container.leading)
                                 .trailing(to: container.trailing)
-                                .bottom(to: container.bottom))
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        didDisappearHandler(self)
+                                .bottom(to: container.bottom)
+                                .height(to: 48))
     }
 }
 

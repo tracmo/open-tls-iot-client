@@ -19,10 +19,11 @@ final class AboutCoordinator: Coordinator {
     }
     
     func start() {
-        let aboutViewController = AboutViewController(didDisappearHandler: { [weak self] _ in
+        let aboutViewController = AboutViewController(okHandler: { [weak self] in
             guard let self = self else { return }
+            $0.dismiss(animated: true)
             self.didFinishHandler(self)
         })
-        presenter.present(aboutViewController, in: .pageSheet, animated: true)
+        presenter.present(aboutViewController, in: .fullScreen, animated: true)
     }
 }
