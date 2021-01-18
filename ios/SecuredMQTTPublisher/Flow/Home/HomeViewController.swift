@@ -39,6 +39,10 @@ final class HomeViewController: UIViewController {
         case pencilBadge
     }
     
+    private let core: Core
+    
+    private let coordinationHandler: (HomeViewController, Coordination) -> Void
+    
     private lazy var utilityButtonsContainer: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
@@ -49,7 +53,7 @@ final class HomeViewController: UIViewController {
     private lazy var aboutButton = UIButton(systemImageName: "info.circle.fill",
                                             size: Layout.utilityButtonSize) { [weak self] _ in
         guard let self = self else { return }
-        self.coordinationPublisher.send(.about)
+        self.coordinationHandler(self, .about)
     }
     
     private lazy var editButton = UIButton(systemImageName: "pencil.circle.fill",
@@ -169,14 +173,12 @@ final class HomeViewController: UIViewController {
     private var publishResultDisplayer: [Int: () -> ()] = [:]
     private let buttonBusyIntervalMinimum: TimeInterval = 2
     
-    private var bag: Set<AnyCancellable> = []
+    private var bag = Set<AnyCancellable>()
     
-    private let core: Core
-    
-    let coordinationPublisher = PassthroughSubject<Coordination, Never>()
-    
-    init(core: Core) {
+    init(core: Core,
+         coordinationHandler: @escaping (HomeViewController, Coordination) -> Void) {
         self.core = core
+        self.coordinationHandler = coordinationHandler
         
         buttonConfigs = core.dataStore.settings.actions.map { _ in
             .init(title: "",

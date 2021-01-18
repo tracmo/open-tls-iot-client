@@ -7,42 +7,36 @@
 //
 
 import UIKit
-import Combine
 
 final class HomeCoordinator: Cooridinator {
     private let window: UIWindow
     
     private var children = [Cooridinator]()
     
-    private var bag = Set<AnyCancellable>()
-    
     init(window: UIWindow) {
         self.window = window
     }
     
     func start() {
-        let homeViewController = HomeViewController(core: .shared)
-        homeViewController.coordinationPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                guard let self = self else { return }
-                switch $0 {
-                case .about:
-                    let aboutCoordinator = AboutCoordinator(presenter: homeViewController)
-                    aboutCoordinator.didFinishPublisher
-                        .receive(on: DispatchQueue.main)
-                        .sink { [weak self] in
-                            guard let self = self else { return }
-                            self.children.removeAll { $0 === aboutCoordinator }
-                        }
-                        .store(in: &self.bag)
-                    aboutCoordinator.start()
-                    
-                    self.children.append(aboutCoordinator)
-                }
-            }
-            .store(in: &bag)
+        let homeViewController =
+            HomeViewController(core: .shared,
+                               coordinationHandler: { [weak self] in
+                                guard let self = self else { return }
+                                switch $1 {
+                                case .about: self.coordinateWithAbout(presenter: $0)
+                                }
+                               })
         window.rootViewController = homeViewController
         window.makeKeyAndVisible()
+    }
+    
+    private func coordinateWithAbout(presenter: UIViewController) {
+        let aboutCoordinator = AboutCoordinator(presenter: presenter, didFinishHandler: { [weak self] coordinator in
+            guard let self = self else { return }
+            self.children.removeAll { $0 === coordinator }
+        })
+        aboutCoordinator.start()
+        
+        children.append(aboutCoordinator)
     }
 }

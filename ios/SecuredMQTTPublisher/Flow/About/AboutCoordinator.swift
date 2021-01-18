@@ -7,28 +7,22 @@
 //
 
 import UIKit
-import Combine
 
 final class AboutCoordinator: Cooridinator {
-    let didFinishPublisher = PassthroughSubject<Void, Never>()
-    
     private let presenter: UIViewController
+    private let didFinishHandler: (AboutCoordinator) -> Void
     
-    private var bag = Set<AnyCancellable>()
-    
-    init(presenter: UIViewController) {
+    init(presenter: UIViewController,
+         didFinishHandler: @escaping (AboutCoordinator) -> Void) {
         self.presenter = presenter
+        self.didFinishHandler = didFinishHandler
     }
     
     func start() {
-        let aboutViewController = AboutViewController()
-        aboutViewController.didDisappearPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                guard let self = self else { return }
-                self.didFinishPublisher.send()
-            }
-            .store(in: &bag)
+        let aboutViewController = AboutViewController(didDisappearHandler: { [weak self] _ in
+            guard let self = self else { return }
+            self.didFinishHandler(self)
+        })
         presenter.present(aboutViewController, in: .pageSheet, animated: true)
     }
 }

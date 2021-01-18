@@ -7,10 +7,9 @@
 //
 
 import UIKit
-import Combine
 
 final class AboutViewController: UIViewController {
-    let didDisappearPublisher = PassthroughSubject<Void, Never>()
+    private let didDisappearHandler: (AboutViewController) -> Void
     
     private lazy var textView: UITextView = {
         let textView = UITextView()
@@ -24,7 +23,8 @@ final class AboutViewController: UIViewController {
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
-    init() {
+    init(didDisappearHandler: @escaping (AboutViewController) -> Void) {
+        self.didDisappearHandler = didDisappearHandler
         super.init(nibName: nil, bundle: nil)
         setupLayouts()
     }
@@ -50,7 +50,7 @@ final class AboutViewController: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        didDisappearPublisher.send()
+        didDisappearHandler(self)
     }
 }
 
