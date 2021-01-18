@@ -8,6 +8,7 @@
 
 import UIKit
 import Combine
+import LocalAuthentication
 
 final class AuthViewController: UIViewController {
     private let authDidSucceedHandler: (AuthViewController) -> Void
@@ -52,10 +53,31 @@ final class AuthViewController: UIViewController {
     
     private var bag = Set<AnyCancellable>()
     
+    private var hasUserCancelledAuthInAActiveSession = false
+    
+    private var observers = [AnyObject]()
+    
     init(authDidSucceedHandler: @escaping (AuthViewController) -> Void) {
         self.authDidSucceedHandler = authDidSucceedHandler
         super.init(nibName: nil, bundle: nil)
         setupLayouts()
+        
+        let center = NotificationCenter.default
+        observers.append(contentsOf: [
+            center.addObserver(forName: UIApplication.didBecomeActiveNotification,
+                               object: nil,
+                               queue: .main) { [weak self] _ in
+                guard let self = self else { return }
+                guard !self.hasUserCancelledAuthInAActiveSession else { return }
+                self.auth()
+            },
+            center.addObserver(forName: UIApplication.willResignActiveNotification,
+                               object: nil,
+                               queue: .main) { [weak self] _ in
+                guard let self = self else { return }
+                self.hasUserCancelledAuthInAActiveSession = false
+            }
+        ])
     }
     
     private func setupLayouts() {
@@ -86,14 +108,22 @@ final class AuthViewController: UIViewController {
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
-    private func auth() {
+    private func auth(cancelledHandler: (() -> Void)? = nil) {
         DeviceOwnerAuthenticator.auth()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] in
-                guard $0.getError() == nil else { return }
                 guard let self = self else { return }
-                self.authDidSucceedHandler(self)
+                if let error = $0.getError() {
+                    if case LAError.userCancel = error { self.hasUserCancelledAuthInAActiveSession = true }
+                } else {
+                    self.authDidSucceedHandler(self)
+                }
             }, receiveValue: { _ in })
             .store(in: &self.bag)
+    }
+    
+    deinit {
+        let center = NotificationCenter.default
+        observers.forEach { center.removeObserver($0) }
     }
 }
