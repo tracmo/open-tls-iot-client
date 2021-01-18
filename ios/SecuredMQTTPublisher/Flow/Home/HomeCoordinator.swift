@@ -8,10 +8,10 @@
 
 import UIKit
 
-final class HomeCoordinator: Cooridinator {
+final class HomeCoordinator: Coordinator {
     private let window: UIWindow
     
-    private var children = [Cooridinator]()
+    private var children = [Coordinator]()
     
     init(window: UIWindow) {
         self.window = window

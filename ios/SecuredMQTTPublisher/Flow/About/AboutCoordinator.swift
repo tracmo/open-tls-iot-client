@@ -8,7 +8,7 @@
 
 import UIKit
 
-final class AboutCoordinator: Cooridinator {
+final class AboutCoordinator: Coordinator {
     private let presenter: UIViewController
     private let didFinishHandler: (AboutCoordinator) -> Void
     

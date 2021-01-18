@@ -8,7 +8,7 @@
 
 import UIKit
 
-final class SettingsCoordinator: Cooridinator {
+final class SettingsCoordinator: Coordinator {
     private let presenter: UIViewController
     private let didFinishHandler: (SettingsCoordinator) -> Void
     

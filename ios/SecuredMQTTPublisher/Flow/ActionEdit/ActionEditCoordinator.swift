@@ -8,7 +8,7 @@
 
 import UIKit
 
-final class ActionEditCoordinator: Cooridinator {
+final class ActionEditCoordinator: Coordinator {
     private let presenter: UIViewController
     private let actionIndex: Int
     private let didFinishHandler: (ActionEditCoordinator) -> Void
