@@ -224,7 +224,7 @@ final class HomeViewController: UIViewController {
                 .top(to: collectionView.bottom, 16)
                 .leading(to: container.leading)
                 .trailing(to: container.trailing)
-                .height(to: 74),
+                .height(to: titleLabel.height, multiplier: 1),
             okButton
                 .top(to: errorMessageTextView.bottom, 16)
                 .leading(to: container.leading)
