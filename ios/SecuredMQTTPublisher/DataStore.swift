@@ -6,6 +6,7 @@
 //  for the license and the contributors information.
 //
 
+import Foundation
 import Combine
 
 struct Action: Equatable, Codable, Hashable {

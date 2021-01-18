@@ -12,11 +12,19 @@
 		075ACB6B25A5C78B00E2AAC1 /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075ACB6A25A5C78B00E2AAC1 /* AuthViewController.swift */; };
 		075ACB6D25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075ACB6C25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift */; };
 		075ACB7725A8B73800E2AAC1 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075ACB7625A8B73800E2AAC1 /* AboutViewController.swift */; };
+		078D944725B583B7008DC438 /* ConstraintsApplier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D944625B583B7008DC438 /* ConstraintsApplier.swift */; };
+		078D944E25B5844E008DC438 /* ButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D944D25B5844E008DC438 /* ButtonCell.swift */; };
+		078D945125B58480008DC438 /* PencelBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D945025B58480008DC438 /* PencelBadge.swift */; };
+		078D945425B584E4008DC438 /* LabelSwitchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D945325B584E4008DC438 /* LabelSwitchView.swift */; };
+		078D945725B5853A008DC438 /* FadeOnHighlightButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D945625B5853A008DC438 /* FadeOnHighlightButton.swift */; };
+		078D945925B58550008DC438 /* RoundedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D945825B58550008DC438 /* RoundedButton.swift */; };
+		078D945B25B5856B008DC438 /* TextViewTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D945A25B5856B008DC438 /* TextViewTitleView.swift */; };
+		078D945D25B5858E008DC438 /* TextViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D945C25B5858E008DC438 /* TextViewCell.swift */; };
+		078D945F25B585B8008DC438 /* OkCancelButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D945E25B585B8008DC438 /* OkCancelButtonsView.swift */; };
 		07940B5525927643003EB4FA /* CertificateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B5425927643003EB4FA /* CertificateConverter.swift */; };
 		07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B57259276A1003EB4FA /* MQTTClient.swift */; };
 		079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079D070425A34DCE00F56392 /* ViewControllers.swift */; };
 		07BD1785258952B600784BFA /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BD1784258952B600784BFA /* DataStore.swift */; };
-		07BD1789258952F100784BFA /* Widgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BD1788258952F100784BFA /* Widgets.swift */; };
 		07BD178D2589530600784BFA /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BD178C2589530600784BFA /* Colors.swift */; };
 		07C0C60425939DDA001DB311 /* KeychainSwiftDistrib.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C0C5A925939DD9001DB311 /* KeychainSwiftDistrib.swift */; };
 		07C0C60525939DDA001DB311 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 07C0C5AD25939DD9001DB311 /* LICENSE */; };
@@ -25,7 +33,7 @@
 		07C0C6312593AE5B001DB311 /* failure.wav in Resources */ = {isa = PBXBuildFile; fileRef = 07C0C62F2593AE5B001DB311 /* failure.wav */; };
 		07C0C6322593AE5B001DB311 /* success.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 07C0C6302593AE5B001DB311 /* success.mp3 */; };
 		07C0C6342593AE7E001DB311 /* SoundEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C0C6332593AE7E001DB311 /* SoundEffect.swift */; };
-		07C7E41225892B0700581737 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C7E41125892B0700581737 /* Utilities.swift */; };
+		07C7E41225892B0700581737 /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C7E41125892B0700581737 /* Misc.swift */; };
 		07E1D5C7257FC6730057B9AC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E1D5C6257FC6730057B9AC /* AppDelegate.swift */; };
 		07E1D5C9257FC6730057B9AC /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E1D5C8257FC6730057B9AC /* SceneDelegate.swift */; };
 		07E1D5CB257FC6730057B9AC /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E1D5CA257FC6730057B9AC /* HomeViewController.swift */; };
@@ -55,11 +63,20 @@
 		075ACB6A25A5C78B00E2AAC1 /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
 		075ACB6C25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceOwnerAuthenticator.swift; sourceTree = "<group>"; };
 		075ACB7625A8B73800E2AAC1 /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
+		078D944625B583B7008DC438 /* ConstraintsApplier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstraintsApplier.swift; sourceTree = "<group>"; };
+		078D944D25B5844E008DC438 /* ButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCell.swift; sourceTree = "<group>"; };
+		078D945025B58480008DC438 /* PencelBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PencelBadge.swift; sourceTree = "<group>"; };
+		078D945325B584E4008DC438 /* LabelSwitchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelSwitchView.swift; sourceTree = "<group>"; };
+		078D945625B5853A008DC438 /* FadeOnHighlightButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FadeOnHighlightButton.swift; sourceTree = "<group>"; };
+		078D945825B58550008DC438 /* RoundedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedButton.swift; sourceTree = "<group>"; };
+		078D945A25B5856B008DC438 /* TextViewTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewTitleView.swift; sourceTree = "<group>"; };
+		078D945C25B5858E008DC438 /* TextViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewCell.swift; sourceTree = "<group>"; };
+		078D945E25B585B8008DC438 /* OkCancelButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OkCancelButtonsView.swift; sourceTree = "<group>"; };
+		078D946325B58B45008DC438 /* SecuredMQTTPublisher-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SecuredMQTTPublisher-Bridging-Header.h"; sourceTree = "<group>"; };
 		07940B5425927643003EB4FA /* CertificateConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateConverter.swift; sourceTree = "<group>"; };
 		07940B57259276A1003EB4FA /* MQTTClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MQTTClient.swift; sourceTree = "<group>"; };
 		079D070425A34DCE00F56392 /* ViewControllers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllers.swift; sourceTree = "<group>"; };
 		07BD1784258952B600784BFA /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
-		07BD1788258952F100784BFA /* Widgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Widgets.swift; sourceTree = "<group>"; };
 		07BD178C2589530600784BFA /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		07C0C5A925939DD9001DB311 /* KeychainSwiftDistrib.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainSwiftDistrib.swift; sourceTree = "<group>"; };
 		07C0C5AC25939DD9001DB311 /* opensslconf-template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "opensslconf-template.h"; sourceTree = "<group>"; };
@@ -151,7 +168,7 @@
 		07C0C62F2593AE5B001DB311 /* failure.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = failure.wav; sourceTree = "<group>"; };
 		07C0C6302593AE5B001DB311 /* success.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = success.mp3; sourceTree = "<group>"; };
 		07C0C6332593AE7E001DB311 /* SoundEffect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundEffect.swift; sourceTree = "<group>"; };
-		07C7E41125892B0700581737 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
+		07C7E41125892B0700581737 /* Misc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Misc.swift; sourceTree = "<group>"; };
 		07E1D5C3257FC6730057B9AC /* SecuredMQTTPublisher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SecuredMQTTPublisher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		07E1D5C6257FC6730057B9AC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		07E1D5C8257FC6730057B9AC /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -160,7 +177,6 @@
 		07E1D5D2257FC6750057B9AC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		07E1D5D4257FC6750057B9AC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		07E1D5E8257FC8580057B9AC /* Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
-		07F17EF3258CFA4D0029169A /* SecuredMQTTPublisher-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SecuredMQTTPublisher-Bridging-Header.h"; sourceTree = "<group>"; };
 		07F17EF4258CFA4D0029169A /* CertificateConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CertificateConverter.h; sourceTree = "<group>"; };
 		07F17EF5258CFA4D0029169A /* CertificateConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CertificateConverter.m; sourceTree = "<group>"; };
 		63BEAD2C6FF19D11BC309B49 /* Pods-SecuredMQTTPublisher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecuredMQTTPublisher.release.xcconfig"; path = "Target Support Files/Pods-SecuredMQTTPublisher/Pods-SecuredMQTTPublisher.release.xcconfig"; sourceTree = "<group>"; };
@@ -182,6 +198,110 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		078D943F25B5831D008DC438 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				07E1D5C6257FC6730057B9AC /* AppDelegate.swift */,
+				07E1D5C8257FC6730057B9AC /* SceneDelegate.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		078D944025B5832E008DC438 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				075ACB6A25A5C78B00E2AAC1 /* AuthViewController.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		078D944125B58333008DC438 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				07E1D5CA257FC6730057B9AC /* HomeViewController.swift */,
+				078D944C25B58441008DC438 /* Widget */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		078D944225B58340008DC438 /* About */ = {
+			isa = PBXGroup;
+			children = (
+				075ACB7625A8B73800E2AAC1 /* AboutViewController.swift */,
+			);
+			path = About;
+			sourceTree = "<group>";
+		};
+		078D944325B58346008DC438 /* ActionEdit */ = {
+			isa = PBXGroup;
+			children = (
+				070290CF25817CD3004E2BC4 /* ActionEditViewController.swift */,
+			);
+			path = ActionEdit;
+			sourceTree = "<group>";
+		};
+		078D944425B5834D008DC438 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				070290D42581E5AC004E2BC4 /* SettingsViewController.swift */,
+				078D945225B584D8008DC438 /* Widget */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		078D944525B5838E008DC438 /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				07C0C6332593AE7E001DB311 /* SoundEffect.swift */,
+				079D070425A34DCE00F56392 /* ViewControllers.swift */,
+				07BD178C2589530600784BFA /* Colors.swift */,
+				078D944625B583B7008DC438 /* ConstraintsApplier.swift */,
+				07C7E41125892B0700581737 /* Misc.swift */,
+			);
+			path = Utility;
+			sourceTree = "<group>";
+		};
+		078D944C25B58441008DC438 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				078D944D25B5844E008DC438 /* ButtonCell.swift */,
+				078D945025B58480008DC438 /* PencelBadge.swift */,
+			);
+			path = Widget;
+			sourceTree = "<group>";
+		};
+		078D945225B584D8008DC438 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				078D945325B584E4008DC438 /* LabelSwitchView.swift */,
+			);
+			path = Widget;
+			sourceTree = "<group>";
+		};
+		078D945525B58509008DC438 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				078D945625B5853A008DC438 /* FadeOnHighlightButton.swift */,
+				078D945825B58550008DC438 /* RoundedButton.swift */,
+				078D945A25B5856B008DC438 /* TextViewTitleView.swift */,
+				078D945C25B5858E008DC438 /* TextViewCell.swift */,
+				078D945E25B585B8008DC438 /* OkCancelButtonsView.swift */,
+			);
+			path = Widget;
+			sourceTree = "<group>";
+		};
+		078D946025B589AE008DC438 /* Flow */ = {
+			isa = PBXGroup;
+			children = (
+				078D944025B5832E008DC438 /* Auth */,
+				078D944125B58333008DC438 /* Home */,
+				078D944225B58340008DC438 /* About */,
+				078D944325B58346008DC438 /* ActionEdit */,
+				078D944425B5834D008DC438 /* Settings */,
+			);
+			path = Flow;
+			sourceTree = "<group>";
+		};
 		07940B532592762D003EB4FA /* CertificateConverter */ = {
 			isa = PBXGroup;
 			children = (
@@ -190,19 +310,6 @@
 				07940B5425927643003EB4FA /* CertificateConverter.swift */,
 			);
 			path = CertificateConverter;
-			sourceTree = "<group>";
-		};
-		079D070625A39BFA00F56392 /* ViewControllers */ = {
-			isa = PBXGroup;
-			children = (
-				079D070425A34DCE00F56392 /* ViewControllers.swift */,
-				075ACB6A25A5C78B00E2AAC1 /* AuthViewController.swift */,
-				07E1D5CA257FC6730057B9AC /* HomeViewController.swift */,
-				075ACB7625A8B73800E2AAC1 /* AboutViewController.swift */,
-				070290CF25817CD3004E2BC4 /* ActionEditViewController.swift */,
-				070290D42581E5AC004E2BC4 /* SettingsViewController.swift */,
-			);
-			path = ViewControllers;
 			sourceTree = "<group>";
 		};
 		07C0C5A725939DD9001DB311 /* Dependencies */ = {
@@ -344,6 +451,10 @@
 			children = (
 				07C0C6302593AE5B001DB311 /* success.mp3 */,
 				07C0C62F2593AE5B001DB311 /* failure.wav */,
+				07E1D5CF257FC6750057B9AC /* Assets.xcassets */,
+				07E1D5D1257FC6750057B9AC /* LaunchScreen.storyboard */,
+				07E1D5D4257FC6750057B9AC /* Info.plist */,
+				078D946325B58B45008DC438 /* SecuredMQTTPublisher-Bridging-Header.h */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -370,23 +481,16 @@
 		07E1D5C5257FC6730057B9AC /* SecuredMQTTPublisher */ = {
 			isa = PBXGroup;
 			children = (
-				07C0C6352593B169001DB311 /* Resources */,
-				07E1D5C6257FC6730057B9AC /* AppDelegate.swift */,
-				07E1D5C8257FC6730057B9AC /* SceneDelegate.swift */,
 				07E1D5E8257FC8580057B9AC /* Core.swift */,
 				075ACB6C25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift */,
 				07BD1784258952B600784BFA /* DataStore.swift */,
 				07940B57259276A1003EB4FA /* MQTTClient.swift */,
 				07940B532592762D003EB4FA /* CertificateConverter */,
-				079D070625A39BFA00F56392 /* ViewControllers */,
-				07BD178C2589530600784BFA /* Colors.swift */,
-				07BD1788258952F100784BFA /* Widgets.swift */,
-				07C0C6332593AE7E001DB311 /* SoundEffect.swift */,
-				07C7E41125892B0700581737 /* Utilities.swift */,
-				07E1D5CF257FC6750057B9AC /* Assets.xcassets */,
-				07E1D5D1257FC6750057B9AC /* LaunchScreen.storyboard */,
-				07E1D5D4257FC6750057B9AC /* Info.plist */,
-				07F17EF3258CFA4D0029169A /* SecuredMQTTPublisher-Bridging-Header.h */,
+				078D943F25B5831D008DC438 /* App */,
+				078D946025B589AE008DC438 /* Flow */,
+				078D945525B58509008DC438 /* Widget */,
+				078D944525B5838E008DC438 /* Utility */,
+				07C0C6352593B169001DB311 /* Resources */,
 			);
 			path = SecuredMQTTPublisher;
 			sourceTree = "<group>";
@@ -528,23 +632,31 @@
 			files = (
 				07E1D5CB257FC6730057B9AC /* HomeViewController.swift in Sources */,
 				07F17EF6258CFA4D0029169A /* CertificateConverter.m in Sources */,
+				078D945F25B585B8008DC438 /* OkCancelButtonsView.swift in Sources */,
 				07C0C6342593AE7E001DB311 /* SoundEffect.swift in Sources */,
 				079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */,
+				078D945125B58480008DC438 /* PencelBadge.swift in Sources */,
 				07BD1785258952B600784BFA /* DataStore.swift in Sources */,
 				07940B5525927643003EB4FA /* CertificateConverter.swift in Sources */,
 				075ACB6B25A5C78B00E2AAC1 /* AuthViewController.swift in Sources */,
 				07E1D5C7257FC6730057B9AC /* AppDelegate.swift in Sources */,
 				07BD178D2589530600784BFA /* Colors.swift in Sources */,
+				078D945425B584E4008DC438 /* LabelSwitchView.swift in Sources */,
+				078D945B25B5856B008DC438 /* TextViewTitleView.swift in Sources */,
 				075ACB7725A8B73800E2AAC1 /* AboutViewController.swift in Sources */,
 				07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */,
 				07C0C60425939DDA001DB311 /* KeychainSwiftDistrib.swift in Sources */,
-				07C7E41225892B0700581737 /* Utilities.swift in Sources */,
-				07BD1789258952F100784BFA /* Widgets.swift in Sources */,
+				078D944725B583B7008DC438 /* ConstraintsApplier.swift in Sources */,
+				07C7E41225892B0700581737 /* Misc.swift in Sources */,
+				078D945D25B5858E008DC438 /* TextViewCell.swift in Sources */,
 				075ACB6D25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift in Sources */,
 				07E1D5E9257FC8580057B9AC /* Core.swift in Sources */,
 				07E1D5C9257FC6730057B9AC /* SceneDelegate.swift in Sources */,
 				070290D025817CD3004E2BC4 /* ActionEditViewController.swift in Sources */,
+				078D945925B58550008DC438 /* RoundedButton.swift in Sources */,
 				070290D52581E5AC004E2BC4 /* SettingsViewController.swift in Sources */,
+				078D944E25B5844E008DC438 /* ButtonCell.swift in Sources */,
+				078D945725B5853A008DC438 /* FadeOnHighlightButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -699,7 +811,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/**",
 				);
-				INFOPLIST_FILE = SecuredMQTTPublisher/Info.plist;
+				INFOPLIST_FILE = "$(PROJECT_DIR)/$(PROJECT_NAME)/Resources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -713,7 +825,7 @@
 				MARKETING_VERSION = 0.9.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tracmo.SecuredMQTTPublisher;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "SecuredMQTTPublisher/SecuredMQTTPublisher-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/$(PROJECT_NAME)/Resources/$(PROJECT_NAME)-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -742,7 +854,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/**",
 				);
-				INFOPLIST_FILE = SecuredMQTTPublisher/Info.plist;
+				INFOPLIST_FILE = "$(PROJECT_DIR)/$(PROJECT_NAME)/Resources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -756,7 +868,7 @@
 				MARKETING_VERSION = 0.9.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tracmo.SecuredMQTTPublisher;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "SecuredMQTTPublisher/SecuredMQTTPublisher-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/$(PROJECT_NAME)/Resources/$(PROJECT_NAME)-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				USER_HEADER_SEARCH_PATHS = "include/**";
