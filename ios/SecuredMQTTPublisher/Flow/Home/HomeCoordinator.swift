@@ -21,7 +21,7 @@ final class HomeCoordinator: Cooridinator {
     }
     
     func start() {
-        let homeViewController = UIViewController.home
+        let homeViewController = HomeViewController(core: .shared)
         homeViewController.coordinationPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in

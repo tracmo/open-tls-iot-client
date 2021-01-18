@@ -21,7 +21,7 @@ final class AboutCoordinator: Cooridinator {
     }
     
     func start() {
-        let aboutViewController = UIViewController.about
+        let aboutViewController = AboutViewController()
         aboutViewController.didDisappearPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
