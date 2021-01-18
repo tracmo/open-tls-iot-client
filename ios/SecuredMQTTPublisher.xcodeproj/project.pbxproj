@@ -25,9 +25,10 @@
 		078D946725B58D66008DC438 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D946625B58D66008DC438 /* AppCoordinator.swift */; };
 		078D946925B58FDA008DC438 /* HomeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D946825B58FDA008DC438 /* HomeCoordinator.swift */; };
 		078D946B25B5909E008DC438 /* AboutCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D946A25B5909E008DC438 /* AboutCoordinator.swift */; };
+		078D946F25B5AE66008DC438 /* ActionEditCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D946E25B5AE66008DC438 /* ActionEditCoordinator.swift */; };
+		078D947125B5B0EF008DC438 /* SettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D947025B5B0EF008DC438 /* SettingsCoordinator.swift */; };
 		07940B5525927643003EB4FA /* CertificateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B5425927643003EB4FA /* CertificateConverter.swift */; };
 		07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07940B57259276A1003EB4FA /* MQTTClient.swift */; };
-		079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079D070425A34DCE00F56392 /* ViewControllers.swift */; };
 		07BD1785258952B600784BFA /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BD1784258952B600784BFA /* DataStore.swift */; };
 		07BD178D2589530600784BFA /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BD178C2589530600784BFA /* Colors.swift */; };
 		07C0C60425939DDA001DB311 /* KeychainSwiftDistrib.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C0C5A925939DD9001DB311 /* KeychainSwiftDistrib.swift */; };
@@ -81,9 +82,10 @@
 		078D946625B58D66008DC438 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		078D946825B58FDA008DC438 /* HomeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCoordinator.swift; sourceTree = "<group>"; };
 		078D946A25B5909E008DC438 /* AboutCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutCoordinator.swift; sourceTree = "<group>"; };
+		078D946E25B5AE66008DC438 /* ActionEditCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionEditCoordinator.swift; sourceTree = "<group>"; };
+		078D947025B5B0EF008DC438 /* SettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCoordinator.swift; sourceTree = "<group>"; };
 		07940B5425927643003EB4FA /* CertificateConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateConverter.swift; sourceTree = "<group>"; };
 		07940B57259276A1003EB4FA /* MQTTClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MQTTClient.swift; sourceTree = "<group>"; };
-		079D070425A34DCE00F56392 /* ViewControllers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllers.swift; sourceTree = "<group>"; };
 		07BD1784258952B600784BFA /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
 		07BD178C2589530600784BFA /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		07C0C5A925939DD9001DB311 /* KeychainSwiftDistrib.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainSwiftDistrib.swift; sourceTree = "<group>"; };
@@ -247,6 +249,7 @@
 			isa = PBXGroup;
 			children = (
 				070290CF25817CD3004E2BC4 /* ActionEditViewController.swift */,
+				078D946E25B5AE66008DC438 /* ActionEditCoordinator.swift */,
 			);
 			path = ActionEdit;
 			sourceTree = "<group>";
@@ -255,6 +258,7 @@
 			isa = PBXGroup;
 			children = (
 				070290D42581E5AC004E2BC4 /* SettingsViewController.swift */,
+				078D947025B5B0EF008DC438 /* SettingsCoordinator.swift */,
 				078D945225B584D8008DC438 /* Widget */,
 			);
 			path = Settings;
@@ -264,7 +268,6 @@
 			isa = PBXGroup;
 			children = (
 				07C0C6332593AE7E001DB311 /* SoundEffect.swift */,
-				079D070425A34DCE00F56392 /* ViewControllers.swift */,
 				07BD178C2589530600784BFA /* Colors.swift */,
 				078D944625B583B7008DC438 /* ConstraintsApplier.swift */,
 				078D946425B58D36008DC438 /* Coordinator.swift */,
@@ -646,7 +649,6 @@
 				07F17EF6258CFA4D0029169A /* CertificateConverter.m in Sources */,
 				078D945F25B585B8008DC438 /* OkCancelButtonsView.swift in Sources */,
 				07C0C6342593AE7E001DB311 /* SoundEffect.swift in Sources */,
-				079D070525A34DCE00F56392 /* ViewControllers.swift in Sources */,
 				078D946B25B5909E008DC438 /* AboutCoordinator.swift in Sources */,
 				078D946725B58D66008DC438 /* AppCoordinator.swift in Sources */,
 				078D945125B58480008DC438 /* PencelBadge.swift in Sources */,
@@ -661,6 +663,7 @@
 				07940B58259276A1003EB4FA /* MQTTClient.swift in Sources */,
 				07C0C60425939DDA001DB311 /* KeychainSwiftDistrib.swift in Sources */,
 				078D946925B58FDA008DC438 /* HomeCoordinator.swift in Sources */,
+				078D947125B5B0EF008DC438 /* SettingsCoordinator.swift in Sources */,
 				078D944725B583B7008DC438 /* ConstraintsApplier.swift in Sources */,
 				07C7E41225892B0700581737 /* Misc.swift in Sources */,
 				078D945D25B5858E008DC438 /* TextViewCell.swift in Sources */,
@@ -672,6 +675,7 @@
 				078D945925B58550008DC438 /* RoundedButton.swift in Sources */,
 				070290D52581E5AC004E2BC4 /* SettingsViewController.swift in Sources */,
 				078D944E25B5844E008DC438 /* ButtonCell.swift in Sources */,
+				078D946F25B5AE66008DC438 /* ActionEditCoordinator.swift in Sources */,
 				078D945725B5853A008DC438 /* FadeOnHighlightButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

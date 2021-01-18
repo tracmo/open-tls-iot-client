@@ -52,6 +52,8 @@ final class ActionEditViewController: UIViewController {
         case okCancelButtonsView
     }
     
+    private let didDisappearHandler: (ActionEditViewController) -> Void
+    
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
@@ -119,12 +121,10 @@ final class ActionEditViewController: UIViewController {
                 .sink { [weak self] in
                     guard let self = self else { return }
                     switch $0 {
-                    case .ok:
-                        self.action = self.editingAction
-                        self.dismiss(animated: true)
-                    case .cancel:
-                        self.dismiss(animated: true)
+                    case .ok: self.action = self.editingAction
+                    case .cancel: break
                     }
+                    self.dismiss(animated: true)
                 }
                 .store(in: &self.bag)
         }
@@ -201,8 +201,10 @@ final class ActionEditViewController: UIViewController {
     private var bag = Set<AnyCancellable>()
     
     init(action: Action,
-         actionDidChangeHandler: @escaping (Action) -> Void) {
+         actionDidChangeHandler: @escaping (Action) -> Void,
+         didDisappearHandler: @escaping (ActionEditViewController) -> Void) {
         self.action = action
+        self.didDisappearHandler = didDisappearHandler
         self.actionDidChangeHandler = actionDidChangeHandler
         self.editingAction = action
         super.init(nibName: nil, bundle: nil)
@@ -291,6 +293,11 @@ final class ActionEditViewController: UIViewController {
     }
     
     @objc private func viewDidTap(_ sender: Any) { view.endEditing(true) }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        didDisappearHandler(self)
+    }
 }
 
 extension ActionEditViewController: UITextViewDelegate {

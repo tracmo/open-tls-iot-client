@@ -66,6 +66,8 @@ final class SettingsViewController: UIViewController {
         case okCancelButtonsView
     }
     
+    private let didDisappearHandler: (SettingsViewController) -> Void
+    
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
@@ -173,12 +175,10 @@ final class SettingsViewController: UIViewController {
                 .sink { [weak self] in
                     guard let self = self else { return }
                     switch $0 {
-                    case .ok:
-                        self.settings = self.editingSettings
-                        self.dismiss(animated: true)
-                    case .cancel:
-                        self.dismiss(animated: true)
+                    case .ok: self.settings = self.editingSettings
+                    case .cancel: break
                     }
+                    self.dismiss(animated: true)
                 }
                 .store(in: &self.bag)
         }
@@ -241,9 +241,11 @@ final class SettingsViewController: UIViewController {
     private var bag = Set<AnyCancellable>()
     
     init(settings: Settings,
-         settingsDidChangeHandler: @escaping (Settings) -> Void) {
+         settingsDidChangeHandler: @escaping (Settings) -> Void,
+         didDisappearHandler: @escaping (SettingsViewController) -> Void) {
         self.settings = settings
         self.settingsDidChangeHandler = settingsDidChangeHandler
+        self.didDisappearHandler = didDisappearHandler
         self.editingSettings = settings
         super.init(nibName: nil, bundle: nil)
         let notificationCenter = NotificationCenter.default
@@ -327,6 +329,11 @@ final class SettingsViewController: UIViewController {
     }
     
     @objc private func viewDidTap(_ sender: Any) { view.endEditing(true) }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        didDisappearHandler(self)
+    }
 }
 
 extension SettingsViewController: UITextViewDelegate {

@@ -24,6 +24,8 @@ final class HomeCoordinator: Cooridinator {
                                 guard let self = self else { return }
                                 switch $1 {
                                 case .about: self.coordinateWithAbout(presenter: $0)
+                                case .actionEdit(let index): self.coordinateWithActionEdit(presenter: $0, actionIndex: index)
+                                case .settings: self.coordinateWithSettings(presenter: $0)
                                 }
                                })
         window.rootViewController = homeViewController
@@ -31,12 +33,39 @@ final class HomeCoordinator: Cooridinator {
     }
     
     private func coordinateWithAbout(presenter: UIViewController) {
-        let aboutCoordinator = AboutCoordinator(presenter: presenter, didFinishHandler: { [weak self] coordinator in
-            guard let self = self else { return }
-            self.children.removeAll { $0 === coordinator }
-        })
+        let aboutCoordinator =
+            AboutCoordinator(presenter: presenter,
+                             didFinishHandler: { [weak self] coordinator in
+                                guard let self = self else { return }
+                                self.children.removeAll { $0 === coordinator }
+                             })
         aboutCoordinator.start()
         
         children.append(aboutCoordinator)
+    }
+    
+    private func coordinateWithActionEdit(presenter: UIViewController, actionIndex: Int) {
+        let actionEditCoordinator =
+            ActionEditCoordinator(presenter: presenter,
+                                  actionIndex: actionIndex,
+                                  didFinishHandler: { [weak self] coordinator in
+            guard let self = self else { return }
+            self.children.removeAll { $0 === coordinator }
+        })
+        actionEditCoordinator.start()
+        
+        children.append(actionEditCoordinator)
+    }
+    
+    private func coordinateWithSettings(presenter: UIViewController) {
+        let settingsCoordinator =
+            SettingsCoordinator(presenter: presenter,
+                                didFinishHandler: { [weak self] coordinator in
+                                    guard let self = self else { return }
+                                    self.children.removeAll { $0 === coordinator }
+                                })
+        settingsCoordinator.start()
+        
+        children.append(settingsCoordinator)
     }
 }

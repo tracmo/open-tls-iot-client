@@ -25,6 +25,8 @@ final class HomeViewController: UIViewController {
     }
     enum Coordination {
         case about
+        case actionEdit(index: Int)
+        case settings
     }
     
     private enum Layout {
@@ -65,7 +67,7 @@ final class HomeViewController: UIViewController {
     private lazy var settingsButton = UIButton(systemImageName: "gearshape.fill",
                                                size: Layout.utilityButtonSize) { [weak self] _ in
         guard let self = self else { return }
-        self.present(.settings, in: .fullScreen)
+        self.coordinationHandler(self, .settings)
     }
     
     private lazy var titleLabel: UILabel = {
@@ -306,7 +308,7 @@ final class HomeViewController: UIViewController {
 extension HomeViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard !isEditing else {
-            present(.actionEdit(index: indexPath.item), in: .fullScreen)
+            coordinationHandler(self, .actionEdit(index: indexPath.item))
             return
         }
         
