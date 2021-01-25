@@ -443,6 +443,17 @@ extension Error {
             }
         }
         
+        if let encryptError = self as? AES128ECBTextEncrypter.EncrypterError {
+            switch encryptError {
+            case .keyFormatIncorrect: return "timestamp key format incorrect"
+            case .hexFormatIncorrect,
+                 .initFailure,
+                 .updateFailure,
+                 .finalFailure,
+                 .unknown: return "timestamp encrypt error"
+            }
+        }
+        
         if (self as NSError).domain == "\(kCFErrorDomainCFNetwork)",
            (self as NSError).code == Int(CFNetworkErrors.cfHostErrorUnknown.rawValue) {
             let getAddrInfoErrorCodeNumber = (self as NSError).userInfo["\(kCFGetAddrInfoFailureKey)"] as! CFNumber

@@ -117,20 +117,54 @@ final class Core {
     
     func publish(message: String,
                  to topic: String) -> AnyPublisher<Void, Error> {
+        Future<Void, Error> { [weak self] promise in
+            guard let self = self else { return }
+            
+            guard let timestampKey = self.dataStore.settings.timestampKey,
+                  let rangeToReplace = message.range(of: "%T") else {
+                self._publish(message: message, to: topic, promise: promise)
+                return
+            }
+            
+            AES128ECBTextEncrypter.encryptedTimestampInHex(keyInHex: timestampKey)
+                .receive(on: DispatchQueue.main)
+                .sink(receiveCompletion: {
+                    guard let error = $0.getError() else { return }
+                    promise(.failure(error))
+                }, receiveValue: { [weak self] encryptedTimestampInHex in
+                    guard let self = self else { return }
+                    
+                    var newMessage = message
+                    newMessage.replaceSubrange(rangeToReplace, with: encryptedTimestampInHex)
+                    
+                    self._publish(message: newMessage, to: topic, promise: promise)
+                })
+                .store(in: &self.bag)
+            
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    private func _publish(message: String,
+                          to topic: String,
+                          promise: @escaping Future<Void, Error>.Promise) {
         NSLog("SMP publish \"\(topic)\": \"\(message)\"")
-        return client.publish(message: message, to: topic)
-            .mapError {
-                guard let publishError = $0 as? SMPMQTTClient.PublishError,
-                      publishError == .clientNotConnected else { return $0 }
+        client.publish(message: message, to: topic)
+            .mapError { error -> Error in
+                guard let publishError = error as? SMPMQTTClient.PublishError,
+                      publishError == .clientNotConnected else { return error }
                 return PublishError.clientNotConnected(connectError: self.connectError) as Error
             }
-            .handleEvents(receiveCompletion: {
+            .sink(receiveCompletion: {
                 if let error = $0.getError() {
                     NSLog("SMP publish \"\(topic)\": \"\(message)\" Failure: \(error)")
+                    promise(.failure(error))
                 } else {
                     NSLog("SMP publish \"\(topic)\": \"\(message)\" Success")
                 }
+            }, receiveValue: {
+                promise(.success)
             })
-            .eraseToAnyPublisher()
+            .store(in: &bag)
     }
 }
