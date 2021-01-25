@@ -26,6 +26,8 @@ final class Core {
     @Published
     private(set) var connectError: Error?
     
+    private var authTimer: Timer?
+    
     private var bag: Set<AnyCancellable> = []
     
     init() {
@@ -37,6 +39,8 @@ final class Core {
                 .sink(receiveCompletion: { _ in },
                       receiveValue: { _ in })
                 .store(in: &self.bag)
+            
+            self.authTimer?.invalidate()
         }
         
         NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
@@ -47,6 +51,8 @@ final class Core {
                 .sink(receiveCompletion: { _ in },
                       receiveValue: { _ in })
                 .store(in: &self.bag)
+            
+            self.refreshAuthTimer()
         }
         
         connect()
@@ -73,6 +79,8 @@ final class Core {
                     .store(in: &self.bag)
             }
             .store(in: &bag)
+        
+        refreshAuthTimer()
     }
     
     private func disconnectThenConnect() -> AnyPublisher<Void, Error> {
@@ -117,7 +125,9 @@ final class Core {
     
     func publish(message: String,
                  to topic: String) -> AnyPublisher<Void, Error> {
-        Future<Void, Error> { [weak self] promise in
+        refreshAuthTimer()
+        
+        return Future<Void, Error> { [weak self] promise in
             guard let self = self else { return }
             
             guard let timestampKey = self.dataStore.settings.timestampKey,
@@ -166,5 +176,14 @@ final class Core {
                 promise(.success)
             })
             .store(in: &bag)
+    }
+    
+    private func refreshAuthTimer() {
+        authTimer?.invalidate()
+        authTimer = Timer.scheduledTimer(withTimeInterval: 60,
+                                         repeats: true) { _ in
+            guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
+            sceneDelegate.coordinator?.showAuthIfNeeded()
+        }
     }
 }

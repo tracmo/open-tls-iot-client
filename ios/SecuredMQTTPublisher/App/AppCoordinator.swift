@@ -67,7 +67,7 @@ final class AppCoordinator: Coordinator {
         homeWindow.makeKeyAndVisible()
     }
     
-    private func showAuthIfNeeded() {
+    func showAuthIfNeeded() {
         let isAuthShowing = !authWindow.isHidden
         guard Core.shared.dataStore.settings.isBiometricAuthEnabled,
               !isAuthShowing else { return }
