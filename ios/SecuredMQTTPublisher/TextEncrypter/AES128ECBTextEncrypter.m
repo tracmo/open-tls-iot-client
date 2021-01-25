@@ -72,6 +72,11 @@
         return;
     }
     
+    if (keyInHex.length != 32) {
+        completionHandler(nil, [self errorWithCode:TextEncrypterErrorCodeKeyFormatIncorrect]);
+        return;
+    }
+    
     NSString *keyInPlainString = [self plainFromHex:keyInHex];
     if (keyInPlainString == nil) {
         completionHandler(nil, [self errorWithCode:TextEncrypterErrorCodeKeyFormatIncorrect]);
