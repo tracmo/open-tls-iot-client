@@ -10,5 +10,6 @@
 #define SecuredMQTTPublisher_Bridging_Header_h
 
 #import "CertificateConverter.h"
+#import "AES128ECBTextEncrypter.h"
 
 #endif /* SecuredMQTTPublisher_Bridging_Header_h */
