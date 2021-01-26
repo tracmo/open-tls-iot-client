@@ -30,9 +30,9 @@ final class ButtonCell: UICollectionViewCell {
             switch self {
             case .normal,
                  .disabled,
-                 .busy: return 0
-            case .success,
-                 .failure: return 8
+                 .busy,
+                 .success,
+                 .failure: return 16
             }
         }
         
@@ -40,7 +40,7 @@ final class ButtonCell: UICollectionViewCell {
             switch self {
             case .normal,
                  .disabled,
-                 .busy: return UIColor.clear.cgColor
+                 .busy: return UIColor.accent.cgColor
             case .success: return UIColor.success.cgColor
             case .failure: return UIColor.failure.cgColor
             }
@@ -67,7 +67,7 @@ final class ButtonCell: UICollectionViewCell {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 48)
-        label.textColor = .secondary
+        label.textColor = .accent
         label.textAlignment = .center
         label.adjustsFontSizeToFitWidth = true
         return label
@@ -108,13 +108,13 @@ final class ButtonCell: UICollectionViewCell {
     }
     
     private func setupLayouts() {
-        backgroundColor = .accent
+        backgroundColor = .secondary
         clipsToBounds = true
         
         addSubviews(
             titleLabel
-                .leading(to: leading, 16)
-                .trailing(to: trailing, -16)
+                .leading(to: leading, 20)
+                .trailing(to: trailing, -20)
                 .centerY(to: centerY),
             loadingIndicator
                 .top(to: top)
