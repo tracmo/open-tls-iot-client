@@ -132,10 +132,20 @@ final class SettingsViewController: UIViewController {
     private lazy var dataSource: DataSource = {
         let dataSource = DataSource(
             collectionView: collectionView,
-            cellRegistrationHandler: { [weak self] textViewCell, indexPath, text in
+            cellRegistrationHandler: { [weak self] textViewCell, indexPath, _ in
                 guard let self = self else { return }
                 guard let section = Section.allCases[safe: indexPath.section] else { return }
-                textViewCell.textView.text = text.value
+                let text: String?
+                switch section {
+                case .homeTitle: text = self.editingSettings.homeTitle
+                case .mqttEndpoint: text = self.editingSettings.endpoint
+                case .clientID: text = self.editingSettings.clientID
+                case .certificate: text = self.editingSettings.certificate
+                case .privateKey: text = self.editingSettings.privateKey
+                case .rootCA: text = self.editingSettings.rootCA ?? ""
+                case .timestampKey: text = self.editingSettings.timestampKey ?? ""
+                }
+                textViewCell.textView.text = text
                 textViewCell.textView.inputAccessoryView = self.doneToolBar
                 textViewCell.textView.delegate = self
                 textViewCell.textView.tag = indexPath.section

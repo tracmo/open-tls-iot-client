@@ -100,10 +100,16 @@ final class ActionEditViewController: UIViewController {
     private lazy var dataSource: DataSource = {
         let dataSource = DataSource(
             collectionView: collectionView,
-            cellRegistrationHandler: { [weak self] textViewCell, indexPath, text in
+            cellRegistrationHandler: { [weak self] textViewCell, indexPath, _ in
                 guard let self = self else { return }
                 guard let section = Section.allCases[safe: indexPath.section] else { return }
-                textViewCell.textView.text = text.value
+                let text: String?
+                switch section {
+                case .title: text = self.editingAction.title
+                case .mqttTopic: text = self.editingAction.topic
+                case .message: text = self.editingAction.message
+                }
+                textViewCell.textView.text = text
                 textViewCell.textView.inputAccessoryView = self.doneToolBar
                 textViewCell.textView.delegate = self
                 textViewCell.textView.tag = indexPath.section
