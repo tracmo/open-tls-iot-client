@@ -36,7 +36,7 @@ Each folder has its own README document. Please open the folder to see the docum
 |-------------|--------------------------|--------------------------------------------|
 | Samson Chen | samson AT mytracmo.com   | Project Coordinator, ESP32, Documentations |
 | Eric Jan    | janeric11yt AT gmail.com | iOS App                                    |
-| Jie Chien   | jie AT mytracmo.com      | App Icon Design                            |
+| Jie Chien   | jie AT mytracmo.com      | App Icon and Style Design                  |
 
 We welcome your participations. If you are interested in joining this project, please email us via
 opensource AT mytracmo.com
