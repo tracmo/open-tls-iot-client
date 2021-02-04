@@ -109,7 +109,7 @@
                            withKeyInPlain:(nonnull NSString *)keyInPlainString
                         completionHandler:(nonnull void (^)(NSString * _Nullable, NSError * _Nullable error))completionHandler {
     const unsigned char *text = (const unsigned char *)[textInPlainString cStringUsingEncoding:NSISOLatin1StringEncoding];
-    const unsigned char *key = (const unsigned char *)[keyInPlainString cStringUsingEncoding:NSASCIIStringEncoding];
+    const unsigned char *key = (const unsigned char *)[keyInPlainString cStringUsingEncoding:NSISOLatin1StringEncoding];
     
     unsigned char encryptedTextBuffer[1024];
     int updateLength, finalLength;
