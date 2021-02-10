@@ -60,10 +60,10 @@ extension UIViewController {
 }
 
 extension UIButton {
-    convenience init(systemImageName: String, size: CGFloat, didTapHandler: @escaping UIActionHandler) {
+    convenience init(systemImageName: String, size: CGFloat, weight: UIFont.Weight = .regular, didTapHandler: @escaping UIActionHandler) {
         self.init()
         let systemImage = UIImage(systemName: systemImageName,
-                                  withConfiguration: UIImage.SymbolConfiguration(font: .systemFont(ofSize: size)))?
+                                  withConfiguration: UIImage.SymbolConfiguration(font: .systemFont(ofSize: size, weight: weight)))?
             .withTintColor(.accent, renderingMode: .alwaysOriginal)
         setImage(systemImage, for: .normal)
         addAction(.init(handler: didTapHandler), for: .touchUpInside)

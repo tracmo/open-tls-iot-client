@@ -20,9 +20,9 @@ final class OkCancelButtonsView: UICollectionReusableView {
     private lazy var okButton: UIButton = {
         let button = RoundedButton()
         button.backgroundColor = .accent
-        button.tintColor = .secondary
-        button.titleLabel?.font = .systemFont(ofSize: 36)
-        button.setTitle("OK", for: .normal)
+        button.setTitleColor(.secondary, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 21, weight: .semibold)
+        button.setTitle("Ok", for: .normal)
         button.addAction(.init { [weak self] _ in
             guard let self = self else { return }
             self.actionPublisher.send(.ok)
@@ -33,10 +33,12 @@ final class OkCancelButtonsView: UICollectionReusableView {
     
     private lazy var cancelButton: UIButton = {
         let button = RoundedButton()
-        button.backgroundColor = .accent
-        button.tintColor = .secondary
-        button.titleLabel?.font = .systemFont(ofSize: 36)
-        button.setTitle("CANCEL", for: .normal)
+        button.backgroundColor = .background
+        button.setTitleColor(.accent, for: .normal)
+        button.layer.borderWidth = 2
+        button.layer.borderColor = UIColor.accent.cgColor
+        button.titleLabel?.font = .systemFont(ofSize: 21, weight: .semibold)
+        button.setTitle("Cancel", for: .normal)
         button.addAction(.init { [weak self] _ in
             guard let self = self else { return }
             self.actionPublisher.send(.cancel)
@@ -58,10 +60,10 @@ final class OkCancelButtonsView: UICollectionReusableView {
         let container = UIStackView(arrangedSubviews: [cancelButton,
                                                        okButton])
         container.distribution = .fillEqually
-        container.spacing = 8
+        container.spacing = 15
         
         addSubviews(container
-                        .top(to: top, 16)
+                        .top(to: top)
                         .leading(to: leading)
                         .trailing(to: trailing)
                         .bottom(to: bottom))

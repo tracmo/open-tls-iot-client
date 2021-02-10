@@ -23,8 +23,8 @@ final class AboutViewController: UIViewController {
     private lazy var okButton: UIButton = {
         let button = RoundedButton()
         button.backgroundColor = .accent
-        button.tintColor = .secondary
-        button.titleLabel?.font = .systemFont(ofSize: 36)
+        button.setTitleColor(.secondary, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 21, weight: .semibold)
         button.setTitle("OK", for: .normal)
         button.addAction(
             .init { [weak self] _ in
@@ -53,8 +53,8 @@ final class AboutViewController: UIViewController {
         
         view.addSubviews(container
                             .top(to: view.safeAreaLayoutGuide.top, 16)
-                            .leading(to: view.safeAreaLayoutGuide.leading, 16)
-                            .trailing(to: view.safeAreaLayoutGuide.trailing, -16)
+                            .leading(to: view.safeAreaLayoutGuide.leading, 20)
+                            .trailing(to: view.safeAreaLayoutGuide.trailing, -20)
                             .bottom(to: view.safeAreaLayoutGuide.bottom, -16))
         
         container.addSubviews(textView
@@ -62,11 +62,11 @@ final class AboutViewController: UIViewController {
                                 .leading(to: container.leading)
                                 .trailing(to: container.trailing),
                               okButton
-                                .top(to: textView.bottom, 16)
+                                .top(to: textView.bottom, 20)
                                 .leading(to: container.leading)
                                 .trailing(to: container.trailing)
                                 .bottom(to: container.bottom)
-                                .height(to: 48))
+                                .height(to: 46))
     }
 }
 

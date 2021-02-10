@@ -12,7 +12,7 @@ final class TextViewTitleView: UICollectionReusableView {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .accent
-        label.font = .systemFont(ofSize: 24)
+        label.font = .systemFont(ofSize: 18)
         return label
     }()
     

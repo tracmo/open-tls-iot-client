@@ -14,6 +14,10 @@ final class SettingsViewController: UIViewController {
     
     private typealias DataSource = UICollectionViewDiffableDataSource<Section, Text>.SingleCellType<TextViewCell>
     
+    private enum Layout {
+        static let collectionViewContentInsetBottom: CGFloat = 60
+    }
+    
     private enum Section: CaseIterable {
         case homeTitle
         case mqttEndpoint
@@ -37,10 +41,10 @@ final class SettingsViewController: UIViewController {
         
         var textViewHeight: CGFloat {
             switch self {
-            case .homeTitle: return 50
+            case .homeTitle,
+                 .timestampKey: return 40
             case .mqttEndpoint,
-                 .clientID,
-                 .timestampKey: return 74
+                 .clientID: return 60
             case .certificate,
                  .privateKey,
                  .rootCA: return 300
@@ -69,7 +73,6 @@ final class SettingsViewController: UIViewController {
         case textViewTitleView
         case biometricAuthSwitch
         case hideUnusedButtonSwitch
-        case okCancelButtonsView
     }
     
     private let actionHandler: (SettingsViewController, Action) -> Void
@@ -77,7 +80,9 @@ final class SettingsViewController: UIViewController {
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
+        collectionView.showsVerticalScrollIndicator = false
         collectionView.alwaysBounceVertical = false
+        collectionView.contentInset = .init(top: 0, left: 0, bottom: Layout.collectionViewContentInsetBottom, right: 0)
         return collectionView
     }()
     
@@ -88,25 +93,19 @@ final class SettingsViewController: UIViewController {
             let layoutSection = self.makeLayoutSection(textViewHeight: section.textViewHeight)
             let biometricAuthSwitch = NSCollectionLayoutBoundarySupplementaryItem(
                 layoutSize: .init(widthDimension: .fractionalWidth(1.0),
-                                  heightDimension: .absolute(64)),
+                                  heightDimension: .absolute(52)),
                 elementKind: ElementKind.biometricAuthSwitch.rawValue,
-                alignment: .bottom)
+                alignment: .bottom,
+                absoluteOffset: .init(x: 0, y: 5))
             let hideUnusedButtonSwitch = NSCollectionLayoutBoundarySupplementaryItem(
                 layoutSize: .init(widthDimension: .fractionalWidth(1.0),
-                                  heightDimension: .absolute(64)),
+                                  heightDimension: .absolute(52)),
                 elementKind: ElementKind.hideUnusedButtonSwitch.rawValue,
                 alignment: .bottom,
-                absoluteOffset: .init(x: 0, y: 64))
-            let okCancelButtonsView = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: .init(widthDimension: .fractionalWidth(1.0),
-                                  heightDimension: .absolute(64)),
-                elementKind: ElementKind.okCancelButtonsView.rawValue,
-                alignment: .bottom,
-                absoluteOffset: .init(x: 0, y: 128))
+                absoluteOffset: .init(x: 0, y: 57))
             if sectionIndex == Section.allCases.indices.last {
                 layoutSection.boundarySupplementaryItems.append(contentsOf: [biometricAuthSwitch,
-                                                                             hideUnusedButtonSwitch,
-                                                                             okCancelButtonsView])
+                                                                             hideUnusedButtonSwitch])
             }
             return layoutSection
         }
@@ -120,12 +119,12 @@ final class SettingsViewController: UIViewController {
                                                      subitems: [textView])
         let textViewTitleView = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: .init(widthDimension: .fractionalWidth(1.0),
-                              heightDimension: .absolute(36)),
+                              heightDimension: .absolute(33)),
             elementKind: ElementKind.textViewTitleView.rawValue,
             alignment: .top)
         let section = NSCollectionLayoutSection(group: group)
         section.boundarySupplementaryItems = [textViewTitleView]
-        section.contentInsets = .init(top: 0, leading: 0, bottom: 8, trailing: 0)
+        section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
         return section
     }
     
@@ -183,23 +182,6 @@ final class SettingsViewController: UIViewController {
                 }
                 .store(in: &self.bag)
         }
-        let okCancelButtonsViewRegistration = UICollectionView.SupplementaryRegistration<OkCancelButtonsView>(
-            elementKind: ElementKind.okCancelButtonsView.rawValue) { [weak self] okCancelButtonsView, _, _ in
-            guard let self = self else { return }
-            okCancelButtonsView.actionPublisher
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] in
-                    guard let self = self else { return }
-                    switch $0 {
-                    case .ok:
-                        self.settings = self.editingSettings
-                        self.actionHandler(self, .ok)
-                    case .cancel:
-                        self.actionHandler(self, .cancel)
-                    }
-                }
-                .store(in: &self.bag)
-        }
         dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
             guard let self = self else { return nil }
             guard let kind = ElementKind(rawValue: kind) else { return nil }
@@ -213,9 +195,6 @@ final class SettingsViewController: UIViewController {
             case .hideUnusedButtonSwitch:
                 return collectionView.dequeueConfiguredReusableSupplementary(using: hideUnusedButtonSwitchRegistration,
                                                                              for: indexPath)
-            case .okCancelButtonsView:
-                return collectionView.dequeueConfiguredReusableSupplementary(using: okCancelButtonsViewRegistration,
-                                                                             for: indexPath)
             }
         }
         return dataSource
@@ -225,8 +204,26 @@ final class SettingsViewController: UIViewController {
         let label = UILabel()
         label.text = "Settings"
         label.textColor = .accent
-        label.font = .systemFont(ofSize: 36)
+        label.font = .systemFont(ofSize: 21, weight: .semibold)
         return label
+    }()
+    
+    private lazy var okCancelButtonView: OkCancelButtonsView = {
+        let okCancelButtonsView = OkCancelButtonsView()
+        okCancelButtonsView.actionPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                switch $0 {
+                case .ok:
+                    self.settings = self.editingSettings
+                    self.actionHandler(self, .ok)
+                case .cancel:
+                    self.actionHandler(self, .cancel)
+                }
+            }
+            .store(in: &self.bag)
+        return okCancelButtonsView
     }()
     
     private lazy var doneToolBar: UIToolbar = {
@@ -287,30 +284,26 @@ final class SettingsViewController: UIViewController {
         container.backgroundColor = .clear
         
         view.addSubviews(container
-                            .top(to: view.safeAreaLayoutGuide.top, 16)
-                            .leading(to: view.safeAreaLayoutGuide.leading, 16)
-                            .trailing(to: view.safeAreaLayoutGuide.trailing, -16)
+                            .top(to: view.safeAreaLayoutGuide.top, 32)
+                            .leading(to: view.safeAreaLayoutGuide.leading, 20)
+                            .trailing(to: view.safeAreaLayoutGuide.trailing, -20)
                             .bottom(to: view.safeAreaLayoutGuide.bottom, -16))
         
-        let topContainer = UIView()
-        topContainer.backgroundColor = .clear
-        
         container.addSubviews(
-            topContainer
+            titleLabel
                 .top(to: container.top)
-                .leading(to: container.leading)
-                .trailing(to: container.trailing)
-                .height(to: 56),
+                .centerX(to: container.centerX),
             collectionView
-                .top(to: topContainer.bottom, 16)
+                .top(to: titleLabel.bottom, 20)
+                .leading(to: container.leading)
+                .trailing(to: container.trailing),
+            okCancelButtonView
+                .top(to: collectionView.bottom, 20)
                 .leading(to: container.leading)
                 .trailing(to: container.trailing)
                 .bottom(to: container.bottom)
+                .height(to: 46)
         )
-        
-        topContainer.addSubviews(titleLabel
-                                    .centerX(to: topContainer.centerX)
-                                    .centerY(to: topContainer.centerY))
     }
     
     private func displaySettings() {
@@ -331,18 +324,18 @@ final class SettingsViewController: UIViewController {
     }
     
     @objc func handleKeyboardWillHideOrWillShowNotification(_ notification: Notification) {
-        let buttomInset: CGFloat
+        let bottomInset: CGFloat
         
         switch notification.name {
-        case UIResponder.keyboardWillHideNotification: buttomInset = 0
+        case UIResponder.keyboardWillHideNotification: bottomInset = Layout.collectionViewContentInsetBottom
         case UIResponder.keyboardWillShowNotification:
             guard let keyboardFrameInValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
             let keyboardEndFrameInScreen = keyboardFrameInValue.cgRectValue
-            buttomInset = keyboardEndFrameInScreen.height - view.safeAreaInsets.bottom
+            bottomInset = keyboardEndFrameInScreen.height - view.safeAreaInsets.bottom
         default: return
         }
         
-        let insets = UIEdgeInsets(top: 0, left: 0, bottom: buttomInset, right: 0)
+        let insets = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
         collectionView.contentInset = insets
         collectionView.scrollIndicatorInsets = insets
     }

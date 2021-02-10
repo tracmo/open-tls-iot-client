@@ -16,7 +16,7 @@ final class AuthViewController: UIViewController {
     private lazy var titleLabel: UILabel = {
         let appName = Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "Secured MQTT Publisher"
         let label = UILabel()
-        label.font = .systemFont(ofSize: 64)
+        label.font = .systemFont(ofSize: 21, weight: .semibold)
         label.textAlignment = .center
         label.textColor = .accent
         label.text = appName
@@ -100,8 +100,8 @@ final class AuthViewController: UIViewController {
                 .top(to: titleLabel.bottom, 40)
                 .centerX(to: container.centerX)
                 .bottom(to: container.bottom)
-                .width(to: 100)
-                .height(to: 100)
+                .width(to: 130)
+                .height(to: 130)
         )
     }
     

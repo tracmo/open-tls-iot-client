@@ -12,6 +12,8 @@ extension UIColor {
     static let accent = UIColor(named: "AccentColor")!
     static let background = UIColor(named: "BackgroundColor")!
     static let secondary = UIColor(named: "SecondaryColor")!
+    static let border = UIColor(named: "BorderColor")!
+    static let normal = UIColor(named: "NormalColor")!
     static let success = UIColor(named: "SuccessColor")!
     static let failure = UIColor(named: "FailureColor")!
 }

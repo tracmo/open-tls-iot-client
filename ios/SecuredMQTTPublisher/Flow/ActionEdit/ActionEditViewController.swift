@@ -14,6 +14,10 @@ final class ActionEditViewController: UIViewController {
     
     private typealias DataSource = UICollectionViewDiffableDataSource<Section, Text>.SingleCellType<TextViewCell>
     
+    private enum Layout {
+        static let collectionViewContentInsetBottom: CGFloat = 60
+    }
+    
     private enum Section: CaseIterable {
         case title
         case mqttTopic
@@ -30,7 +34,7 @@ final class ActionEditViewController: UIViewController {
         var textViewHeight: CGFloat {
             switch self {
             case .title,
-                 .mqttTopic: return 50
+                 .mqttTopic: return 40
             case .message: return 300
             }
         }
@@ -51,7 +55,6 @@ final class ActionEditViewController: UIViewController {
     
     private enum ElementKind: String {
         case textViewTitleView
-        case okCancelButtonsView
     }
     
     private let actionHandler: (ActionEditViewController, Action) -> Void
@@ -59,7 +62,9 @@ final class ActionEditViewController: UIViewController {
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
+        collectionView.showsVerticalScrollIndicator = false
         collectionView.alwaysBounceVertical = false
+        collectionView.contentInset = .init(top: 0, left: 0, bottom: Layout.collectionViewContentInsetBottom, right: 0)
         return collectionView
     }()
     
@@ -67,16 +72,7 @@ final class ActionEditViewController: UIViewController {
         .init { [weak self] sectionIndex, _ in
             guard let self = self else { return nil }
             guard let section = Section.allCases[safe: sectionIndex] else { return nil }
-            let layoutSection = self.makeLayoutSection(textViewHeight: section.textViewHeight)
-            let okCancelButtonsView = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: .init(widthDimension: .fractionalWidth(1.0),
-                                  heightDimension: .absolute(64)),
-                elementKind: ElementKind.okCancelButtonsView.rawValue,
-                alignment: .bottom)
-            if sectionIndex == Section.allCases.indices.last {
-                layoutSection.boundarySupplementaryItems.append(okCancelButtonsView)
-            }
-            return layoutSection
+            return self.makeLayoutSection(textViewHeight: section.textViewHeight)
         }
     }()
     
@@ -88,12 +84,12 @@ final class ActionEditViewController: UIViewController {
                                                      subitems: [textView])
         let textViewTitleView = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: .init(widthDimension: .fractionalWidth(1.0),
-                              heightDimension: .absolute(36)),
+                              heightDimension: .absolute(33)),
             elementKind: ElementKind.textViewTitleView.rawValue,
             alignment: .top)
         let section = NSCollectionLayoutSection(group: group)
         section.boundarySupplementaryItems = [textViewTitleView]
-        section.contentInsets = .init(top: 0, leading: 0, bottom: 8, trailing: 0)
+        section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
         return section
     }
     
@@ -121,32 +117,12 @@ final class ActionEditViewController: UIViewController {
             guard let section = Section.allCases[safe: indexPath.section] else { return }
             textViewTitleView.display(title: section.title)
         }
-        let okCancelButtonsViewRegistration = UICollectionView.SupplementaryRegistration<OkCancelButtonsView>(
-            elementKind: ElementKind.okCancelButtonsView.rawValue) { [weak self] okCancelButtonsView, _, _ in
-            guard let self = self else { return }
-            okCancelButtonsView.actionPublisher
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] in
-                    guard let self = self else { return }
-                    switch $0 {
-                    case .ok:
-                        self.action = self.editingAction
-                        self.actionHandler(self, .ok)
-                    case .cancel:
-                        self.actionHandler(self, .cancel)
-                    }
-                }
-                .store(in: &self.bag)
-        }
         dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
             guard let self = self else { return nil }
             guard let kind = ElementKind(rawValue: kind) else { return nil }
             switch kind {
             case .textViewTitleView:
                 return collectionView.dequeueConfiguredReusableSupplementary(using: textViewTitleViewRegistration,
-                                                                             for: indexPath)
-            case .okCancelButtonsView:
-                return collectionView.dequeueConfiguredReusableSupplementary(using: okCancelButtonsViewRegistration,
                                                                              for: indexPath)
             }
         }
@@ -157,12 +133,12 @@ final class ActionEditViewController: UIViewController {
         let label = UILabel()
         label.text = "Button Edit"
         label.textColor = .accent
-        label.font = .systemFont(ofSize: 36)
+        label.font = .systemFont(ofSize: 21, weight: .semibold)
         return label
     }()
     
     private lazy var deleteButton = UIButton(systemImageName: "trash.circle.fill",
-                                             size: 48) { [weak self] _ in
+                                             size: 40) { [weak self] _ in
         guard let self = self else { return }
         let alert = UIAlertController(title: "Sure to delete button?",
                                       message: nil,
@@ -180,6 +156,25 @@ final class ActionEditViewController: UIViewController {
                               }))
         self.present(alert, animated: true)
     }
+    
+    private lazy var okCancelButtonView: OkCancelButtonsView = {
+        let okCancelButtonsView = OkCancelButtonsView()
+        okCancelButtonsView.actionPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                switch $0 {
+                case .ok:
+                    self.action = self.editingAction
+                    self.actionHandler(self, .ok)
+                case .cancel:
+                    self.actionHandler(self, .cancel)
+                }
+            }
+            .store(in: &self.bag)
+        return okCancelButtonsView
+    }()
+    
     
     private lazy var doneToolBar: UIToolbar = {
         // init with a big enough height to avoid constraint error
@@ -239,36 +234,30 @@ final class ActionEditViewController: UIViewController {
         container.backgroundColor = .clear
         
         view.addSubviews(container
-                            .top(to: view.safeAreaLayoutGuide.top, 16)
-                            .leading(to: view.safeAreaLayoutGuide.leading, 16)
-                            .trailing(to: view.safeAreaLayoutGuide.trailing, -16)
+                            .top(to: view.safeAreaLayoutGuide.top, 32)
+                            .leading(to: view.safeAreaLayoutGuide.leading, 20)
+                            .trailing(to: view.safeAreaLayoutGuide.trailing, -20)
                             .bottom(to: view.safeAreaLayoutGuide.bottom, -16))
         
-        let topContainer = UIView()
-        topContainer.backgroundColor = .clear
-        
         container.addSubviews(
-            topContainer
+            titleLabel
                 .top(to: container.top)
-                .leading(to: container.leading)
+                .centerX(to: container.centerX),
+            deleteButton
+                .centerY(to: titleLabel.centerY)
                 .trailing(to: container.trailing)
-                .height(to: 56),
+                .width(to: 40)
+                .height(to: 40),
             collectionView
-                .top(to: topContainer.bottom, 16)
+                .top(to: titleLabel.bottom, 20)
+                .leading(to: container.leading)
+                .trailing(to: container.trailing),
+            okCancelButtonView
+                .top(to: collectionView.bottom, 20)
                 .leading(to: container.leading)
                 .trailing(to: container.trailing)
                 .bottom(to: container.bottom)
-        )
-        
-        topContainer.addSubviews(
-            titleLabel
-                .centerX(to: topContainer.centerX)
-                .centerY(to: topContainer.centerY),
-            deleteButton
-                .trailing(to: topContainer.trailing)
-                .centerY(to: topContainer.centerY)
-                .width(to: 48)
-                .height(to: 48)
+                .height(to: 46)
         )
     }
     
@@ -286,18 +275,18 @@ final class ActionEditViewController: UIViewController {
     }
     
     @objc func handleKeyboardWillHideOrWillShowNotification(_ notification: Notification) {
-        let buttomInset: CGFloat
+        let bottomInset: CGFloat
         
         switch notification.name {
-        case UIResponder.keyboardWillHideNotification: buttomInset = 0
+        case UIResponder.keyboardWillHideNotification: bottomInset = Layout.collectionViewContentInsetBottom
         case UIResponder.keyboardWillShowNotification:
             guard let keyboardFrameInValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
             let keyboardEndFrameInScreen = keyboardFrameInValue.cgRectValue
-            buttomInset = keyboardEndFrameInScreen.height - view.safeAreaInsets.bottom
+            bottomInset = keyboardEndFrameInScreen.height - view.safeAreaInsets.bottom
         default: return
         }
         
-        let insets = UIEdgeInsets(top: 0, left: 0, bottom: buttomInset, right: 0)
+        let insets = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
         collectionView.contentInset = insets
         collectionView.scrollIndicatorInsets = insets
     }

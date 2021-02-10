@@ -14,9 +14,11 @@ final class TextViewCell: UICollectionViewCell {
         textView.backgroundColor = .white
         textView.textColor = .black
         textView.autocorrectionType = .no
-        textView.font = .systemFont(ofSize: 24)
-        textView.layer.borderWidth = 2
-        textView.layer.borderColor = UIColor.accent.cgColor
+        textView.font = .systemFont(ofSize: 17)
+        textView.layer.borderWidth = 1
+        textView.layer.cornerRadius = 5
+        textView.layer.borderColor = UIColor.border.cgColor
+        textView.contentInset = .init(top: 0, left: 5, bottom: 0, right: 5)
         return textView
     }()
     

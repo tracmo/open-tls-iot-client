@@ -32,7 +32,7 @@ final class ButtonCell: UICollectionViewCell {
                  .disabled,
                  .busy,
                  .success,
-                 .failure: return 16
+                 .failure: return 6
             }
         }
         
@@ -40,7 +40,7 @@ final class ButtonCell: UICollectionViewCell {
             switch self {
             case .normal,
                  .disabled,
-                 .busy: return UIColor.accent.cgColor
+                 .busy: return UIColor.normal.cgColor
             case .success: return UIColor.success.cgColor
             case .failure: return UIColor.failure.cgColor
             }
@@ -66,10 +66,10 @@ final class ButtonCell: UICollectionViewCell {
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 48)
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: 17)
         label.textColor = .accent
         label.textAlignment = .center
-        label.adjustsFontSizeToFitWidth = true
         return label
     }()
     

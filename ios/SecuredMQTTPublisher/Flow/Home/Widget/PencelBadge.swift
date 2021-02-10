@@ -9,8 +9,8 @@
 import UIKit
 
 final class PencilBadge: UICollectionReusableView {
-    private lazy var pencilImageView = UIImageView(image: UIImage(systemName: "pencil.circle",
-                                                                  withConfiguration: UIImage.SymbolConfiguration(font: .systemFont(ofSize: 72)))?
+    private lazy var pencilImageView = UIImageView(image: UIImage(systemName: "pencil.circle.fill",
+                                                                  withConfiguration: UIImage.SymbolConfiguration(font: .systemFont(ofSize: 40, weight: .black)))?
                                                     .withTintColor(.accent, renderingMode: .alwaysOriginal))
     
     @available(*, unavailable)

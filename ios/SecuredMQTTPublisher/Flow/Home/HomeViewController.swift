@@ -30,7 +30,9 @@ final class HomeViewController: UIViewController {
     }
     
     private enum Layout {
-        static let utilityButtonSize: CGFloat = 48
+        static let utilityButtonSize: CGFloat = 40
+        static let buttonSize: CGFloat = 148
+        static let buttonSpacing: CGFloat = 15
     }
     
     private enum Section { case main }
@@ -59,7 +61,8 @@ final class HomeViewController: UIViewController {
     }
     
     private lazy var editButton = UIButton(systemImageName: "pencil.circle.fill",
-                                           size: Layout.utilityButtonSize) { [weak self] _ in
+                                           size: Layout.utilityButtonSize,
+                                           weight: .black) { [weak self] _ in
         guard let self = self else { return }
         self.isEditing = true
     }
@@ -72,7 +75,7 @@ final class HomeViewController: UIViewController {
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 64)
+        label.font = .systemFont(ofSize: 28, weight: .semibold)
         label.textAlignment = .center
         label.textColor = .accent
         label.adjustsFontSizeToFitWidth = true
@@ -82,26 +85,32 @@ final class HomeViewController: UIViewController {
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
+        collectionView.showsVerticalScrollIndicator = false
         collectionView.alwaysBounceVertical = false
         collectionView.delegate = self
         return collectionView
     }()
     
     private lazy var layout: UICollectionViewCompositionalLayout = {
-        let pencilBadge = NSCollectionLayoutSupplementaryItem(layoutSize: .init(widthDimension: .absolute(72),
-                                                                                heightDimension: .absolute(72)),
+        let pencilBadge = NSCollectionLayoutSupplementaryItem(layoutSize: .init(widthDimension: .absolute(40),
+                                                                                heightDimension: .absolute(40)),
                                                               elementKind: ElementKind.pencilBadge.rawValue,
                                                               containerAnchor: .init(edges: [.top, .trailing],
-                                                                                     absoluteOffset: .zero))
+                                                                                     absoluteOffset: .init(x: -4, y: 4)))
         
-        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(0.5),
-                                                            heightDimension: .fractionalWidth(0.5)),
+        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .absolute(Layout.buttonSize),
+                                                            heightDimension: .absolute(Layout.buttonSize)),
                                           supplementaryItems: [pencilBadge])
-        item.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1.0),
-                                                                         heightDimension: .fractionalWidth(0.5)),
+        
+        let width = Layout.buttonSize * 2 + Layout.buttonSpacing
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(width),
+                                                                         heightDimension: .absolute(Layout.buttonSize)),
                                                        subitems: [item])
+        group.interItemSpacing = .fixed(Layout.buttonSpacing)
+        
         let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = Layout.buttonSpacing
+        
         let layout = UICollectionViewCompositionalLayout(section: section)
         return layout
     }()
@@ -127,7 +136,7 @@ final class HomeViewController: UIViewController {
     lazy var errorMessageTextView: UITextView = {
         let textView = UITextView()
         textView.isEditable = false
-        textView.font = .systemFont(ofSize: 24)
+        textView.font = .systemFont(ofSize: 18)
         textView.textAlignment = .center
         textView.textColor = .failure
         textView.backgroundColor = .clear
@@ -137,9 +146,9 @@ final class HomeViewController: UIViewController {
     private lazy var okButton: UIButton = {
         let button = RoundedButton()
         button.backgroundColor = .accent
-        button.tintColor = .secondary
-        button.titleLabel?.font = .systemFont(ofSize: 36)
-        button.setTitle("OK", for: .normal)
+        button.setTitleColor(.secondary, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 21, weight: .semibold)
+        button.setTitle("Ok", for: .normal)
         button.addAction(
             .init { [weak self] _ in
                 guard let self = self else { return }
@@ -201,8 +210,8 @@ final class HomeViewController: UIViewController {
         
         view.addSubviews(container
                             .top(to: view.safeAreaLayoutGuide.top, 16)
-                            .leading(to: view.safeAreaLayoutGuide.leading, 16)
-                            .trailing(to: view.safeAreaLayoutGuide.trailing, -16)
+                            .leading(to: view.safeAreaLayoutGuide.leading, 20)
+                            .trailing(to: view.safeAreaLayoutGuide.trailing, -20)
                             .bottom(to: view.safeAreaLayoutGuide.bottom, -16))
         
         container.addSubviews(
@@ -212,25 +221,24 @@ final class HomeViewController: UIViewController {
                 .trailing(to: container.trailing)
                 .height(to: Layout.utilityButtonSize),
             titleLabel
-                .top(to: utilityButtonsContainer.bottom, 16)
                 .leading(to: container.leading)
                 .trailing(to: container.trailing),
             collectionView
-                .top(to: titleLabel.bottom, 16)
-                .leading(to: container.leading)
-                .trailing(to: container.trailing)
+                .top(to: titleLabel.bottom, 40)
+                .centerX(to: container.centerX)
+                .centerY(to: container.centerY)
+                .width(to: Layout.buttonSize * 2 + Layout.buttonSpacing)
                 .height(to: collectionView.width, multiplier: 1),
             errorMessageTextView
-                .top(to: collectionView.bottom, 16)
+                .top(to: collectionView.bottom, 40)
                 .leading(to: container.leading)
-                .trailing(to: container.trailing)
-                .height(to: titleLabel.height, multiplier: 1),
+                .trailing(to: container.trailing),
             okButton
-                .top(to: errorMessageTextView.bottom, 16)
+                .top(to: errorMessageTextView.bottom, 20)
                 .leading(to: container.leading)
                 .trailing(to: container.trailing)
                 .bottom(to: container.bottom)
-                .height(to: 48)
+                .height(to: 46)
         )
         
         utilityButtonsContainer.addSubviews(
@@ -245,7 +253,7 @@ final class HomeViewController: UIViewController {
                 .height(to: Layout.utilityButtonSize),
             settingsButton
                 .top(to: utilityButtonsContainer.top)
-                .leading(to: editButton.trailing, 16)
+                .leading(to: editButton.trailing, 20)
                 .trailing(to: utilityButtonsContainer.trailing)
                 .width(to: Layout.utilityButtonSize)
                 .height(to: Layout.utilityButtonSize)

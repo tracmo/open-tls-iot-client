@@ -16,12 +16,13 @@ final class LabelSwitchView: UICollectionReusableView {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .accent
-        label.font = .systemFont(ofSize: 24)
+        label.font = .systemFont(ofSize: 18)
         return label
     }()
     
     private lazy var mySwitch: UISwitch = {
         let mySwitch = UISwitch()
+        mySwitch.onTintColor = .accent
         mySwitch.publisher(for: \.isOn)
             .sink { [weak self] in
                 guard let self = self else { return }
