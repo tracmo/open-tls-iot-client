@@ -295,6 +295,11 @@ final class ActionEditViewController: UIViewController {
 }
 
 extension ActionEditViewController: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        let textViewFrameInCollectionView = textView.convert(textView.bounds, to: collectionView)
+        collectionView.scrollRectToVisible(textViewFrameInCollectionView, animated: true)
+    }
+    
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         guard let section = Section.allCases[safe: textView.tag] else { return true }
         
