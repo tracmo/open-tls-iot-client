@@ -84,3 +84,10 @@ https://github.com/x2on/OpenSSL-for-iPhone/blob/master/LICENSE
 
 License
 https://github.com/evgenyneu/keychain-swift/blob/master/LICENSE
+
+##### [CryptoSwift](https://github.com/krzyzanowskim/CryptoSwift)
+
+License
+https://github.com/krzyzanowskim/CryptoSwift/blob/master/LICENSE
+
+This product includes software developed by the "Marcin Krzyzanowski" (http://krzyzanowskim.com/).
