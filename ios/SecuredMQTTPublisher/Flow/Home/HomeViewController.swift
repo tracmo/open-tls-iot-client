@@ -454,11 +454,6 @@ extension Error {
         if let encryptError = self as? AES128ECBTextEncrypter.EncrypterError {
             switch encryptError {
             case .keyFormatIncorrect: return "timestamp key format incorrect"
-            case .hexFormatIncorrect,
-                 .initFailure,
-                 .updateFailure,
-                 .finalFailure,
-                 .unknown: return "timestamp encrypt error"
             }
         }
         

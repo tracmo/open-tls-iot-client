@@ -86,3 +86,33 @@ extension UICollectionViewDiffableDataSource {
         }
     }
 }
+
+extension String {
+    func components(withLength length: Int) -> [Substring] {
+        stride(from: 0, to: count, by: length).map {
+            let start = index(startIndex, offsetBy: $0)
+            let end = index(start, offsetBy: length, limitedBy: endIndex) ?? endIndex
+            return self[start..<end]
+        }
+    }
+    
+    func appended(_ other: String) -> Self {
+        var result = self
+        result.append(other)
+        return result
+    }
+}
+
+extension Array {
+    func inserted<C>(contentsOf newElements: C, at i: Int) -> Self where C : Collection, Self.Element == C.Element {
+        var result = self
+        result.insert(contentsOf: newElements, at: i)
+        return result
+    }
+    
+    func appended(_ newElement: Element) -> Self {
+        var result = self
+        result.append(newElement)
+        return result
+    }
+}

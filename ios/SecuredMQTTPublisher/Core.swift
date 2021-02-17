@@ -150,7 +150,6 @@ final class Core {
                     self._publish(message: newMessage, to: topic, promise: promise)
                 })
                 .store(in: &self.bag)
-            
         }
         .eraseToAnyPublisher()
     }
