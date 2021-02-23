@@ -118,7 +118,7 @@ extension UIImage {
             .init(width: size.width * widthRatio, height: size.height * widthRatio)
         let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
         
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 0)
         self.draw(in: rect)
         let resized = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
