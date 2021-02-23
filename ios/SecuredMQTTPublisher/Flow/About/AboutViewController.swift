@@ -230,6 +230,20 @@ extension NSAttributedString {
 
         """.paragraphContent())
                         .appended("https://github.com/evgenyneu/keychain-swift/blob/master/LICENSE".link())
+                        .appended("""
+
+
+        CryptoSwift
+
+        """.paragraphContent())
+                        .appended("https://github.com/krzyzanowskim/CryptoSwift".link())
+                        .appended("""
+
+
+        License
+
+        """.paragraphContent())
+                        .appended("https://github.com/krzyzanowskim/CryptoSwift/blob/master/LICENSE".link())
         ))
     }
 }
