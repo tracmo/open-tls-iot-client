@@ -34,7 +34,7 @@ enum AES128ECBTextEncrypter {
         
         let textToEncryptInHex =
             byte0To14Values.appended(byte15Value)
-            .map { String($0, radix: 16) }
+            .map { String(format: "%02x", $0) }
             .joined()
         
         return encryptedTextInHex(textInHex: textToEncryptInHex, keyInHex: keyInHex)
