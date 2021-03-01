@@ -48,7 +48,7 @@
 #define OPEN_TLS_HW_DOOR_CLOSE              GPIO_NUM_13
 
 // time to perform stop after open-stop-close action is triggered
-#define OPEN_TLS_DOOR_OPEN_STOP_CLOSE_TIMER_STOP  12      // in seconds
+#define OPEN_TLS_DOOR_OPEN_STOP_CLOSE_TIMER_STOP  10      // in seconds
 
 // time to perform close after open-stop-close action is triggered
 // this time must be longer than the stop delayed timer

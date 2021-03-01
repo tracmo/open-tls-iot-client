@@ -114,7 +114,7 @@ void t_gpio_init(void)
                           (1ULL << OPEN_TLS_HW_DOOR_STOP)  |
                           (1ULL << OPEN_TLS_HW_DOOR_CLOSE);
     ioConf.mode = GPIO_MODE_OUTPUT;
-    ioConf.pull_down_en = GPIO_PULLDOWN_ENABLE;
+    ioConf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     ioConf.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&ioConf);
 
@@ -122,9 +122,9 @@ void t_gpio_init(void)
     gpio_set_level(T_GPIO_LED2_IO, 0);
 
     // DOOR Control IO
-    gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 0);
-    gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 0);
-    gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 0);
+    gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 1);
+    gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 1);
+    gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 1);
 
 }
 

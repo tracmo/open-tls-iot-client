@@ -35,6 +35,7 @@ static const char *TAG = "CMD";
 #define CMD_QUEUE_SIZE                  16
 #define	CMD_EVENT_WAITING_TIME			1000	// in ms
 #define CMD_OTP_TOLERANCE               9       // in seconds
+#define CMD_RELAY_STAY_TIME             700     // in ms
 
 ///////////////////////////////////////////////////////////////////////////////////
 // typedefs
@@ -247,31 +248,31 @@ void cmd_perform(cmd_action_code_t action)
     if( action == CMD_ACTION_OPEN ) {
 
         // --------- OPEN ---------
-        gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 1);
-        vTaskDelay(pdMS_TO_TICKS(250));
         gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 0);
+        vTaskDelay(pdMS_TO_TICKS(CMD_RELAY_STAY_TIME));
+        gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 1);
 
     } else if( action == CMD_ACTION_STOP ) {
 
         // --------- STOP ---------
-        gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 1);
-        vTaskDelay(pdMS_TO_TICKS(250));
         gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 0);
+        vTaskDelay(pdMS_TO_TICKS(CMD_RELAY_STAY_TIME));
+        gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 1);
 
     } else if( action == CMD_ACTION_CLOSE ) {
 
         // --------- CLOSE ---------
-        gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 1);
-        vTaskDelay(pdMS_TO_TICKS(250));
         gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 0);
+        vTaskDelay(pdMS_TO_TICKS(CMD_RELAY_STAY_TIME));
+        gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 1);
 
     } else if( action == CMD_ACTION_OPEN_STOP_CLOSE ) {
 
         // --------- OPEN-STOP-THEN-CLOSE ---------
         // make it open first
-        gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 1);
-        vTaskDelay(pdMS_TO_TICKS(250));
         gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 0);
+        vTaskDelay(pdMS_TO_TICKS(CMD_RELAY_STAY_TIME));
+        gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 1);
 
         // get current time
         time_t currentTime;
