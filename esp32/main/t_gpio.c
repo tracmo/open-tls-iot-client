@@ -106,15 +106,26 @@ void t_gpio_init(void)
     // initialize fade service.
     ledc_fade_func_install(T_GPIO_INTR_FLAG_LEDC);
 
-    // initialize the second LED which perform only the simple blinking
+    // initialize the second LED and the IOs to control the door
     gpio_config_t ioConf;
     ioConf.intr_type = GPIO_PIN_INTR_DISABLE;
-    ioConf.pin_bit_mask = (1ULL << T_GPIO_LED2_IO);
+    ioConf.pin_bit_mask = (1ULL << T_GPIO_LED2_IO) |
+                          (1ULL << OPEN_TLS_HW_DOOR_OPEN) |
+                          (1ULL << OPEN_TLS_HW_DOOR_STOP)  |
+                          (1ULL << OPEN_TLS_HW_DOOR_CLOSE);
     ioConf.mode = GPIO_MODE_OUTPUT;
     ioConf.pull_down_en = GPIO_PULLDOWN_ENABLE;
     ioConf.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&ioConf);
+
+    // LED2
     gpio_set_level(T_GPIO_LED2_IO, 0);
+
+    // DOOR Control IO
+    gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 0);
+    gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 0);
+    gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 0);
+
 }
 
 

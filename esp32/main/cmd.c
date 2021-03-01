@@ -19,6 +19,8 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include "hwcrypto/aes.h"
+#include "driver/gpio.h"
+#include "driver/ledc.h"
 #include "nvs_flash.h"
 #include "nvs.h"
 
@@ -48,9 +50,16 @@ typedef struct {
 // local variables
 static QueueHandle_t cmd_que = NULL;
 
+static bool cmd_delayed_stop_action = false;
+static time_t cmd_delayed_stop_action_time = 0;
+
+static bool cmd_delayed_close_action = false;
+static time_t cmd_delayed_close_action_time = 0;
+
 ///////////////////////////////////////////////////////////////////////////////////
 // local function
 void cmd_loop(void * arg);
+void cmd_perform(cmd_action_code_t action);
 
 ///////////////////////////////////////////////////////////////////////////////////
 // public function implementations
@@ -61,6 +70,12 @@ void cmd_loop(void * arg);
 void cmd_init(void)
 {
     TaskHandle_t cmdEventHnd;
+
+    // vars init
+    cmd_delayed_stop_action = false;
+    cmd_delayed_stop_action_time = 0;
+    cmd_delayed_close_action = false;
+    cmd_delayed_close_action_time = 0;
 
     // create the command handling queues
     cmd_que = xQueueCreate(CMD_QUEUE_SIZE, sizeof(cmd_action_t));
@@ -150,12 +165,7 @@ void cmd_loop(void * arg)
                     if( timeDiff <= CMD_OTP_TOLERANCE ) {
 
                         // everything is correct, perform the action
-
-
-
-
-
-
+                        cmd_perform(cmdEvent.command_action);
 
                     } else {
 
@@ -191,6 +201,33 @@ void cmd_loop(void * arg)
             }
         }
 
+        // get current time for the following up the delayed actions
+        time_t currentTime;
+        time(&currentTime);
+
+        // check if any delayed actions to perform
+        if( cmd_delayed_stop_action ) {
+
+            if( currentTime >= cmd_delayed_stop_action_time ) {
+
+                cmd_perform(CMD_ACTION_STOP);
+                cmd_delayed_stop_action = false;
+
+                ESP_LOGI(TAG, "delayed STOP performed");
+            }
+        }
+
+        if( cmd_delayed_close_action ) {
+
+            if( currentTime >= cmd_delayed_close_action_time ) {
+
+                cmd_perform(CMD_ACTION_CLOSE);
+                cmd_delayed_close_action = false;
+
+                ESP_LOGI(TAG, "delayed CLOSE performed");
+            }
+        }
+
 		// watchdog
 		esp_task_wdt_reset();
 	}
@@ -199,5 +236,53 @@ void cmd_loop(void * arg)
 
 	xQueueReset(cmd_que);
 	vTaskSuspend(NULL);
+}
+
+
+/**
+ * Perform the IO actions
+ */
+void cmd_perform(cmd_action_code_t action)
+{
+    if( action == CMD_ACTION_OPEN ) {
+
+        // --------- OPEN ---------
+        gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 1);
+        vTaskDelay(pdMS_TO_TICKS(250));
+        gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 0);
+
+    } else if( action == CMD_ACTION_STOP ) {
+
+        // --------- STOP ---------
+        gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 1);
+        vTaskDelay(pdMS_TO_TICKS(250));
+        gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 0);
+
+    } else if( action == CMD_ACTION_CLOSE ) {
+
+        // --------- CLOSE ---------
+        gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 1);
+        vTaskDelay(pdMS_TO_TICKS(250));
+        gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 0);
+
+    } else if( action == CMD_ACTION_OPEN_STOP_CLOSE ) {
+
+        // --------- OPEN-STOP-THEN-CLOSE ---------
+        // make it open first
+        gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 1);
+        vTaskDelay(pdMS_TO_TICKS(250));
+        gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 0);
+
+        // get current time
+        time_t currentTime;
+        time(&currentTime);
+
+        // define the delayed action timers
+        cmd_delayed_stop_action_time = currentTime + OPEN_TLS_DOOR_OPEN_STOP_CLOSE_TIMER_STOP;
+        cmd_delayed_close_action_time = currentTime + OPEN_TLS_DOOR_OPEN_THEN_CLOSE_TIMER_CLOSE;
+        cmd_delayed_stop_action = true;
+        cmd_delayed_close_action = true;
+    }
+    // Note: there is no else
 }
 

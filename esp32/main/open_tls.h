@@ -42,6 +42,18 @@
 #define OPEN_TLS_HW_LED2                    GPIO_NUM_4
 #define OPEN_TLS_HW_BUTTON                  GPIO_NUM_5
 
+// Physical Control
+#define OPEN_TLS_HW_DOOR_OPEN               GPIO_NUM_2
+#define OPEN_TLS_HW_DOOR_STOP               GPIO_NUM_12
+#define OPEN_TLS_HW_DOOR_CLOSE              GPIO_NUM_13
+
+// time to perform stop after open-stop-close action is triggered
+#define OPEN_TLS_DOOR_OPEN_STOP_CLOSE_TIMER_STOP  12      // in seconds
+
+// time to perform close after open-stop-close action is triggered
+// this time must be longer than the stop delayed timer
+#define OPEN_TLS_DOOR_OPEN_THEN_CLOSE_TIMER_CLOSE 60      // in seconds
+
 ///////////////////////////////////////////////////////////////////////////////////
 // more defines
 #define T_DEVICE_WATCHDOG_TIMER_SEC       60

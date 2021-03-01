@@ -22,7 +22,7 @@ typedef enum {
     CMD_ACTION_OPEN = 1,
     CMD_ACTION_STOP = 2,
     CMD_ACTION_CLOSE = 3,
-    CMD_ACTION_OPEN_CLOSE = 4,
+    CMD_ACTION_OPEN_STOP_CLOSE = 4,
     CMD_ACTION_INVALID = 5
 } cmd_action_code_t;
 
