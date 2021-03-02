@@ -248,31 +248,31 @@ void cmd_perform(cmd_action_code_t action)
     if( action == CMD_ACTION_OPEN ) {
 
         // --------- OPEN ---------
-        gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 0);
-        vTaskDelay(pdMS_TO_TICKS(CMD_RELAY_STAY_TIME));
         gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 1);
+        vTaskDelay(pdMS_TO_TICKS(CMD_RELAY_STAY_TIME));
+        gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 0);
 
     } else if( action == CMD_ACTION_STOP ) {
 
         // --------- STOP ---------
-        gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 0);
-        vTaskDelay(pdMS_TO_TICKS(CMD_RELAY_STAY_TIME));
         gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 1);
+        vTaskDelay(pdMS_TO_TICKS(CMD_RELAY_STAY_TIME));
+        gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 0);
 
     } else if( action == CMD_ACTION_CLOSE ) {
 
         // --------- CLOSE ---------
-        gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 0);
-        vTaskDelay(pdMS_TO_TICKS(CMD_RELAY_STAY_TIME));
         gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 1);
+        vTaskDelay(pdMS_TO_TICKS(CMD_RELAY_STAY_TIME));
+        gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 0);
 
     } else if( action == CMD_ACTION_OPEN_STOP_CLOSE ) {
 
         // --------- OPEN-STOP-THEN-CLOSE ---------
         // make it open first
-        gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 0);
-        vTaskDelay(pdMS_TO_TICKS(CMD_RELAY_STAY_TIME));
         gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 1);
+        vTaskDelay(pdMS_TO_TICKS(CMD_RELAY_STAY_TIME));
+        gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 0);
 
         // get current time
         time_t currentTime;

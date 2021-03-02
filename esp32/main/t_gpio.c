@@ -122,9 +122,9 @@ void t_gpio_init(void)
     gpio_set_level(T_GPIO_LED2_IO, 0);
 
     // DOOR Control IO
-    gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 1);
-    gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 1);
-    gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 1);
+    gpio_set_level(OPEN_TLS_HW_DOOR_OPEN, 0);
+    gpio_set_level(OPEN_TLS_HW_DOOR_STOP, 0);
+    gpio_set_level(OPEN_TLS_HW_DOOR_CLOSE, 0);
 
 }
 
