@@ -23,7 +23,8 @@ typedef enum {
     CMD_ACTION_STOP = 2,
     CMD_ACTION_CLOSE = 3,
     CMD_ACTION_OPEN_STOP_CLOSE = 4,
-    CMD_ACTION_INVALID = 5
+    CMD_ACTION_FORCE_REPORT = 5,
+    CMD_ACTION_INVALID = 6
 } cmd_action_code_t;
 
 typedef struct {

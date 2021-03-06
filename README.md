@@ -38,6 +38,7 @@ Each folder has its own README document. Please open the folder to see the docum
 | Eric Jan    | janeric11yt AT gmail.com | iOS Core App                               |
 | Jie Chien   | jie AT mytracmo.com      | App Icon and Style Design                  |
 | Shaofu Cu   | shaojeng AT gmail.com    | iOS App and Release                        |
+| Enos Wu     | p510132006 AT gmail.com  | ESP32 Development                          |
 
 We welcome your participations. If you are interested in joining this project, please email us via
 opensource AT mytracmo.com

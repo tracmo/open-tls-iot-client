@@ -40,7 +40,7 @@
 // USER HARDWARE CONFIGURATIONS
 #define OPEN_TLS_HW_LED1                    GPIO_NUM_14
 #define OPEN_TLS_HW_LED2                    GPIO_NUM_4
-#define OPEN_TLS_HW_BUTTON                  GPIO_NUM_5
+#define OPEN_TLS_HW_BUTTON                  GPIO_NUM_8
 
 // Physical Control
 #define OPEN_TLS_HW_DOOR_OPEN               GPIO_NUM_2

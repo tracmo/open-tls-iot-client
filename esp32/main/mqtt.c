@@ -227,6 +227,8 @@ void mqtt_proceed_device_report(void)
     if( mqtt_connected() ) {
         char *postBuf = NULL;
 
+        ESP_LOGI(TAG, "System Report");
+
         // prepare JSON memory
         postBuf = malloc(MQTT_BUF_SIZE);
         if( postBuf != NULL ) {
@@ -308,7 +310,8 @@ static void mqtt_handle_received_control_message(char *data, uint32_t len)
     char *msgBuf = (char *) malloc(len + 1);
     if( msgBuf != NULL ) {
 
-        bool commandAccepted = false;
+        bool commandForPhysicalControl = false;
+        bool requestSystemReport = false;
 
         // duplicate the message
         memcpy(msgBuf, data, len);
@@ -343,21 +346,34 @@ static void mqtt_handle_received_control_message(char *data, uint32_t len)
 
                 commandSet.command_action = commandActionId;
 
-                if( otpAuthStr != NULL ) {
+                if( commandSet.command_action == CMD_ACTION_FORCE_REPORT ) {
 
-                    // 16-byte encrypted data must be 32 characters long
-                    if( strlen(otpAuthStr) == 32 ) {
+                    ESP_LOGI(TAG, "System Report request received");
 
-                        // convert the string to 16-byte value array
-                        if( util_string_to_aes_key(otpAuthStr, commandSet.otpAuth) ) {
+                    // system checking request, no OTP checking is needed
+                    // so it can be checked manually from the Test Console
+                    mqtt_proceed_device_report();
+                    requestSystemReport = true;
 
-                            commandAccepted = true;
+                } else {
+
+                    // physical action command requires the OTP authentication
+                    if( otpAuthStr != NULL ) {
+
+                        // 16-byte encrypted data must be 32 characters long
+                        if( strlen(otpAuthStr) == 32 ) {
+
+                            // convert the string to 16-byte value array
+                            if( util_string_to_aes_key(otpAuthStr, commandSet.otpAuth) ) {
+
+                                commandForPhysicalControl = true;
+                            }
                         }
                     }
                 }
             }
 
-            if( commandAccepted) {
+            if( commandForPhysicalControl) {
 
                 // add this action to the command queue
                 cmd_add(&commandSet);
@@ -371,7 +387,7 @@ static void mqtt_handle_received_control_message(char *data, uint32_t len)
         } // end if(jsonRoot==NULL)-else
 
         // output to log if this command is not accepted
-        if( !commandAccepted ) {
+        if( !commandForPhysicalControl && !requestSystemReport ) {
 
             ESP_LOGE(TAG, "invalid command received, %s", msgBuf);
         }
