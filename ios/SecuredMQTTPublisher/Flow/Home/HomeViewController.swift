@@ -331,6 +331,14 @@ extension HomeViewController: UICollectionViewDelegate {
               buttonConfig.state != .disabled else { return }
         
         buttonConfigs[safe: buttonConfigIndex]?.state = .busy
+        
+        let otherButtonConfigIndices = buttonConfigs.indices.filter { $0 != buttonConfigIndex }
+        otherButtonConfigIndices.forEach {
+            let state = buttonConfigs[safe: $0]?.state
+            guard (state == .success || state == .failure) else { return }
+            buttonConfigs[safe: $0]?.state = .normal
+        }
+        
         errorMessageTextView.text = nil
         
         // Add a placeholder publishResultDisplayer
