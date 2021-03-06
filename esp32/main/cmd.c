@@ -34,7 +34,6 @@ static const char *TAG = "CMD";
 // defines
 #define CMD_QUEUE_SIZE                  16
 #define	CMD_EVENT_WAITING_TIME			1000	// in ms
-#define CMD_OTP_TOLERANCE               9       // in seconds
 #define CMD_RELAY_STAY_TIME             700     // in ms
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -163,7 +162,7 @@ void cmd_loop(void * arg)
 
                     ESP_LOGI(TAG, "otp time difference = %d", timeDiff);
 
-                    if( timeDiff <= CMD_OTP_TOLERANCE ) {
+                    if( timeDiff <= OPEN_TLS_CMD_OTP_TOLERANCE ) {
 
                         // everything is correct, perform the action
                         cmd_perform(cmdEvent.command_action);

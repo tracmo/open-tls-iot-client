@@ -54,6 +54,9 @@
 // this time must be longer than the stop delayed timer
 #define OPEN_TLS_DOOR_OPEN_THEN_CLOSE_TIMER_CLOSE 60      // in seconds
 
+// what is the time difference allowed when the command is received
+#define OPEN_TLS_CMD_OTP_TOLERANCE                5       // in seconds
+
 ///////////////////////////////////////////////////////////////////////////////////
 // more defines
 #define T_DEVICE_WATCHDOG_TIMER_SEC       60
