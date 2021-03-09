@@ -26,7 +26,7 @@
 #define OPEN_TLS_WIFI_PASSWORD              "mypassword"
 #define OPEN_TLS_IP_TYPE                    OPEN_TLS_IP_TYPE_DHCP
 #define OPEN_TLS_MQTT_BROKER                "mqtts://my-endpoint-ats.iot.amazonaws.com:8883"
-#define OPEN_TLS_MQTT_TOPIC                 "mytopic/demo"
+#define OPEN_TLS_MQTT_TOPIC                 "mycontrol/demo"
 #define OPEN_TLS_OTP_AES_KEY                "11223344556677889900aabbccddeeff"  // my AES key
 
 // If "OPEN_TLS_IP_TYPE_STATIC" is used, continue the configurations below
