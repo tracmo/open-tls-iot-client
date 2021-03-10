@@ -23,6 +23,7 @@ This open source project is co-sponsored by Tracmo, Inc. The goal is to build an
 | [images](https://github.com/tracmo/open-tls-iot-client/tree/main/images)     | Icon and image files                                         |
 | [ios](https://github.com/tracmo/open-tls-iot-client/tree/main/ios)        | Source code of the iOS app                                   |
 | [test_tools](https://github.com/tracmo/open-tls-iot-client/tree/main/test_tools) | Test tools to simulate the target IoT Device                 |
+| [ifttt_webhook](https://github.com/tracmo/open-tls-iot-client/tree/main/ifttt_webhook) | Lambda Function for AWS IoT Rule Engine                 |
 
 ### More Information
 
