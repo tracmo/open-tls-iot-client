@@ -22,10 +22,11 @@ import (
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Configurations
-const lambdaFuncVersion = "v1.1.0/2021-Mar-10"
+const lambdaFuncVersion = "v1.2.0/2021-Mar-11"
 
 const iftttWebhookAPIKey = "<your_ifttt_webhook_api_key>"
-const iftttWebhookEventName = "<your_ifttt_webhook_event_name>"
+const iftttWebhookNotificationEvent = "<your_ifttt_webhook_notification_event_name>"
+const iftttWebhookLogEvent = "<your_ifttt_webhook_log_event_name>"
 const commandOpen = 1
 const commandOpenClose = 4
 
@@ -44,35 +45,38 @@ type payloadDataType struct {
  */
 func handler(ctx context.Context, rec payloadDataType) error {
 
-	// convert the payload from AWS IoT Core
-	if rec.Command == nil || rec.Otp == nil || rec.Sender == nil {
+	// check the payload from AWS IoT Core
+	if rec.Command == nil {
 
-		if rec.Command != nil {
-
-			rlog.Error("Skip incoming command:", *rec.Command, rec)
-
-		} else {
-
-			rlog.Error("Error to handle incoming data:", rec)
-
-		}
-
+		rlog.Error("Error to handle incoming data:", rec)
 		return nil
 	}
 
-	rlog.Infof("New Event command=%d, sender=%s", *rec.Command, *rec.Sender)
+	// extract the optinal sender's info
+	sender := "NULL"
+	if rec.Sender != nil {
 
-	// trigger IFTTT with only the designated command
-	if *rec.Command == commandOpen || *rec.Command == commandOpenClose {
-
-		rlog.Infof("Triggering IFTTT event %s", iftttWebhookEventName)
-
-		i := IFTTT.New(iftttWebhookAPIKey)
-		i.Emit(iftttWebhookEventName, *rec.Sender, strconv.Itoa(*rec.Command), "value3")
-	} else {
-
-		rlog.Info(" No IFTTT Trigger")
+		sender = *rec.Sender
 	}
+
+	// extract the mandatory command info
+	command := *rec.Command
+
+	rlog.Infof("New Event command=%d, sender=%s", command, sender)
+
+	// intiate the IFTTT service
+	ifttt := IFTTT.New(iftttWebhookAPIKey)
+
+	// trigger IFTTT notification with only the designated commands
+	if command == commandOpen || command == commandOpenClose {
+
+		rlog.Infof("Triggering IFTTT notification event %s", iftttWebhookNotificationEvent)
+
+		ifttt.Emit(iftttWebhookNotificationEvent, sender, strconv.Itoa(command), "value3")
+	}
+
+	// log all the commands
+	ifttt.Emit(iftttWebhookLogEvent, sender, strconv.Itoa(command), "value3")
 
 	return nil
 }
