@@ -22,13 +22,16 @@ import (
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Configurations
-const lambdaFuncVersion = "v1.2.0/2021-Mar-11"
+const lambdaFuncVersion = "v1.3.0/2021-Mar-12"
 
 const iftttWebhookAPIKey = "<your_ifttt_webhook_api_key>"
 const iftttWebhookNotificationEvent = "<your_ifttt_webhook_notification_event_name>"
 const iftttWebhookLogEvent = "<your_ifttt_webhook_log_event_name>"
 const commandOpen = 1
+const commandStop = 2
+const commandClose = 3
 const commandOpenClose = 4
+const commandForceReport = 5
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Data Types
@@ -62,7 +65,26 @@ func handler(ctx context.Context, rec payloadDataType) error {
 	// extract the mandatory command info
 	command := *rec.Command
 
-	rlog.Infof("New Event command=%d, sender=%s", command, sender)
+	// convert the command code into the readable text
+	commandText := strconv.Itoa(command)
+	switch command {
+	case commandOpen:
+		commandText = "open"
+
+	case commandStop:
+		commandText = "stop"
+
+	case commandClose:
+		commandText = "close"
+
+	case commandOpenClose:
+		commandText = "auto"
+
+	case commandForceReport:
+		commandText = "report"
+	}
+
+	rlog.Infof("New Event command=%d (%s), sender=%s", command, commandText, sender)
 
 	// intiate the IFTTT service
 	ifttt := IFTTT.New(iftttWebhookAPIKey)
@@ -72,11 +94,11 @@ func handler(ctx context.Context, rec payloadDataType) error {
 
 		rlog.Infof("Triggering IFTTT notification event %s", iftttWebhookNotificationEvent)
 
-		ifttt.Emit(iftttWebhookNotificationEvent, sender, strconv.Itoa(command), "value3")
+		ifttt.Emit(iftttWebhookNotificationEvent, sender, commandText, strconv.Itoa(command))
 	}
 
 	// log all the commands
-	ifttt.Emit(iftttWebhookLogEvent, sender, strconv.Itoa(command), "value3")
+	ifttt.Emit(iftttWebhookLogEvent, sender, commandText, strconv.Itoa(command))
 
 	return nil
 }
