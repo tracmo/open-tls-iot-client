@@ -305,7 +305,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
     switch( event->event_id ) {
         case SYSTEM_EVENT_STA_START:
             // set hostname
-            tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, "tracMo-Station");
+            tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, "open-tls-device");
 
             // scan and connect to strongest ap
             app_wifi_connect_ap();
