@@ -31,6 +31,25 @@ Each folder has its own README document. Please open the folder to see the docum
 
 [Open TLS IoT Wiki](https://github.com/tracmo/open-tls-iot-client/wiki)
 
+### Example
+
+I took this project to build my smartphone-based garage door control. I could not find a good alternative so I decided to initiate a new one.
+
+This is the app I am using.
+
+<img src="images/app/app-main-screen-original.png" width="40%" alt="The app main screen"/>
+
+I built the remote control box with ESP32-PICO-MINI-02.
+
+<img src="https://raw.githubusercontent.com/wiki/tracmo/open-tls-iot-client/images/demos/final_box.png" width="60%" alt="The remote control box"/>
+
+This is a video to show how it was used.
+
+[![final testing](https://img.youtube.com/vi/s7u8p_ucmuI/0.jpg)](https://youtu.be/s7u8p_ucmuI "final testing")
+
+For more information, you can see [the full demo videos](https://github.com/tracmo/open-tls-iot-client/wiki/Demo).
+
+
 ### Contributors
 
 | Contributor | Contact                  | Roles                                      |
