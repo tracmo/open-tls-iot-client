@@ -47,7 +47,7 @@ This is the video to demonstrate how it works.
 
 [![final testing](https://img.youtube.com/vi/s7u8p_ucmuI/0.jpg)](https://youtu.be/s7u8p_ucmuI "final testing")
 
-For more information, you can see [the full demo videos](https://github.com/tracmo/open-tls-iot-client/wiki/Demo).
+For more information, please check [the full demo videos](https://github.com/tracmo/open-tls-iot-client/wiki/Demo).
 
 ### Contributors
 
