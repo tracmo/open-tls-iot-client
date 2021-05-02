@@ -39,12 +39,12 @@ This is the app screen.
 
 <img src="https://raw.githubusercontent.com/wiki/tracmo/open-tls-iot-client/images/app/app-main-screen-original.png" width="40%" alt="The app main screen"/>
 
-
+<br>
 The remote control box built with an ESP32-PICO-MINI-02 kit.
 
 <img src="https://raw.githubusercontent.com/wiki/tracmo/open-tls-iot-client/images/demos/final_box.png" width="60%" alt="The remote control box"/>
 
-
+<br>
 This is the video to demonstrate how it works.
 
 [![final testing](https://img.youtube.com/vi/s7u8p_ucmuI/0.jpg)](https://youtu.be/s7u8p_ucmuI "final testing")
