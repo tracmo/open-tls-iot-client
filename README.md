@@ -37,7 +37,7 @@ I took this project to build my smartphone-based garage door control. I could no
 
 This is the app I am using.
 
-<img src="images/app/app-main-screen-original.png" width="40%" alt="The app main screen"/>
+<img src="https://raw.githubusercontent.com/wiki/tracmo/open-tls-iot-client/images/app/app-main-screen-original.png" width="40%" alt="The app main screen"/>
 
 I built the remote control box with ESP32-PICO-MINI-02.
 
