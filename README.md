@@ -8,7 +8,7 @@
 
 This open source project is co-sponsored by Tracmo, Inc. The goal is to build an end-to-end secured MQTTs communication to control an end IoT device. The target is to build a tool supporting the following features:
 * Use only X.509 to authenticate and secure the communication
-* Support CA Root authentication
+* Support Root CA authentication
 * Support Face ID or Touch ID
 * Prevent Middle-Man Attack
 * No need to set a NAT port forward for the end IoT device
