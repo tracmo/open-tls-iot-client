@@ -16,13 +16,14 @@ enum DeviceOwnerAuthenticator {
     
     static func getBiometryType() -> LABiometryType {
         let context = LAContext()
-        context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
+        context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
+                                  error: nil)
         return context.biometryType
     }
     
     static func auth() -> AnyPublisher<Void, Error> {
         let context = LAContext()
-        let policy = LAPolicy.deviceOwnerAuthentication
+        let policy = LAPolicy.deviceOwnerAuthenticationWithBiometrics
         
         var canEvaluateError: NSError? = nil
         let canEvaluate = context.canEvaluatePolicy(policy,
