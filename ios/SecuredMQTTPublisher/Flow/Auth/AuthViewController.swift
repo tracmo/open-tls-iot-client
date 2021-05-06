@@ -113,8 +113,8 @@ final class AuthViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] in
                 guard let self = self else { return }
-                if let error = $0.getError() {
-                    if case LAError.userCancel = error { self.hasUserCancelledAuthInAActiveSession = true }
+                if let _ = $0.getError() {
+                    self.hasUserCancelledAuthInAActiveSession = true
                 } else {
                     self.authDidSucceedHandler(self)
                 }
