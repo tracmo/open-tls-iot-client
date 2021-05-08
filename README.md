@@ -35,9 +35,9 @@ Each folder has its own README document. Please open the folder to see the docum
 
 ***
 
-### Example
+### Sample Use-Case and The Origin of This Project
 
-When I tried to build a smartphone-based garage door control. I could not find a good alternative that can meet all I need, especially the security features. Most apps that support makers are Restful-based control. It is easy to use but lack of security. All I want is an end-to-end secured and easy-to-use app, so I decided to initiate a new one.
+When I tried to build a smartphone-based garage door control. Making the door control device is not the difficult part. When I was looking for a mobile app that is easy to use and secured, I could not find a good alternative that can meet all I need, especially the security features. Most apps that support makers are Restful-based control. It is easy to use but lack of security. All I want is an end-to-end secured and easy-to-use app, so I decided to initiate a new one.
 
 This is the app screen.
 
