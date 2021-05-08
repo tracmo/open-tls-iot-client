@@ -6,7 +6,7 @@
 
 ### Introduction
 
-This open source project is co-sponsored by Tracmo, Inc. The goal is to build an end-to-end **highly** secured MQTTs communication to control an end IoT device. The target is to build a tool supporting the following features:
+This open source project is co-sponsored by Tracmo, Inc. The goal is to build an end-to-end **highly** secured MQTTs communication to control an end IoT device. The target is to build a mobile app that has the following features:
 * Use only X.509 to authenticate and secure the communication
 * Support Root CA authentication
 * Support Face ID or Touch ID
@@ -31,6 +31,10 @@ Each folder has its own README document. Please open the folder to see the docum
 
 [Open TLS IoT Wiki](https://github.com/tracmo/open-tls-iot-client/wiki)
 
+[中文資訊 (Information in Chinese)](https://github.com/tracmo/open-tls-iot-client/wiki/Home_zh)
+
+***
+
 ### Example
 
 When I tried to build a smartphone-based garage door control. I could not find a good alternative that can meet all I need, especially the security features. Most apps that support makers are Restful-based control. It is easy to use but lack of security. All I want is an end-to-end secured and easy-to-use app, so I decided to initiate a new one.
@@ -49,6 +53,8 @@ This is the video to demonstrate how it works.
 
 For more information, please check [the full demo videos](https://github.com/tracmo/open-tls-iot-client/wiki/Demo).
 
+***
+
 ### Contributors
 
 | Contributor | Contact                  | Roles                                      |
@@ -62,6 +68,8 @@ For more information, please check [the full demo videos](https://github.com/tra
 We welcome your participations. If you are interested in joining this project, please email us via
 opensource AT mytracmo.com
 
+***
+
 ### The App
 
 Open TLS MQTT Client in iOS
@@ -72,6 +80,8 @@ Open TLS MQTT Client in iOS
 </p> 
 
 Android app is not there yet. If you are interested to be the contributor, please contact us.
+
+***
 
 ### LICENSE
 
