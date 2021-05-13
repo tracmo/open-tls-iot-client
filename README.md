@@ -6,7 +6,7 @@
 
 ### Introduction
 
-This open source project is co-sponsored by [Tracmo, Inc.](https://mytracmo.com/) The goal is to build an end-to-end **highly** secured MQTTs communication to control an end IoT device. The target is to build a mobile app that has the following features:
+Looking for a secured tool to control your IoT device, like a garage door. This is it. This open source project is co-sponsored by [Tracmo, Inc.](https://mytracmo.com/) The goal is to build an end-to-end **highly** secured MQTTs communication to control an end IoT device. The target is to build a mobile app that has the following features:
 * Use only X.509 to authenticate and secure the communication
 * Support Root CA authentication
 * Support Face ID or Touch ID
@@ -37,7 +37,7 @@ Each folder has its own README document. Please open the folder to see the docum
 
 ### Sample Use-Case and The Origin of This Project
 
-When I tried to build a smartphone-based garage door control. Making the door control device is not the difficult part. When I was looking for a mobile app that is easy to use and secured, I could not find a good alternative that can meet all I need, especially the security features. Most apps that support makers are Restful-based control. It is easy to use but lack of security. All I want is an end-to-end secured and easy-to-use app, so I decided to initiate a new one.
+When I tried to build a smartphone-based garage door control. Making the door control device is not the difficult part. When I was looking for a mobile app that is easy to use and secured, I could not find a good alternative that can meet all I need, especially the security features. It is the door to be controlled. It has to be a very secured method. Most apps that support makers are Restful-based control. It is easy to use but lack of security. All I want is an end-to-end secured and easy-to-use app, so I decided to initiate a new one.
 
 This is the app screen.
 
