@@ -1,0 +1,35 @@
+# User shall place his/her own certificate and private key
+my-tls-certificate.pem.crt
+my-tls-private.pem.key
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Compiled binary addons
+build/Release
+
+# dotenv environment variables file
+.env
+
+# Tracmo
+*yarn.lock*
+*.yarnclean*
+
+# ESP32 Project
+build
+sdkconfig.old
+
+# Mac OS
+.DS_Store
+._.DS_Store
+.AppleDouble
+
+# VS Code
+*.ipch
