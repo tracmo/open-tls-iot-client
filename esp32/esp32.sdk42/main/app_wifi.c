@@ -454,6 +454,9 @@ static wifi_config_t app_wifi_get_config(void)
         strcpy((char *) wifiConfig.sta.password, "mypassword");
     }
 
+    // enable capable with pmf
+    wifiConfig.sta.pmf_cfg.capable = true;
+
     // duplicate ssid for the device report (long name will be truncated)
     strncpy(t_device_wifi_ssid, (char *) wifiConfig.sta.ssid, 19);
     t_device_wifi_ssid[19] = 0;
