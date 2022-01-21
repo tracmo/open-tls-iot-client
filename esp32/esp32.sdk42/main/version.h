@@ -1,6 +1,6 @@
 /*
  * Project Secured MQTT Publisher
- * Copyright 2021 Tracmo, Inc. ("Tracmo").
+ * Copyright 2022 Tracmo, Inc. ("Tracmo").
  * Open Source Project Licensed under MIT License.
  * Please refer to https://github.com/tracmo/open-tls-iot-client
  * for the license and the contributors information.
@@ -17,7 +17,7 @@
 //   x: major version number
 //   y: minor version number
 //   z: build number
-#define TT_VERSION_INFO_STR     "TTVERSION:1.1.0301"
+#define TT_VERSION_INFO_STR     "TTVERSION:1.2.0121"
 
 #define TT_VERSION_INFO         (TT_VERSION_INFO_STR + 10)
 

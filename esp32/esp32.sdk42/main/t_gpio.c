@@ -1,6 +1,6 @@
 /*
  * Project Secured MQTT Publisher
- * Copyright 2021 Tracmo, Inc. ("Tracmo").
+ * Copyright 2022 Tracmo, Inc. ("Tracmo").
  * Open Source Project Licensed under MIT License.
  * Please refer to https://github.com/tracmo/open-tls-iot-client
  * for the license and the contributors information.
@@ -58,13 +58,14 @@ static const char *TAG = "TGPIO";
 // local variables
 static t_gpio_led_t t_gpio_current_led_stat;
 static time_t t_gpio_reboot_time = 0;                          // 0 means no reboot request. if non-zero, reboot at the configured time
-static bool t_gpio_restart_issued = false;                     // to avoid continously restart requests to delay the actual reboot time
+static bool t_gpio_restart_issued = false;                     // to avoid continuously restart requests to delay the actual reboot time
 static bool t_gpio_led_mode_short_set = false;
 static bool t_gpio_led_mode_medium_set = false;
 static uint32_t t_gpio_led2_blinking_counter = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////
 // local functions
+static void t_gpio_ledSetFade(uint32_t duty, uint32_t timeMs);
 
 ///////////////////////////////////////////////////////////////////////////////////
 // public function implementations
@@ -148,7 +149,7 @@ void t_gpio_led_mode(t_gpio_led_t ledMode)
         t_gpio_current_led_stat = ledMode;
 
         // set medium and short separately
-        // the purpose of using these two addtional flags is to prevent
+        // the purpose of using these two additional flags is to prevent
         // medium mode preempt the short mode
         if( ledMode == T_GPIO_LED_MODE_BREATHING_INTERVAL_SHORT ) {
             t_gpio_led_mode_short_set = true;
@@ -221,11 +222,11 @@ void t_gpio_task(void *pvParameters)
 
             if( blinkingLedOn ) {
                 // turn off
-                ledc_set_duty_and_update(T_GPIO_LEDC_SPEED_MODE, T_GPIO_LEDC_CHANNEL, T_GPIO_LED_DARK_DUTY, 0);
+                t_gpio_ledSetFade(T_GPIO_LED_DARK_DUTY, 0);
                 blinkingLedOn = false;
             } else {
                 // turn on
-                ledc_set_duty_and_update(T_GPIO_LEDC_SPEED_MODE, T_GPIO_LEDC_CHANNEL, T_GPIO_LED_LIGHT_DUTY, 0);
+                t_gpio_ledSetFade(T_GPIO_LED_LIGHT_DUTY, 0);
                 blinkingLedOn = true;
             }
 
@@ -234,11 +235,7 @@ void t_gpio_task(void *pvParameters)
             if( breathingLedOn ) {
 
                 // fade off
-                ledc_set_fade_time_and_start(T_GPIO_LEDC_SPEED_MODE,
-                                             T_GPIO_LEDC_CHANNEL,
-                                             T_GPIO_LED_DARK_DUTY,
-                                             T_GPIO_LED_DARK_FADE_TIME,
-                                             LEDC_FADE_WAIT_DONE);
+                t_gpio_ledSetFade(T_GPIO_LED_DARK_DUTY, T_GPIO_LED_DARK_FADE_TIME);
                 breathingLedOn = false;
 
             } else {
@@ -259,11 +256,7 @@ void t_gpio_task(void *pvParameters)
                     breathingLedWaitCounter++;
                 } else {
                     // fade on
-                    ledc_set_fade_time_and_start(T_GPIO_LEDC_SPEED_MODE,
-                                                T_GPIO_LEDC_CHANNEL,
-                                                T_GPIO_LED_LIGHT_DUTY,
-                                                T_GPIO_LED_LIGHT_FADE_TIME,
-                                                LEDC_FADE_WAIT_DONE);
+                    t_gpio_ledSetFade(T_GPIO_LED_LIGHT_DUTY, T_GPIO_LED_LIGHT_FADE_TIME);
                     breathingLedOn = true;
                     breathingLedWaitCounter = 0;
                 }
@@ -338,7 +331,7 @@ void t_gpio_task(void *pvParameters)
         button_handle();
         esp_task_wdt_reset();   // feed the dog in case the previous handler took too much time
 
-        // perform the peridoical task
+        // perform the periodical task
         periodical_perform();
         esp_task_wdt_reset();   // feed the dog in case the previous handler took too much time
 
@@ -352,3 +345,31 @@ void t_gpio_task(void *pvParameters)
 ///////////////////////////////////////////////////////////////////////////////////
 // local functions implementation
 
+/**
+ * Update led duty or set fade then wait it done
+ * NOTE: Since LEDC_FADE_WAIT_DONE is a semaphore portMAX_DELAY, task will dead in ledc function,
+ *          so use no blocking code.
+ * NOTE: 0 ms still wait 1 ms to avoid SDK warning log.
+ *
+ * @param duty to update or set fade
+ * @param timeMs fade time in ms, 0 means update without delay but SDK will show warning log,
+ *                  so make it be 1 ms
+ */
+static void t_gpio_ledSetFade(uint32_t duty, uint32_t timeMs)
+{
+    if( timeMs == 0 ) {
+
+        // make led update duty as soon as possible
+        timeMs = 1;
+    }
+
+    // set led fade without blocking
+    ledc_set_fade_time_and_start(T_GPIO_LEDC_SPEED_MODE,
+                                T_GPIO_LEDC_CHANNEL,
+                                duty,
+                                timeMs,
+                                LEDC_FADE_NO_WAIT);
+
+    // wait fade done
+    vTaskDelay(timeMs / portTICK_RATE_MS);
+}
