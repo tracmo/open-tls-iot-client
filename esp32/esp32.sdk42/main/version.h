@@ -17,7 +17,7 @@
 //   x: major version number
 //   y: minor version number
 //   z: build number
-#define TT_VERSION_INFO_STR     "TTVERSION:1.2.0121"
+#define TT_VERSION_INFO_STR     "TTVERSION:1.3.0203"
 
 #define TT_VERSION_INFO         (TT_VERSION_INFO_STR + 10)
 

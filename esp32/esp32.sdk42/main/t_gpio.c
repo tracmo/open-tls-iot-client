@@ -21,6 +21,7 @@
 #include "sys/time.h"
 #include <time.h>
 #include "driver/ledc.h"
+#include "driver/periph_ctrl.h"
 
 #include "app_wifi.h"
 #include "util.h"
@@ -283,6 +284,10 @@ void t_gpio_task(void *pvParameters)
             // no wifi or token over an hour
             if( currentTime - disconnectWifiTime > T_GPIO_MAX_NO_WIFI_TIME ) {
                 ESP_LOGE(TAG, "already no wifi for %ld sec,  restart the system", currentTime - disconnectWifiTime);
+
+                // reset peripheral modules incase wifi/bt unknown error happened
+                periph_module_reset(PERIPH_WIFI_MODULE);
+                periph_module_reset(PERIPH_WIFI_BT_COMMON_MODULE);
 
                 // system will reboot in 3 seconds
                 t_gpio_issue_esp_restart();
