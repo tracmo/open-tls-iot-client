@@ -63,22 +63,31 @@ Uses Combine throughout:
 The app supports triggering actions via NFC tags, bypassing biometric authentication:
 
 **Security Model:**
-- Each action button has its own 32-byte secret (`nfcSecret` in `Action` struct)
-- NFC tags contain a signed URL: `smp://action?idx={index}&ts={timestamp}&sig={hmac}`
-- HMAC-SHA256 signature using the button's secret
-- 2-minute validity window (±120 seconds) to prevent replay attacks
-- Regenerating a secret invalidates all previously written tags for that button
+- Each action button can have up to 3 NFC secrets (`nfcSecrets: [NFCSecret]` in `Action` struct)
+- Each `NFCSecret` has: id (UUID), secret (32-byte hex), createdAt (Date), label (optional String)
+- NFC tags contain a signed URL: `smp://action?idx={index}&ts={timestamp}&sig={hmac}&key={secret}`
+- HMAC-SHA256 signature using the tag's secret ensures only app-written tags are valid
+- Tags work permanently (no expiry) - the signature provides security, not timestamp validation
+- Including the secret in the URL enables cross-phone import functionality
+- Removing a secret invalidates only tags written with that specific secret
 
 **Key Files:**
-- **NFCTokenManager.swift** - URL generation and validation with HMAC signatures
-- **NFCTagWriter.swift** - CoreNFC wrapper for writing NDEF URLs to tags
+- **NFCTokenManager.swift** - URL generation and validation with HMAC signatures, supports `NFCValidationResult` enum for import detection
+- **NFCTagWriter.swift** - CoreNFC wrapper for reading and writing NDEF URLs to tags
 - **SceneDelegate.swift** - Handles `smp://` URL scheme for cold/warm launch
-- **AppCoordinator.swift** - `executeActionFromNFC(index:)` bypasses auth and publishes
+- **AppCoordinator.swift** - `executeActionFromNFC(index:)` bypasses auth, waits for MQTT connection, and publishes
 
 **Flow:**
-1. User edits action → taps "Write NFC Tag" → new secret generated → URL written to tag
-2. User taps NFC tag → iOS opens app with URL → app validates signature/timestamp → executes MQTT publish
+1. User edits action → taps "Write New Tag" → enters optional label → new secret generated → URL written to tag
+2. User taps NFC tag → iOS opens app with URL → app validates signature against all configured secrets → executes MQTT publish
 3. Double haptic vibration confirms successful NFC action (distinct from normal button feedback)
+
+**Cross-Phone Import:**
+1. User on Phone B taps "Scan Existing" in action edit screen
+2. Scans NFC tag written by Phone A
+3. App extracts secret from URL's `key` parameter
+4. User enters label and imports → secret added to Phone B's configuration
+5. Same NFC tag now works on both phones
 
 ## Dependencies
 

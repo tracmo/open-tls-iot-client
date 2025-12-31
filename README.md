@@ -6,7 +6,7 @@
 
 ### Introduction
 
-Looking for a secured tool to control your IoT device, like a garage door. This is it. This open source project is co-sponsored by [Tracmo, Inc.](https://mytracmo.com/) The goal is to build an end-to-end **highly** secured MQTTs communication to control an end IoT device. The target is to build a mobile app that has the following features:
+Looking for a secured tool to control your IoT device, like a garage door. This is it. This open source project is co-sponsored by [Care Active Corp](https://careactive.ai/) The goal is to build an end-to-end **highly** secured MQTTs communication to control an end IoT device. The target is to build a mobile app that has the following features:
 * Use only X.509 to authenticate and secure the communication
 * Support Root CA authentication
 * Support Face ID or Touch ID
@@ -58,15 +58,15 @@ For more information, please check [the full demo videos](https://github.com/tra
 ### Contributors
 
 | Contributor | Contact                  | Roles                                      |
-|-------------|--------------------------|--------------------------------------------|
-| Samson Chen | samson AT mytracmo.com   | Project Coordinator, ESP32, Documentations |
+| ----------- | ------------------------ | ------------------------------------------ |
+| Samson Chen | samson AT careactive.ai  | Project Coordinator, ESP32, Documentations |
 | Eric Jan    | janeric11yt AT gmail.com | iOS Core App                               |
-| Jie Chien   | jie AT mytracmo.com      | App Icon and Style Design                  |
+| Jie Chien   | jie AT careactive.ai     | App Icon and Style Design                  |
 | Shaofu Cu   | shaojeng AT gmail.com    | iOS App and Release                        |
 | Enos Wu     | p510132006 AT gmail.com  | ESP32 Development                          |
 
 We welcome your participations. If you are interested in joining this project, please email us via
-opensource AT mytracmo.com
+opensource AT careactive.ai
 
 ***
 
@@ -87,7 +87,7 @@ Android app is not there yet. If you are interested to be the contributor, pleas
 
 MIT License
 
-Copyright (c) 2020 Tracmo, Inc.
+Copyright (c) 2026 Care Active Corp.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

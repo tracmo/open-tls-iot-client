@@ -1,6 +1,6 @@
 //
 //  Project Secured MQTT Publisher
-//  Copyright 2021 Tracmo, Inc. ("Tracmo").
+//  Copyright 2026 Care Active Corp ("Care Active").
 //  Open Source Project Licensed under MIT License.
 //  Please refer to https://github.com/tracmo/open-tls-iot-client
 //  for the license and the contributors information.
@@ -155,7 +155,7 @@ extension NSAttributedString {
             #imageLiteral(resourceName: "about_icon").resized(targetSize: .init(width: 64, height: 64)).attributedString(),
             .paragraph(title: "About",
                        content: """
-        This open source project is co-sponsored by Tracmo, Inc. The goal is to build an end-to-end secured MQTTs communication to control an end IoT device. The target is to build a tool supporting the following features:
+        This open source project is co-sponsored by Care Active Corp. The goal is to build an end-to-end secured MQTTs communication to control an end IoT device. The target is to build a tool supporting the following features:
 
             - Use only X.509 to authenticate and secure the communication
             - Support CA Root authentication
@@ -178,7 +178,7 @@ extension NSAttributedString {
             .paragraph(title: "License", content: """
         MIT License
 
-        Copyright (c) 2021 Tracmo, Inc.
+        Copyright (c) 2026 Care Active Corp.
 
         Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

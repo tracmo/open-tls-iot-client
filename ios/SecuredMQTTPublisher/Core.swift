@@ -1,6 +1,6 @@
 //
 //  Project Secured MQTT Publisher
-//  Copyright 2021 Tracmo, Inc. ("Tracmo").
+//  Copyright 2026 Care Active Corp ("Care Active").
 //  Open Source Project Licensed under MIT License.
 //  Please refer to https://github.com/tracmo/open-tls-iot-client
 //  for the license and the contributors information.
@@ -25,7 +25,10 @@ final class Core {
     
     @Published
     private(set) var connectError: Error?
-    
+
+    /// Set to true during NFC execution to prevent automatic disconnect
+    var isNFCExecutionInProgress = false
+
     private var authTimer: Timer?
     
     private var bag: Set<AnyCancellable> = []
@@ -35,11 +38,16 @@ final class Core {
                                                object: nil,
                                                queue: .main) { [weak self] _ in
             guard let self = self else { return }
+            // Don't disconnect during NFC execution to prevent connect/disconnect cycles
+            guard !self.isNFCExecutionInProgress else {
+                SMPDebugLog("Skipping disconnect (NFC execution in progress)")
+                return
+            }
             self.disconnect()
                 .sink(receiveCompletion: { _ in },
                       receiveValue: { _ in })
                 .store(in: &self.bag)
-            
+
             self.authTimer?.invalidate()
         }
         
@@ -47,11 +55,16 @@ final class Core {
                                                object: nil,
                                                queue: .main) { [weak self] _ in
             guard let self = self else { return }
+            // Don't reconnect during NFC execution to prevent disrupting existing connection
+            guard !self.isNFCExecutionInProgress else {
+                SMPDebugLog("Skipping connect (NFC execution in progress)")
+                return
+            }
             self.connect()
                 .sink(receiveCompletion: { _ in },
                       receiveValue: { _ in })
                 .store(in: &self.bag)
-            
+
             self.refreshAuthTimer()
         }
         
@@ -89,6 +102,14 @@ final class Core {
             .eraseToAnyPublisher()
     }
     
+    /// Manually trigger a connect (used by NFC flow which blocks automatic connects)
+    func manualConnect() {
+        connect()
+            .sink(receiveCompletion: { _ in },
+                  receiveValue: { _ in })
+            .store(in: &bag)
+    }
+
     private func connect() -> AnyPublisher<Void, Error> {
         NSLog("SMP connect")
         connectError = nil
