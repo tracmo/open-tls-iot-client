@@ -74,12 +74,15 @@ extension UICollectionViewDiffableDataSource {
     class SingleCellType<Cell: UICollectionViewCell>: UICollectionViewDiffableDataSource {
         convenience init(
             collectionView: UICollectionView,
-            cellRegistrationHandler: @escaping UICollectionView.CellRegistration<Cell, ItemIdentifierType>.Handler
+            cellRegistrationHandler: @escaping (Cell, IndexPath, ItemIdentifierType) -> Void
         ) {
+            let cellRegistration = UICollectionView.CellRegistration<Cell, ItemIdentifierType> { cell, indexPath, item in
+                cellRegistrationHandler(cell, indexPath, item)
+            }
             self.init(collectionView: collectionView,
                       cellProvider: { collectionView, indexPath, item in
                         collectionView.dequeueConfiguredReusableCell(
-                            using: .init(handler: cellRegistrationHandler),
+                            using: cellRegistration,
                             for: indexPath,
                             item: item)
                       })
