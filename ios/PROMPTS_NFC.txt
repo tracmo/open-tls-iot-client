@@ -1,0 +1,295 @@
+Prompt 1: Project Setup and Understanding
+
+I'm working on the iOS app from https://github.com/tracmo/open-tls-iot-client/ios
+
+Fork this repo and familiarize yourself with the codebase structure. Key files to understand:
+
+- SecuredMQTTPublisher/App/SceneDelegate.swift - App lifecycle
+- SecuredMQTTPublisher/App/AppCoordinator.swift - Navigation and auth flow
+- SecuredMQTTPublisher/Core.swift - MQTT publish logic
+- SecuredMQTTPublisher/DataStore.swift - Settings and Action model with Keychain storage
+- SecuredMQTTPublisher/Flow/ActionEdit/ - Button editing UI
+
+The app has 4 configurable action buttons that publish MQTT messages. Currently it requires TouchID/FaceID authentication. I want to add NFC tag support to trigger actions without biometric auth.
+
+Confirm you understand the architecture before proceeding.
+
+
+Prompt 2: Data Model Changes
+
+Modify the data model to support per-button NFC secrets.
+
+In DataStore.swift, update the Action struct to include an optional NFC secret:
+
+struct Action: Equatable, Codable, Hashable {
+    var title: String
+    var topic: String
+    var message: String
+    var nfcSecret: String?  // Add this - 32-byte hex string, nil if NFC not configured
+}
+
+When nfcSecret is nil, NFC is not enabled for that button.
+When nfcSecret is regenerated (new value), any previously written NFC tag for that button becomes invalid.
+
+Update the default Settings initialization to include nfcSecret: nil for each action.
+
+Make sure the changes are backward compatible - existing Keychain data without nfcSecret should still load (the field should just be nil).
+
+
+Prompt 3: NFC Token Manager
+
+Create a new file: SecuredMQTTPublisher/NFCTokenManager.swift
+
+This manager handles NFC URL generation and validation with these requirements:
+
+1. URL scheme: smp://action?idx={buttonIndex}&ts={unixTimestamp}&sig={hmacSignature}
+
+2. Signature generation:
+   - Payload to sign: "idx={buttonIndex}&ts={timestamp}"
+   - Use HMAC-SHA256 with the button's nfcSecret as key
+   - Output signature as lowercase hex string
+
+3. Validation function that:
+   - Parses the URL components
+   - Checks timestamp is within ±120 seconds (2 minutes) of current time
+   - Retrieves the correct button's nfcSecret from Core.shared.dataStore.settings.actions[idx]
+   - Verifies HMAC signature matches
+   - Returns the action index if valid, nil if invalid
+
+4. URL generation function that:
+   - Takes an action index
+   - Gets or generates the nfcSecret for that action (generate if nil, 32 random bytes as hex)
+   - Creates current timestamp
+   - Computes signature
+   - Returns the complete URL string
+
+5. Helper to generate a new random secret (32 bytes, hex encoded)
+
+Use CryptoKit for HMAC-SHA256. Include a Data extension for hex string conversion.
+
+
+Prompt 4: URL Scheme Configuration
+
+Configure the app to handle the custom URL scheme.
+
+1. Update SecuredMQTTPublisher/Resources/Info.plist to register the URL scheme:
+   - CFBundleURLTypes array with CFBundleURLSchemes containing "smp"
+   - CFBundleURLName: use the app's bundle identifier
+
+2. Modify SceneDelegate.swift to:
+   - Handle URL in scene(_:willConnectTo:options:) for cold launch via connectionOptions.urlContexts
+   - Handle URL in scene(_:openURLContexts:) for warm launch
+   - Both should call a common handleNFCURL(_ url: URL) method
+   - handleNFCURL should use NFCTokenManager.validateURL() 
+   - If valid, call coordinator?.executeActionFromNFC(index:)
+   - If invalid, log the failure (optionally show brief error)
+
+3. The URL handling should work whether the phone is locked or unlocked - iOS will prompt unlock if needed before delivering the URL to the app.
+
+
+Prompt 5: Action Execution from NFC
+
+Modify AppCoordinator.swift to handle NFC-triggered actions.
+
+Add a private var bag = Set<AnyCancellable>() if not present (need to import Combine).
+
+Add this method to AppCoordinator:
+
+func executeActionFromNFC(index: Int) {
+    // 1. Dismiss the auth window if it's showing (bypass biometric auth)
+    authWindow.isHidden = true
+    children.removeAll { $0 is AuthCoordinator }
+    
+    // 2. Validate index is 0-3
+    let actions = Core.shared.dataStore.settings.actions
+    guard index >= 0 && index < actions.count else { 
+        NSLog("NFC: Invalid action index \(index)")
+        return 
+    }
+    
+    // 3. Get the action and verify it has a topic configured
+    let action = actions[index]
+    guard !action.topic.isEmpty else {
+        NSLog("NFC: Action \(index) has no topic configured")
+        return
+    }
+    
+    // 4. Execute the MQTT publish immediately
+    Core.shared.publish(message: action.message, to: action.topic)
+        .receive(on: DispatchQueue.main)
+        .sink(receiveCompletion: { completion in
+            if case .failure(let error) = completion {
+                NSLog("NFC action failed: \(error)")
+                // Single error haptic for failure
+                let generator = UINotificationFeedbackGenerator()
+                generator.notificationOccurred(.error)
+            }
+        }, receiveValue: {
+            NSLog("NFC action \(index) succeeded: \(action.title)")
+            // Double vibration for NFC success - this is NFC-specific feedback
+            self.vibrateSuccessTwice()
+        })
+        .store(in: &self.bag)
+}
+
+// Double vibration pattern specifically for successful NFC triggers
+// This feedback is NOT used for normal button presses - only NFC
+private func vibrateSuccessTwice() {
+    let generator = UIImpactFeedbackGenerator(style: .medium)
+    generator.prepare()
+    
+    // First vibration
+    generator.impactOccurred()
+    
+    // Second vibration after short delay (0.2 seconds)
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        generator.impactOccurred()
+    }
+}
+
+Important: The double vibration is ONLY for successful NFC-triggered actions. Normal button presses in the app should NOT have this feedback pattern - this helps the user distinguish that the action was triggered via NFC tag.
+
+
+Prompt 6: NFC Writing Capability
+
+Create NFC tag writing functionality.
+
+Create SecuredMQTTPublisher/NFCTagWriter.swift:
+
+1. Import CoreNFC
+
+2. Create a class NFCTagWriter: NSObject, NFCNDEFReaderSessionDelegate
+
+3. Properties:
+   - private var session: NFCNDEFReaderSession?
+   - private var urlToWrite: String?
+   - private var completion: ((Result<Void, Error>) -> Void)?
+
+4. Method to start writing:
+   func writeURL(_ url: String, completion: @escaping (Result<Void, Error>) -> Void)
+   - Store the URL and completion handler
+   - Create NFCNDEFReaderSession with invalidateAfterFirstRead: false
+   - Set alertMessage to "Hold your iPhone near the NFC tag to configure it"
+   - Begin the session
+
+5. Implement delegate methods:
+   - readerSession(_:didDetect:) - Write the URL as NDEF URI record, call completion on success
+   - readerSession(_:didInvalidateWithError:) - Call completion with error if not user cancelled
+   - readerSessionDidBecomeActive(_:) - Optional logging
+
+6. The NDEF record should be NFCNDEFPayload.wellKnownTypeURIPayload(url:) 
+
+7. After successful write, invalidate session with success message "NFC tag configured successfully!"
+
+8. Add required Info.plist entries:
+   - NFCReaderUsageDescription: "Configure NFC tags to trigger garage door actions"
+   - com.apple.developer.nfc.readersession.formats array with "NDEF"
+
+
+Prompt 7: Action Edit UI for NFC
+
+Modify the Action Edit screen to include NFC configuration.
+
+Find the ActionEdit flow in SecuredMQTTPublisher/Flow/ActionEdit/
+
+Add an NFC configuration section to the action editing UI with:
+
+1. A section header "NFC Tag Trigger"
+
+2. Show current NFC status:
+   - If action.nfcSecret is nil: "Not configured"
+   - If action.nfcSecret exists: "Configured ✓"
+
+3. A button "Write NFC Tag" that:
+   - Generates a new nfcSecret for this action (this invalidates any previous tag)
+   - Generates the signed URL using NFCTokenManager
+   - Uses NFCTagWriter to write the URL to a tag
+   - On success: saves the new nfcSecret to the action in DataStore
+   - On failure: shows error alert, does NOT save the new secret
+
+4. A button "Remove NFC Trigger" (only shown if nfcSecret exists):
+   - Sets action.nfcSecret to nil
+   - Shows confirmation that previous NFC tags will no longer work
+
+5. Add explanatory text:
+   "Tap 'Write NFC Tag' and hold an NFC sticker near your phone. The tag will trigger this action when scanned. Writing a new tag will invalidate any previous tag for this button."
+
+Make sure saving the action properly persists the nfcSecret to Keychain via the existing DataStore mechanism.
+
+
+Prompt 8: Testing and Edge Cases
+
+Review and handle edge cases:
+
+1. Thread safety: Ensure NFCTokenManager validation reads from DataStore on main thread or handles thread safety properly.
+
+2. Timestamp edge case: The ±2 minute window should use abs(currentTime - tagTime) <= 120 seconds.
+
+3. Empty/invalid secrets: If somehow nfcSecret is empty string instead of nil, treat it as nil.
+
+4. URL parsing robustness: Handle malformed URLs gracefully without crashing.
+
+5. Action index bounds: Always validate 0 <= index < actions.count before accessing.
+
+6. NFC availability: Check NFCNDEFReaderSession.readingAvailable before showing NFC options. Hide NFC UI on devices without NFC.
+
+7. App state: Handle the case where URL is received while app is in background - the scene delegate methods should queue the action until app is active.
+
+8. Add NSLog statements at key points for debugging:
+   - URL received
+   - Validation result (success/fail reason)
+   - Action execution attempt
+   - MQTT publish result
+
+Build and verify there are no compiler errors.
+
+
+Prompt 9: Final Review
+
+Do a final review of all changes:
+
+1. List all files modified or created
+
+2. Verify the complete flow:
+   - User edits action → taps "Write NFC Tag" → new secret generated → URL written to tag
+   - User taps NFC tag → iOS shows notification → user taps notification → app opens with URL
+   - App validates signature and timestamp → executes MQTT publish → shows haptic feedback
+   - User writes new tag for same button → old tag stops working (different secret)
+
+3. Check that existing functionality still works:
+   - Normal app launch with biometric auth
+   - Manual button presses
+   - Settings changes
+   - Actions without NFC configured
+
+4. Verify Info.plist has all required entries:
+   - URL scheme (smp)
+   - NFC usage description
+   - NFC reader formats
+
+5. Ensure backward compatibility with existing Keychain data
+
+6. Create a brief README section or comment block documenting:
+   - How NFC triggers work
+   - Security model (HMAC signature, 2-minute validity window, per-button secrets)
+   - How to configure a new NFC tag
+
+Provide a summary of all changes made.
+
+
+Prompt 10: Enhancements
+
+Optional enhancements if time permits:
+
+1. Add a "Test NFC URL" button in the edit screen that simulates receiving the NFC URL (for debugging without physical tag)
+
+2. Add visual feedback when NFC action executes:
+   - Brief overlay showing which action was triggered
+   - Success/failure indication
+
+3. Add a setting to enable/disable NFC triggers globally (separate from per-button)
+
+4. Show timestamp of when NFC was last configured for each button
+
+5. Add copy-to-clipboard for the NFC URL (useful for debugging or using external NFC writing apps)
+

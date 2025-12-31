@@ -13,6 +13,7 @@ struct Action: Equatable, Codable, Hashable {
     var title: String
     var topic: String
     var message: String
+    var nfcSecret: String?  // 32-byte hex string, nil if NFC not configured
 }
 
 struct Settings: Equatable, Codable {
@@ -72,10 +73,10 @@ fileprivate extension Settings {
                                     isBiometricAuthEnabled: false,
                                     isUnusedButtonHidden: false,
                                     timestampKey: nil,
-                                    actions: [.init(title: "", topic: "", message: ""),
-                                              .init(title: "", topic: "", message: ""),
-                                              .init(title: "", topic: "", message: ""),
-                                              .init(title: "", topic: "", message: "")])
+                                    actions: [.init(title: "", topic: "", message: "", nfcSecret: nil),
+                                              .init(title: "", topic: "", message: "", nfcSecret: nil),
+                                              .init(title: "", topic: "", message: "", nfcSecret: nil),
+                                              .init(title: "", topic: "", message: "", nfcSecret: nil)])
     
     static private let keychain = KeychainSwift()
     static private let keychainKey = "settings"

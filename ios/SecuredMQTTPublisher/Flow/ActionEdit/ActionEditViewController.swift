@@ -151,7 +151,8 @@ final class ActionEditViewController: UIViewController {
                               handler: { _ in
                                 self.action = .init(title: "",
                                                     topic: "",
-                                                    message: "")
+                                                    message: "",
+                                                    nfcSecret: nil)
                                 self.actionHandler(self, .delete)
                               }))
         self.present(alert, animated: true)
@@ -185,8 +186,70 @@ final class ActionEditViewController: UIViewController {
         toolBar.sizeToFit()
         return toolBar
     }()
-    
+
     @objc private func doneToolBarDoneButtonDidTap(_ sender: Any) { view.endEditing(true) }
+
+    // MARK: - NFC UI Components
+
+    private lazy var nfcSectionContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.isHidden = !NFCTagWriter.isAvailable
+        return view
+    }()
+
+    private lazy var nfcSectionTitle: UILabel = {
+        let label = UILabel()
+        label.text = "NFC Tag Trigger"
+        label.textColor = .accent
+        label.font = .systemFont(ofSize: 17, weight: .semibold)
+        return label
+    }()
+
+    private lazy var nfcStatusLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 15)
+        return label
+    }()
+
+    private lazy var writeNFCButton: UIButton = {
+        let button = RoundedButton()
+        button.backgroundColor = .accent
+        button.setTitleColor(.secondary, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        button.setTitle("Write NFC Tag", for: .normal)
+        button.addAction(
+            .init { [weak self] _ in
+                self?.writeNFCTagTapped()
+            },
+            for: .touchUpInside
+        )
+        return button
+    }()
+
+    private lazy var removeNFCButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Remove NFC Trigger", for: .normal)
+        button.setTitleColor(.failure, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
+        button.addAction(
+            .init { [weak self] _ in
+                self?.removeNFCTriggerTapped()
+            },
+            for: .touchUpInside
+        )
+        return button
+    }()
+
+    private lazy var nfcExplanationLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Tap 'Write NFC Tag' and hold an NFC sticker near your phone. The tag will trigger this action when scanned. Writing a new tag will invalidate any previous tag for this button."
+        label.textColor = .tertiaryLabel
+        label.font = .systemFont(ofSize: 13)
+        label.numberOfLines = 0
+        return label
+    }()
     
     override var preferredStatusBarStyle: UIStatusBarStyle { .darkContent }
     
@@ -194,7 +257,8 @@ final class ActionEditViewController: UIViewController {
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
     private var editingAction: SecuredMQTTPublisher.Action
-    
+    private let actionIndex: Int
+
     private var action: SecuredMQTTPublisher.Action {
         didSet {
             guard oldValue != action else { return }
@@ -202,13 +266,16 @@ final class ActionEditViewController: UIViewController {
         }
     }
     private let actionDidChangeHandler: (SecuredMQTTPublisher.Action) -> Void
-    
+
     private var bag = Set<AnyCancellable>()
-    
+    private var nfcTagWriter: NFCTagWriter?
+
     init(action: SecuredMQTTPublisher.Action,
+         actionIndex: Int,
          actionDidChangeHandler: @escaping (SecuredMQTTPublisher.Action) -> Void,
          actionHandler: @escaping (ActionEditViewController, Action) -> Void) {
         self.action = action
+        self.actionIndex = actionIndex
         self.actionDidChangeHandler = actionDidChangeHandler
         self.actionHandler = actionHandler
         self.editingAction = action
@@ -229,16 +296,16 @@ final class ActionEditViewController: UIViewController {
     private func setupLayouts() {
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(viewDidTap(_:))))
         view.backgroundColor = .background
-        
+
         let container = UIView()
         container.backgroundColor = .clear
-        
+
         view.addSubviews(container
                             .top(to: view.safeAreaLayoutGuide.top, 32)
                             .leading(to: view.safeAreaLayoutGuide.leading, 20)
                             .trailing(to: view.safeAreaLayoutGuide.trailing, -20)
                             .bottom(to: view.safeAreaLayoutGuide.bottom, -16))
-        
+
         container.addSubviews(
             titleLabel
                 .top(to: container.top)
@@ -252,13 +319,42 @@ final class ActionEditViewController: UIViewController {
                 .top(to: titleLabel.bottom, 20)
                 .leading(to: container.leading)
                 .trailing(to: container.trailing),
-            okCancelButtonView
+            nfcSectionContainer
                 .top(to: collectionView.bottom, 20)
+                .leading(to: container.leading)
+                .trailing(to: container.trailing),
+            okCancelButtonView
+                .top(to: nfcSectionContainer.bottom, 20)
                 .leading(to: container.leading)
                 .trailing(to: container.trailing)
                 .bottom(to: container.bottom)
                 .height(to: 46)
         )
+
+        // Setup NFC section internal layout
+        nfcSectionContainer.addSubviews(
+            nfcSectionTitle
+                .top(to: nfcSectionContainer.top)
+                .leading(to: nfcSectionContainer.leading),
+            nfcStatusLabel
+                .centerY(to: nfcSectionTitle.centerY)
+                .trailing(to: nfcSectionContainer.trailing),
+            writeNFCButton
+                .top(to: nfcSectionTitle.bottom, 12)
+                .leading(to: nfcSectionContainer.leading)
+                .trailing(to: nfcSectionContainer.trailing)
+                .height(to: 40),
+            removeNFCButton
+                .top(to: writeNFCButton.bottom, 8)
+                .centerX(to: nfcSectionContainer.centerX),
+            nfcExplanationLabel
+                .top(to: removeNFCButton.bottom, 12)
+                .leading(to: nfcSectionContainer.leading)
+                .trailing(to: nfcSectionContainer.trailing)
+                .bottom(to: nfcSectionContainer.bottom)
+        )
+
+        updateNFCStatus()
     }
     
     private func displayAction() {
@@ -316,7 +412,80 @@ extension ActionEditViewController: UITextViewDelegate {
         case .mqttTopic: editingAction.topic = newText
         case .message: editingAction.message = newText
         }
-        
+
         return true
+    }
+}
+
+// MARK: - NFC Handling
+
+extension ActionEditViewController {
+
+    private func updateNFCStatus() {
+        let hasNFCSecret = editingAction.nfcSecret != nil && !editingAction.nfcSecret!.isEmpty
+        nfcStatusLabel.text = hasNFCSecret ? "Configured" : "Not configured"
+        removeNFCButton.isHidden = !hasNFCSecret
+    }
+
+    private func writeNFCTagTapped() {
+        view.endEditing(true)
+
+        // Generate new secret and URL
+        guard let result = NFCTokenManager.generateURLWithNewSecret(for: actionIndex) else {
+            showAlert(title: "Error", message: "Failed to generate NFC URL")
+            return
+        }
+
+        let newSecret = result.secret
+        let urlToWrite = result.url
+
+        NSLog("NFC: Writing URL to tag: \(urlToWrite)")
+
+        // Create the tag writer and write
+        nfcTagWriter = NFCTagWriter()
+        nfcTagWriter?.writeURL(urlToWrite) { [weak self] writeResult in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+
+                switch writeResult {
+                case .success:
+                    // Save the new secret to the action
+                    self.editingAction.nfcSecret = newSecret
+                    self.action = self.editingAction
+                    self.updateNFCStatus()
+                    NSLog("NFC: Tag written and secret saved successfully")
+
+                case .failure(let error):
+                    // Don't save the secret if write failed
+                    NSLog("NFC: Tag write failed: \(error)")
+                    self.showAlert(title: "NFC Write Failed", message: error.localizedDescription)
+                }
+
+                self.nfcTagWriter = nil
+            }
+        }
+    }
+
+    private func removeNFCTriggerTapped() {
+        let alert = UIAlertController(
+            title: "Remove NFC Trigger?",
+            message: "Previously written NFC tags for this button will no longer work.",
+            preferredStyle: .alert
+        )
+        alert.addAction(.init(title: "Cancel", style: .cancel))
+        alert.addAction(.init(title: "Remove", style: .destructive) { [weak self] _ in
+            guard let self = self else { return }
+            self.editingAction.nfcSecret = nil
+            self.action = self.editingAction
+            self.updateNFCStatus()
+            NSLog("NFC: Trigger removed for action \(self.actionIndex)")
+        })
+        present(alert, animated: true)
+    }
+
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(.init(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }

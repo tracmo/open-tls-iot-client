@@ -25,6 +25,7 @@ final class ActionEditCoordinator: Coordinator {
         guard let action = Core.shared.dataStore.settings.actions[safe: actionIndex] else { return }
         let actionEditViewController =
             ActionEditViewController(action: action,
+                                     actionIndex: actionIndex,
                                      actionDidChangeHandler: { [weak self] in
                                         guard let self = self else { return }
                                         Core.shared.dataStore.settings.actions[safe: self.actionIndex] = $0
@@ -34,7 +35,7 @@ final class ActionEditCoordinator: Coordinator {
                                         actionEditViewController.dismiss(animated: true)
                                         self.didFinishHandler(self)
                                      })
-        
+
         presenter.present(actionEditViewController, in: .fullScreen, animated: true)
     }
 }
