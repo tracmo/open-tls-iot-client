@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -49,6 +49,9 @@
 		07E1D5E9257FC8580057B9AC /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E1D5E8257FC8580057B9AC /* Core.swift */; };
 		07F17EF6258CFA4D0029169A /* CertificateConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 07F17EF5258CFA4D0029169A /* CertificateConverter.m */; };
 		158B9C381EF4260E96D2E79B /* Pods_SecuredMQTTPublisher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF9C83F5E46DE8748B452152 /* Pods_SecuredMQTTPublisher.framework */; };
+		D19A12D92F04E341001F12DC /* NFCTokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D19A12D82F04E341001F12DC /* NFCTokenManager.swift */; };
+		D19A12DA2F04E341001F12DC /* NFCTagWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D19A12D72F04E341001F12DC /* NFCTagWriter.swift */; };
+		D19A12DB2F04E341001F12DC /* DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D19A12DC2F04E341001F12DC /* DebugLog.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -194,7 +197,11 @@
 		07F17EF4258CFA4D0029169A /* CertificateConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CertificateConverter.h; sourceTree = "<group>"; };
 		07F17EF5258CFA4D0029169A /* CertificateConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CertificateConverter.m; sourceTree = "<group>"; };
 		63BEAD2C6FF19D11BC309B49 /* Pods-SecuredMQTTPublisher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecuredMQTTPublisher.release.xcconfig"; path = "Target Support Files/Pods-SecuredMQTTPublisher/Pods-SecuredMQTTPublisher.release.xcconfig"; sourceTree = "<group>"; };
+		D10629162F04C8A30073F0AE /* SecuredMQTTPublisher.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SecuredMQTTPublisher.entitlements; sourceTree = "<group>"; };
 		D1736435C623A919138D1838 /* Pods-SecuredMQTTPublisher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecuredMQTTPublisher.debug.xcconfig"; path = "Target Support Files/Pods-SecuredMQTTPublisher/Pods-SecuredMQTTPublisher.debug.xcconfig"; sourceTree = "<group>"; };
+		D19A12D72F04E341001F12DC /* NFCTagWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCTagWriter.swift; sourceTree = "<group>"; };
+		D19A12D82F04E341001F12DC /* NFCTokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCTokenManager.swift; sourceTree = "<group>"; };
+		D19A12DC2F04E341001F12DC /* DebugLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLog.swift; sourceTree = "<group>"; };
 		EF9C83F5E46DE8748B452152 /* Pods_SecuredMQTTPublisher.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SecuredMQTTPublisher.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -277,6 +284,7 @@
 				078D944625B583B7008DC438 /* ConstraintsApplier.swift */,
 				078D946425B58D36008DC438 /* Coordinator.swift */,
 				07C7E41125892B0700581737 /* Misc.swift */,
+				D19A12DC2F04E341001F12DC /* DebugLog.swift */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -501,6 +509,9 @@
 		07E1D5C5257FC6730057B9AC /* SecuredMQTTPublisher */ = {
 			isa = PBXGroup;
 			children = (
+				D19A12D72F04E341001F12DC /* NFCTagWriter.swift */,
+				D19A12D82F04E341001F12DC /* NFCTokenManager.swift */,
+				D10629162F04C8A30073F0AE /* SecuredMQTTPublisher.entitlements */,
 				07E1D5E8257FC8580057B9AC /* Core.swift */,
 				075ACB6C25A653FA00E2AAC1 /* DeviceOwnerAuthenticator.swift */,
 				07BD1784258952B600784BFA /* DataStore.swift */,
@@ -613,9 +624,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SecuredMQTTPublisher/Pods-SecuredMQTTPublisher-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SecuredMQTTPublisher/Pods-SecuredMQTTPublisher-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -655,6 +670,9 @@
 				07F17EF6258CFA4D0029169A /* CertificateConverter.m in Sources */,
 				078D945F25B585B8008DC438 /* OkCancelButtonsView.swift in Sources */,
 				07C0C6342593AE7E001DB311 /* SoundEffect.swift in Sources */,
+				D19A12DB2F04E341001F12DC /* DebugLog.swift in Sources */,
+				D19A12D92F04E341001F12DC /* NFCTokenManager.swift in Sources */,
+				D19A12DA2F04E341001F12DC /* NFCTagWriter.swift in Sources */,
 				078D946B25B5909E008DC438 /* AboutCoordinator.swift in Sources */,
 				078D946725B58D66008DC438 /* AppCoordinator.swift in Sources */,
 				078D945125B58480008DC438 /* PencelBadge.swift in Sources */,
