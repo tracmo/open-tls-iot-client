@@ -163,6 +163,11 @@ extension NSAttributedString {
             - Prevent Middle-Man Attack
             - No need to set a NAT port forward for the end IoT device
         """),
+            .paragraph(title: "Privacy",
+                       content: NSMutableAttributedString()
+                        .appended("The TLS IoT Tool App and all the tools/applications under the Open TLS IoT Client project ".paragraphContent())
+                        .appended("do not send any data to anyone but your own configured designated destinations".paragraphContent(bold: true))
+                        .appended(".".paragraphContent())),
             .paragraph(title: "Project Information",
                        content: NSMutableAttributedString()
                         .appended("""
@@ -173,7 +178,7 @@ extension NSAttributedString {
             .paragraph(title: "Quick App User Guide",
                        content: "https://github.com/tracmo/open-tls-iot-client/wiki/App-User-Instructions".link()),
             .paragraph(title: "Join Us", content: """
-        We welcome your participations. If you are interested in joining this project, please email us via opensource AT mytracmo.com
+        We welcome your participations. If you are interested in joining this project, please email us via opensource AT careactive.ai
         """),
             .paragraph(title: "License", content: """
         MIT License
