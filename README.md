@@ -6,11 +6,11 @@
 
 ### Introduction
 
-Looking for a secured tool to control your IoT device, like a garage door. This is it. This open source project is co-sponsored by [Care Active Corp](https://careactive.ai/) The goal is to build an end-to-end **highly** secured MQTTs communication to control an end IoT device. The target is to build a mobile app that has the following features:
+Looking for a secure tool to control your IoT device, such as a garage door? This is it. This open source project is co-sponsored by [Care Active Corp](https://careactive.ai/). The goal is to build an end-to-end **highly** secure MQTT communication to control an IoT device. The target is to build a mobile app that has the following features:
 * Use only X.509 to authenticate and secure the communication
 * Support Root CA authentication
 * Support Face ID or Touch ID
-* Prevent Middle-Man Attack
+* Prevent Man-in-the-Middle Attack
 * No need to set a NAT port forward for the end IoT device
 
 ![Conceptual Architecture](https://github.com/tracmo/open-tls-iot-client/blob/main/images/figures/Secured-MQTT-Page-1.png?raw=true)
@@ -37,7 +37,7 @@ Each folder has its own README document. Please open the folder to see the docum
 
 ### Sample Use-Case and The Origin of This Project
 
-When I tried to build a smartphone-based garage door control. Making the door control device is not the difficult part. When I was looking for a mobile app that is easy to use and secured, I could not find a good alternative that can meet all I need, especially the security features. It is the door to be controlled. It has to be a very secured method. Most apps that support makers are Restful-based control. It is easy to use but lack of security. All I want is an end-to-end secured and easy-to-use app, so I decided to initiate a new one.
+When I tried to build a smartphone-based garage door control, making the door control device was not the difficult part. When I was looking for a mobile app that is easy to use and secure, I could not find a good alternative that could meet all my needs, especially the security features. Since it is a door being controlled, it has to be a very secure method. Most apps that support makers use REST-based control. It is easy to use but lacks security. All I wanted was an end-to-end secure and easy-to-use app, so I decided to create a new one.
 
 This is the app screen.
 
@@ -65,7 +65,7 @@ For more information, please check [the full demo videos](https://github.com/tra
 | Shaofu Cu   | shaojeng AT gmail.com    | iOS App and Release                        |
 | Enos Wu     | p510132006 AT gmail.com  | ESP32 Development                          |
 
-We welcome your participations. If you are interested in joining this project, please email us via
+We welcome your participation. If you are interested in joining this project, please email us at
 opensource AT careactive.ai
 
 ***
@@ -79,7 +79,7 @@ Open TLS MQTT Client in iOS
 	</a>
 </p> 
 
-Android app is not there yet. If you are interested to be the contributor, please contact us.
+The Android app is not available yet. If you are interested in being a contributor, please contact us.
 
 ***
 

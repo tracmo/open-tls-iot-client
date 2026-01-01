@@ -4,13 +4,13 @@ Before you build your physical IoT device, you can use this tool to simulate the
 
 ### Environment to run the tool
 
-The testing tools were written by Go language. To install the golang environment, please go to...<br>
+The testing tools were written in Go. To install the Go environment, please go to...<br>
 
 [The Go Programming Language](https://golang.org/)
 
 ### Prepare your AWS IoT Certificates
 
-You can create yor own AWS account for free. Please refer to this project Wiki to get your own AWS IoT Core device certificates...<br>
+You can create your own AWS account for free. Please refer to this project's Wiki to get your own AWS IoT Core device certificates...<br>
 
 [How to create the AWS IoT device certificates?](https://github.com/tracmo/open-tls-iot-client/wiki/How-to-create-the-AWS-IoT-device-certificate%3F)
 
@@ -21,7 +21,7 @@ Your AWS IoT device certificates include
 * a certificate
 * a public key
 
-We will not need the public key. Put the private key and the certificate with the test tools. Edit **subscriber/main.go** and **publisher/main.go**.
+We will not need the public key. Place the private key and the certificate in the test_tools directory. Edit **subscriber/main.go** and **publisher/main.go**.
 
 ```golang
 // get X.509 key pair
@@ -52,5 +52,5 @@ for both the subscriber and the publisher.
 
 ### With or without the ROOT CA
 
-ROOT CA is optional. If the ROOT CA does exist, the tool will verify the TLS session with the ROOT CA. If it is removed, then the verification is skipped. There are two ROOT CAs are archived in this repository. aws-root-ca.pem is the ROOT CA of AWS IoT Core. gtsltsr.pem was actually the ROOT CA of Google Cloud. You can try to replace the AWS ROOT CA with Google Cloud's. You will find the tool complains immediately. This is the same behavior in the mobile app.
+ROOT CA is optional. If the ROOT CA exists, the tool will verify the TLS session with the ROOT CA. If it is removed, then the verification is skipped. There are two ROOT CAs archived in this repository. aws-root-ca.pem is the ROOT CA of AWS IoT Core. gtsltsr.pem is the ROOT CA of Google Cloud. You can try replacing the AWS ROOT CA with Google Cloud's. You will find that the tool complains immediately. This is the same behavior as in the mobile app.
 
