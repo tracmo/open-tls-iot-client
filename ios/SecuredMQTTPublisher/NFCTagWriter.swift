@@ -102,7 +102,7 @@ final class NFCTagWriter: NSObject {
         self.operationMode = .read
         self.readCompletion = completion
 
-        session = NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: true)
+        session = NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: false)
         session?.alertMessage = "Hold your iPhone near the NFC tag to scan it"
         session?.begin()
 
@@ -115,45 +115,24 @@ final class NFCTagWriter: NSObject {
 extension NFCTagWriter: NFCNDEFReaderSessionDelegate {
 
     func readerSessionDidBecomeActive(_ session: NFCNDEFReaderSession) {
-        NSLog("NFC Writer: Session became active")
+        NSLog("NFC: Session became active")
     }
 
     func readerSession(_ session: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
-        // This delegate method is called when invalidateAfterFirstRead is true (read mode)
-        guard operationMode == .read else { return }
-
-        NSLog("NFC Reader: Detected \(messages.count) message(s)")
-
-        // Look for a URL in the NDEF records
-        for message in messages {
-            for record in message.records {
-                if let url = record.wellKnownTypeURIPayload() {
-                    NSLog("NFC Reader: Found URL: \(url.absoluteString)")
-                    session.alertMessage = "NFC tag scanned successfully!"
-                    session.invalidate()
-                    readCompletion?(.success(url))
-                    cleanup()
-                    return
-                }
-            }
-        }
-
-        // No URL found in any record
-        NSLog("NFC Reader: No URL found in tag")
-        session.invalidate(errorMessage: "No URL found on this tag")
-        readCompletion?(.failure(WriterError.noURLFound))
-        cleanup()
+        // This method is required by protocol but not used - we use manual tag querying instead
+        NSLog("NFC: didDetectNDEFs called (not using automatic detection)")
     }
 
     func readerSession(_ session: NFCNDEFReaderSession, didDetect tags: [NFCNDEFTag]) {
-        // This delegate method is used for write mode (invalidateAfterFirstRead is false)
-        guard operationMode == .write else { return }
-
-        NSLog("NFC Writer: Detected \(tags.count) tag(s)")
+        NSLog("NFC: Detected \(tags.count) tag(s) in \(operationMode == .read ? "READ" : "WRITE") mode")
 
         guard let tag = tags.first else {
             session.invalidate(errorMessage: "No tags detected")
-            writeCompletion?(.failure(WriterError.noTagsDetected))
+            if operationMode == .write {
+                writeCompletion?(.failure(WriterError.noTagsDetected))
+            } else {
+                readCompletion?(.failure(WriterError.noTagsDetected))
+            }
             cleanup()
             return
         }
@@ -162,47 +141,22 @@ extension NFCTagWriter: NFCNDEFReaderSessionDelegate {
             guard let self = self else { return }
 
             if let error = error {
-                NSLog("NFC Writer: Failed to connect to tag: \(error)")
+                NSLog("NFC: Failed to connect to tag: \(error)")
                 session.invalidate(errorMessage: "Failed to connect to tag")
-                self.writeCompletion?(.failure(WriterError.writeFailure(error)))
+                if self.operationMode == .write {
+                    self.writeCompletion?(.failure(WriterError.writeFailure(error)))
+                } else {
+                    self.readCompletion?(.failure(WriterError.readFailure(error)))
+                }
                 self.cleanup()
                 return
             }
 
-            tag.queryNDEFStatus { status, capacity, error in
-                if let error = error {
-                    NSLog("NFC Writer: Failed to query tag status: \(error)")
-                    session.invalidate(errorMessage: "Failed to read tag status")
-                    self.writeCompletion?(.failure(WriterError.writeFailure(error)))
-                    self.cleanup()
-                    return
-                }
-
-                NSLog("NFC Writer: Tag capacity: \(capacity) bytes, status: \(status.rawValue)")
-                self.tagCapacity = capacity
-
-                switch status {
-                case .notSupported:
-                    NSLog("NFC Writer: Tag does not support NDEF")
-                    session.invalidate(errorMessage: "Tag does not support NDEF")
-                    self.writeCompletion?(.failure(WriterError.tagNotWritable))
-                    self.cleanup()
-
-                case .readOnly:
-                    NSLog("NFC Writer: Tag is read-only")
-                    session.invalidate(errorMessage: "Tag is read-only")
-                    self.writeCompletion?(.failure(WriterError.tagNotWritable))
-                    self.cleanup()
-
-                case .readWrite:
-                    self.writeToTag(tag, session: session, capacity: capacity)
-
-                @unknown default:
-                    NSLog("NFC Writer: Unknown tag status")
-                    session.invalidate(errorMessage: "Unknown tag status")
-                    self.writeCompletion?(.failure(WriterError.tagNotWritable))
-                    self.cleanup()
-                }
+            // Handle based on operation mode
+            if self.operationMode == .read {
+                self.readFromTag(tag, session: session)
+            } else {
+                self.queryAndWriteTag(tag, session: session)
             }
         }
     }
@@ -236,6 +190,90 @@ extension NFCTagWriter: NFCNDEFReaderSessionDelegate {
     }
 
     // MARK: - Private Helpers
+
+    private func readFromTag(_ tag: NFCNDEFTag, session: NFCNDEFReaderSession) {
+        NSLog("NFC Reader: Reading NDEF message from tag")
+
+        tag.readNDEF { [weak self] message, error in
+            guard let self = self else { return }
+
+            if let error = error {
+                NSLog("NFC Reader: Failed to read NDEF: \(error)")
+                session.invalidate(errorMessage: "Failed to read tag")
+                self.readCompletion?(.failure(WriterError.readFailure(error)))
+                self.cleanup()
+                return
+            }
+
+            guard let message = message else {
+                NSLog("NFC Reader: No NDEF message on tag")
+                session.invalidate(errorMessage: "No data on tag")
+                self.readCompletion?(.failure(WriterError.noURLFound))
+                self.cleanup()
+                return
+            }
+
+            NSLog("NFC Reader: Found NDEF message with \(message.records.count) record(s)")
+
+            // Look for a URL in the NDEF records
+            for record in message.records {
+                if let url = record.wellKnownTypeURIPayload() {
+                    NSLog("NFC Reader: Found URL: \(url.absoluteString)")
+                    session.alertMessage = "NFC tag scanned successfully!"
+                    session.invalidate()
+                    self.readCompletion?(.success(url))
+                    self.cleanup()
+                    return
+                }
+            }
+
+            // No URL found in any record
+            NSLog("NFC Reader: No URL found in NDEF records")
+            session.invalidate(errorMessage: "No URL found on this tag")
+            self.readCompletion?(.failure(WriterError.noURLFound))
+            self.cleanup()
+        }
+    }
+
+    private func queryAndWriteTag(_ tag: NFCNDEFTag, session: NFCNDEFReaderSession) {
+        tag.queryNDEFStatus { [weak self] status, capacity, error in
+            guard let self = self else { return }
+
+            if let error = error {
+                NSLog("NFC Writer: Failed to query tag status: \(error)")
+                session.invalidate(errorMessage: "Failed to read tag status")
+                self.writeCompletion?(.failure(WriterError.writeFailure(error)))
+                self.cleanup()
+                return
+            }
+
+            NSLog("NFC Writer: Tag capacity: \(capacity) bytes, status: \(status.rawValue)")
+            self.tagCapacity = capacity
+
+            switch status {
+            case .notSupported:
+                NSLog("NFC Writer: Tag does not support NDEF")
+                session.invalidate(errorMessage: "Tag does not support NDEF")
+                self.writeCompletion?(.failure(WriterError.tagNotWritable))
+                self.cleanup()
+
+            case .readOnly:
+                NSLog("NFC Writer: Tag is read-only")
+                session.invalidate(errorMessage: "Tag is read-only")
+                self.writeCompletion?(.failure(WriterError.tagNotWritable))
+                self.cleanup()
+
+            case .readWrite:
+                self.writeToTag(tag, session: session, capacity: capacity)
+
+            @unknown default:
+                NSLog("NFC Writer: Unknown tag status")
+                session.invalidate(errorMessage: "Unknown tag status")
+                self.writeCompletion?(.failure(WriterError.tagNotWritable))
+                self.cleanup()
+            }
+        }
+    }
 
     private func writeToTag(_ tag: NFCNDEFTag, session: NFCNDEFReaderSession, capacity: Int) {
         guard let urlString = urlToWrite,

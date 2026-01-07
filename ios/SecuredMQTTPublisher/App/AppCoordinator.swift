@@ -54,21 +54,15 @@ final class AppCoordinator: Coordinator {
     private var children = [Coordinator]()
     
     private var willResignActiveObserver: Any?
-    
+
     init(windowScene: UIWindowScene) {
         self.windowScene = windowScene
     }
-    
-    /// Whether auth was skipped due to NFC launch (will show auth if NFC validation fails)
-    private var authSkippedForNFC = false
 
     func start(skipAuth: Bool = false) {
         showHome()
 
-        if skipAuth {
-            NFCDebugLog("Skipping initial auth check (NFC launch)")
-            authSkippedForNFC = true
-        } else {
+        if !skipAuth {
             showAuthIfNeeded()
         }
 

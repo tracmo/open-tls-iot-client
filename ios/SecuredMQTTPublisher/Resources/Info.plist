@@ -35,6 +35,8 @@
 	<true/>
 	<key>NFCReaderUsageDescription</key>
 	<string>Configure NFC tags to trigger actions</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Scan QR codes to share NFC secrets between your devices</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Authentication with Face ID</string>
 	<key>UIApplicationSceneManifest</key>

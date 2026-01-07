@@ -21,12 +21,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let coordinator = AppCoordinator(windowScene: windowScene)
         self.coordinator = coordinator
 
-        // Check if this is an NFC launch - if so, skip auth initially
-        let hasNFCURL = connectionOptions.urlContexts.first?.url.scheme == NFCTokenManager.urlScheme
-        NFCDebugLog("Cold launch hasNFCURL: \(hasNFCURL)")
-
-        // Start coordinator, but skip auth if we have an NFC URL pending
-        coordinator.start(skipAuth: hasNFCURL)
+        // Always start with auth enabled - NFC validation will dismiss auth if valid
+        coordinator.start(skipAuth: false)
 
         // Handle URL from cold launch
         if let urlContext = connectionOptions.urlContexts.first {
@@ -77,18 +73,17 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func processNFCURL(_ url: URL) {
         NFCDebugLog("processNFCURL - validating...")
 
-        // Validate the URL and get action index
+        // Validate the URL and get action index - auth bypass only happens if validation succeeds
         guard let actionIndex = NFCTokenManager.validateURLSimple(url) else {
-            NFCDebugLog("❌ URL validation FAILED - showing auth if needed")
-            // NFC validation failed, show auth if it was skipped
-            coordinator?.showAuthIfNeeded()
+            NFCDebugLog("❌ URL validation FAILED - invalid or unauthorized tag")
+            // Validation failed - auth will remain active (no bypass)
             return
         }
 
         NFCDebugLog("✓ URL validated, actionIndex = \(actionIndex)")
-        NFCDebugLog("Calling executeActionFromNFC...")
+        NFCDebugLog("Calling executeActionFromNFC (will dismiss auth)...")
 
-        // Execute the action
+        // Execute the action (will dismiss auth window)
         coordinator?.executeActionFromNFC(index: actionIndex)
     }
 }

@@ -8,6 +8,7 @@
 
 import UIKit
 import Combine
+import AVFoundation
 
 final class ActionEditViewController: UIViewController {
     enum Action { case ok, cancel, delete }
@@ -236,15 +237,15 @@ final class ActionEditViewController: UIViewController {
         return button
     }()
 
-    private lazy var scanNFCButton: UIButton = {
+    private lazy var importQRButton: UIButton = {
         let button = RoundedButton()
         button.backgroundColor = .systemGray5
         button.setTitleColor(.accent, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
-        button.setTitle("Scan Existing", for: .normal)
+        button.setTitle("Import via QR Code", for: .normal)
         button.addAction(
             .init { [weak self] _ in
-                self?.scanExistingTagTapped()
+                self?.importViaQRCodeTapped()
             },
             for: .touchUpInside
         )
@@ -274,7 +275,7 @@ final class ActionEditViewController: UIViewController {
 
     private lazy var nfcExplanationLabel: UILabel = {
         let label = UILabel()
-        label.text = "Configure up to 3 NFC tags per button. 'Write New Tag' creates a new tag. 'Scan Existing' imports a tag from another phone."
+        label.text = "Configure up to 3 NFC tags per button. Use 'Share' to transfer secrets between your trusted devices via QR code."
         label.textColor = .tertiaryLabel
         label.font = .systemFont(ofSize: 13)
         label.numberOfLines = 0
@@ -363,7 +364,7 @@ final class ActionEditViewController: UIViewController {
 
         // Setup NFC section internal layout
         nfcButtonsStack.addArrangedSubview(writeNFCButton)
-        nfcButtonsStack.addArrangedSubview(scanNFCButton)
+        nfcButtonsStack.addArrangedSubview(importQRButton)
 
         nfcSectionContainer.addSubviews(
             nfcSectionTitle
@@ -521,6 +522,13 @@ extension ActionEditViewController {
         dateLabel.textColor = .secondaryLabel
         dateLabel.font = .systemFont(ofSize: 13)
 
+        let shareButton = UIButton(type: .system)
+        shareButton.setImage(UIImage(systemName: "qrcode"), for: .normal)
+        shareButton.tintColor = .accent
+        shareButton.addAction(.init { [weak self] _ in
+            self?.shareTagSecret(at: index)
+        }, for: .touchUpInside)
+
         let deleteButton = UIButton(type: .system)
         deleteButton.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
         deleteButton.tintColor = .systemGray3
@@ -546,6 +554,11 @@ extension ActionEditViewController {
                 .centerY(to: container.centerY),
             deleteButton
                 .trailing(to: container.trailing, -8)
+                .centerY(to: container.centerY)
+                .width(to: 30)
+                .height(to: 30),
+            shareButton
+                .trailing(to: deleteButton.leading, -8)
                 .centerY(to: container.centerY)
                 .width(to: 30)
                 .height(to: 30)
@@ -658,7 +671,33 @@ extension ActionEditViewController {
         }
     }
 
-    private func scanExistingTagTapped() {
+    // MARK: - QR Code Sharing
+
+    private func shareTagSecret(at index: Int) {
+        guard index >= 0 && index < editingAction.nfcSecrets.count else { return }
+
+        let secret = editingAction.nfcSecrets[index]
+        let actionTitle = editingAction.title.isEmpty ? "Button \(actionIndex + 1)" : editingAction.title
+
+        // Generate QR code
+        guard let qrImage = QRCodeGenerator.generateQRCode(for: secret, actionIndex: actionIndex) else {
+            showAlert(title: "Error", message: "Failed to generate QR code")
+            return
+        }
+
+        let secretLabel = secret.label ?? "Tag \(index + 1)"
+        let qrViewController = QRCodeDisplayViewController(
+            qrCodeImage: qrImage,
+            secretLabel: secretLabel,
+            actionTitle: actionTitle
+        )
+        qrViewController.modalPresentationStyle = UIModalPresentationStyle.fullScreen
+        present(qrViewController, animated: true)
+
+        NSLog("QR: Displayed QR code for secret at index \(index)")
+    }
+
+    private func importViaQRCodeTapped() {
         view.endEditing(true)
 
         // Check if we've reached the limit
@@ -667,69 +706,63 @@ extension ActionEditViewController {
             return
         }
 
-        NSLog("NFC: Starting scan to import existing tag")
-
-        nfcTagWriter = NFCTagWriter()
-        nfcTagWriter?.readURL { [weak self] result in
+        // Check camera permission
+        AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
             DispatchQueue.main.async {
                 guard let self = self else { return }
 
-                switch result {
-                case .success(let url):
-                    self.handleScannedURL(url)
-
-                case .failure(let error):
-                    if case NFCTagWriter.WriterError.userCancelled = error {
-                        // User cancelled - no alert needed
-                    } else {
-                        NSLog("NFC: Scan failed: \(error)")
-                        self.showAlert(title: "Scan Failed", message: error.localizedDescription)
-                    }
+                if granted {
+                    self.showQRScanner()
+                } else {
+                    self.showAlert(
+                        title: "Camera Access Required",
+                        message: "Please enable camera access in Settings to scan QR codes."
+                    )
                 }
-
-                self.nfcTagWriter = nil
             }
         }
     }
 
-    private func handleScannedURL(_ url: URL) {
-        let validationResult = NFCTokenManager.validateURL(url)
-
-        switch validationResult {
-        case .valid, .alreadyConfigured:
-            showAlert(title: "Already Configured", message: "This tag is already configured on this phone.")
-
-        case .importAvailable(let scannedIndex, let secret):
-            // Check if the scanned tag is for a different button
-            if scannedIndex != actionIndex {
-                showAlert(
-                    title: "Different Button",
-                    message: "This tag is configured for button \(scannedIndex + 1), not button \(actionIndex + 1). Please scan a tag for this button."
-                )
-                return
-            }
-
-            // Check if this secret is already in our list
-            if editingAction.nfcSecrets.contains(where: { $0.secret == secret }) {
-                showAlert(title: "Already Added", message: "This tag has already been added.")
-                return
-            }
-
-            // Prompt for label and import
-            promptForImportLabel(secret: secret)
-
-        case .invalid(let reason):
-            showAlert(title: "Invalid Tag", message: reason)
+    private func showQRScanner() {
+        let scanner = QRCodeScannerViewController { [weak self] url in
+            self?.handleScannedQRCode(url)
         }
+        scanner.modalPresentationStyle = UIModalPresentationStyle.fullScreen
+        present(scanner, animated: true)
     }
 
-    private func promptForImportLabel(secret: String) {
+    private func handleScannedQRCode(_ url: URL) {
+        NSLog("QR: Scanned URL: \(url.absoluteString)")
+
+        // Parse the share URL
+        guard let parsed = QRCodeGenerator.parseShareURL(url) else {
+            showAlert(title: "Invalid QR Code", message: "This QR code is not a valid NFC secret share code.")
+            return
+        }
+
+        // Check if scanned for correct button
+        if parsed.actionIndex != actionIndex {
+            showAlert(
+                title: "Different Button",
+                message: "This secret is for button \(parsed.actionIndex + 1), but you're editing button \(actionIndex + 1). Please scan a QR code for this button."
+            )
+            return
+        }
+
+        // Check if this secret already exists
+        if editingAction.nfcSecrets.contains(where: { $0.secret == parsed.secret }) {
+            showAlert(title: "Already Added", message: "This secret has already been added to this button.")
+            return
+        }
+
+        // Prompt for label
         let alert = UIAlertController(
-            title: "Import NFC Tag",
-            message: "Enter an optional label for this imported tag",
+            title: "Import NFC Secret",
+            message: "Enter an optional label for this imported secret",
             preferredStyle: .alert
         )
         alert.addTextField { textField in
+            textField.text = parsed.label
             textField.placeholder = "Label (optional)"
             textField.autocapitalizationType = .words
         }
@@ -737,13 +770,13 @@ extension ActionEditViewController {
         alert.addAction(.init(title: "Import", style: .default) { [weak self] _ in
             guard let self = self else { return }
             let label = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespaces)
-            let finalLabel = label?.isEmpty == true ? "Imported" : label
+            let finalLabel = label?.isEmpty == true ? parsed.label : label
 
-            let newSecret = NFCSecret(secret: secret, label: finalLabel)
+            let newSecret = NFCSecret(secret: parsed.secret, label: finalLabel)
             self.editingAction.nfcSecrets.append(newSecret)
             self.action = self.editingAction
             self.updateNFCUI()
-            NSLog("NFC: Imported secret with label: \(finalLabel ?? "nil")")
+            NSLog("QR: Imported secret with label: \(finalLabel ?? "nil")")
         })
         present(alert, animated: true)
     }

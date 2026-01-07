@@ -52,9 +52,10 @@ enum NFCValidationResult {
 ///
 /// Security model:
 /// - Each action button can have up to 3 secrets (32 random bytes each, hex encoded)
-/// - URLs contain: action index, Unix timestamp, HMAC-SHA256 signature, and the secret key
-/// - Including the secret in the URL enables cross-phone import functionality
-/// - The HMAC signature ensures only tags written by the app are valid
+/// - URLs contain: action index, Unix timestamp, and HMAC-SHA256 signature
+/// - The secret is NOT included in the URL - tags are device-specific for security
+/// - The HMAC signature ensures only tags written by this device are valid
+/// - Tags written on one device cannot be used on another device
 /// - Removing a secret invalidates all tags written with that secret
 ///
 /// Note: Timestamps are included in URLs but NOT validated for expiry. NFC tags are
@@ -86,8 +87,8 @@ final class NFCTokenManager {
             return nil
         }
 
-        // Include secret in URL for cross-phone import capability
-        return "\(urlScheme)://action?idx=\(actionIndex)&ts=\(timestamp)&sig=\(signature)&key=\(secret.secret)"
+        // Device-specific URL (no secret included for security)
+        return "\(urlScheme)://action?idx=\(actionIndex)&ts=\(timestamp)&sig=\(signature)"
     }
 
     /// Generates a new NFCSecret and creates a URL for an action.
@@ -113,8 +114,8 @@ final class NFCTokenManager {
             return nil
         }
 
-        // Include secret in URL for cross-phone import capability
-        let url = "\(urlScheme)://action?idx=\(actionIndex)&ts=\(timestamp)&sig=\(signature)&key=\(newSecretString)"
+        // Device-specific URL (no secret included for security)
+        let url = "\(urlScheme)://action?idx=\(actionIndex)&ts=\(timestamp)&sig=\(signature)"
         return (url, newSecret)
     }
 
@@ -165,10 +166,6 @@ final class NFCTokenManager {
         }
         NFCDebugLog("✓ Params OK: idx=\(actionIndex), ts=\(timestamp), sig=\(signature.prefix(16))...")
 
-        // Extract optional key parameter (for cross-phone import)
-        let keyFromURL = params["key"]
-        NFCDebugLog("Key param: \(keyFromURL != nil ? "present (\(keyFromURL!.prefix(16))...)" : "nil")")
-
         // Validate action index bounds
         let actions = Core.shared.dataStore.settings.actions
         NFCDebugLog("Total actions in DataStore: \(actions.count)")
@@ -202,26 +199,7 @@ final class NFCTokenManager {
             }
         }
 
-        // No local secret matched - check if URL contains a key we can use/import
-        if let key = keyFromURL, !key.isEmpty {
-            NFCDebugLog("No local secret matched, trying key from URL...")
-            // Verify the signature using the key from URL
-            if let expectedSignature = computeSignature(payload: payload, secretHex: key) {
-                NFCDebugLog("Expected sig from URL key: \(expectedSignature.prefix(16))...")
-                if signature.lowercased() == expectedSignature.lowercased() {
-                    // Check if this key is already in our secrets
-                    if action.nfcSecrets.contains(where: { $0.secret == key }) {
-                        NFCDebugLog("✓ URL key matches and already configured")
-                        return .alreadyConfigured(actionIndex: actionIndex)
-                    }
-                    NFCDebugLog("✓ URL key valid, available for import")
-                    return .importAvailable(actionIndex: actionIndex, secret: key)
-                }
-            }
-            NFCDebugLog("✗ URL key signature also doesn't match")
-        }
-
-        // No valid secret found
+        // No valid secret found - tags are device-specific
         if action.nfcSecrets.isEmpty {
             NFCDebugLog("❌ VALIDATION FAILED: No secrets configured for action \(actionIndex)")
             return .invalid(reason: "No NFC configured for this button")
@@ -233,18 +211,14 @@ final class NFCTokenManager {
 
     /// Simple validation that returns just the action index (for backward compatibility).
     /// Use this when you only need to check if the URL is valid for execution.
+    /// Tags are device-specific and must be configured on this device to execute.
     /// - Parameter url: The URL to validate
     /// - Returns: The action index if valid, nil if invalid
     static func validateURLSimple(_ url: URL) -> Int? {
         switch validateURL(url) {
         case .valid(let actionIndex):
             return actionIndex
-        case .alreadyConfigured(let actionIndex):
-            return actionIndex
-        case .importAvailable(let actionIndex, _):
-            // Import available means the URL is technically valid, allow execution
-            return actionIndex
-        case .invalid:
+        case .alreadyConfigured, .importAvailable, .invalid:
             return nil
         }
     }
