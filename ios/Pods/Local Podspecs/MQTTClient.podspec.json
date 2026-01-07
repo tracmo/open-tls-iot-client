@@ -26,12 +26,8 @@
     {
       "name": "Core",
       "dependencies": {
-        "MQTTClient/Min": [
-
-        ],
-        "MQTTClient/Manager": [
-
-        ]
+        "MQTTClient/Min": [],
+        "MQTTClient/Manager": []
       }
     },
     {
@@ -62,9 +58,7 @@
     {
       "name": "MinL",
       "dependencies": {
-        "CocoaLumberjack": [
-
-        ]
+        "CocoaLumberjack": []
       },
       "source_files": [
         "MQTTClient/MQTTClient/MQTTCFSocketDecoder.{h,m}",
@@ -101,9 +95,7 @@
         "MQTTClient/MQTTClient/ForegroundReconnection.{h,m}"
       ],
       "dependencies": {
-        "MQTTClient/Min": [
-
-        ]
+        "MQTTClient/Min": []
       }
     },
     {
@@ -114,9 +106,7 @@
         "MQTTClient/MQTTClient/ForegroundReconnection.{h,m}"
       ],
       "dependencies": {
-        "MQTTClient/MinL": [
-
-        ]
+        "MQTTClient/MinL": []
       },
       "xcconfig": {
         "GCC_PREPROCESSOR_DEFINITIONS": "LUMBERJACK=1"
@@ -126,12 +116,8 @@
       "name": "Websocket",
       "source_files": "MQTTClient/MQTTClient/MQTTWebsocketTransport/*.{h,m}",
       "dependencies": {
-        "SocketRocket": [
-
-        ],
-        "MQTTClient/Min": [
-
-        ]
+        "SocketRocket": [],
+        "MQTTClient/Min": []
       },
       "requires_arc": true,
       "libraries": "icucore"
@@ -140,12 +126,8 @@
       "name": "WebsocketL",
       "source_files": "MQTTClient/MQTTClient/MQTTWebsocketTransport/*.{h,m}",
       "dependencies": {
-        "SocketRocket": [
-
-        ],
-        "MQTTClient/MinL": [
-
-        ]
+        "SocketRocket": [],
+        "MQTTClient/MinL": []
       },
       "requires_arc": true,
       "libraries": "icucore",
